@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class SpellCard : Card
 {
@@ -8,7 +7,8 @@ public abstract class SpellCard : Card
     {
         SOURCE,
         QUALITY,
-        DELIVERY
+        DELIVERY,
+        WILDMAGIC
     }
 
     public enum Sign
@@ -20,6 +20,10 @@ public abstract class SpellCard : Card
         PRIMAL
     }
 
-    public Order order;    
+    public Order order;
     public Sign  sign;
+
+    [Range(0, 18)]
+    public int   initiative;
+    
 }
