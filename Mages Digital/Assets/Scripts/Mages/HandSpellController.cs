@@ -4,13 +4,10 @@ using UnityEngine;
 
 public class HandSpellController : MonoBehaviour
 {
-    private HandController _hand;
-    public  HandController hand
-    {
-        get => _hand;
-    }
+    [SerializeField] private HandController _hand;
 
     private CardController source;
     private CardController quality;
     private CardController delivery;
+
 }

@@ -1,24 +1,17 @@
 using CardsToolKit;
 using UnityEngine;
 
-[CreateAssetMenuAttribute(menuName="Cards/Spell Card")]
 public class SpellCard : Card
 {
-    [SerializeField] private int _initiative = 0;
-    public int initiative
-    {
-        get => _initiative;
-    }
-
+    [SerializeField] protected int _initiative;
     [SerializeField] protected Order _order;
-    public Order order
-    {
-        get => _order;
-    }
+    public Order order => _order;
 
-    [SerializeField] private Sign _sign;
-    public Sign sign
+    [SerializeField] protected Sign _sign;
+    public Sign sign => _sign;
+
+    void Reset()
     {
-        get => _sign;
+        _initiative = 0;
     }
 }

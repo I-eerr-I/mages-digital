@@ -1,7 +1,7 @@
 using CardsToolKit;
 using UnityEngine;
 
-[CreateAssetMenuAttribute(menuName="Cards/Quality Card")]
+[CreateAssetMenuAttribute(menuName="Cards/Quality", fileName="Quality Card", order=2)]
 public class QualityCard : SpellCard
 {
     private void Reset()

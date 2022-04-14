@@ -4,21 +4,34 @@ using UnityEngine;
 
 public class MageController : MonoBehaviour
 {
-    [SerializeField] private Mage _mage;
-    public Mage mage
+    public Mage mage;
+
+    public bool isPlayer
     {
-        get => _mage;
+        get => gameObject.tag == "Player";
     }
 
     [SerializeField] private HandController _hand;
-    public HandController hand
+    public HandController hand => _hand;
+
+    [SerializeField] private int _health = 20;
+
+    public bool isDead => _health <= 0;
+
+    void Start()
     {
-        get => _hand;
+        // TEST
+        transform.position = new Vector3(Random.Range(-8f, 8f), Random.Range(-5f, 5f), 0.0f);
+        if (GameManager.instance.playerMage == mage) gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
+        _health++;
+        _health--;
+        // TEST
     }
 
-    [SerializeField] private int _health;
-    public int health
+    public void TakeCard(DeckController deck)
     {
-        get => _health;
+        Card card = deck.PassCard();
+        if (card != null) _hand.AddCard(card);
     }
+
 }

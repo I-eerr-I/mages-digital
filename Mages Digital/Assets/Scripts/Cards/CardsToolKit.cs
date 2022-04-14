@@ -8,7 +8,8 @@ namespace CardsToolKit
     {
         SOURCE,
         QUALITY,
-        DELIVERY
+        DELIVERY,
+        WILDMAGIC
     }
 
     public enum Sign
