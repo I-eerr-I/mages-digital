@@ -5,24 +5,22 @@ using UnityEngine;
 
 public class HandController : MonoBehaviour
 {
-    // маг данной руки
-    [SerializeField] private MageController      _mageController;
-    // заклинание данной руки
-    [SerializeField] private HandSpellController _spellController;
+    
+    [SerializeField] private MageController _mageController;        // маг данной руки
+    [SerializeField] private HandSpellController _spellController;  // заклинание данной руки
 
     // карты руки
-    private List<Card> _sources    = new List<Card>();
-    private List<Card> _qualities  = new List<Card>();
+    private List<Card> _sources = new List<Card>();
+    private List<Card> _qualities = new List<Card>();
     private List<Card> _deliveries = new List<Card>();
     private List<Card> _wildMagics = new List<Card>();
-    private List<Card> _treasures  = new List<Card>();
-    private List<Card> _deads      = new List<Card>();
+    private List<Card> _treasures = new List<Card>();
+    private List<Card> _deads = new List<Card>();
+
 
     // количество заклинаний
-    public int spellsCount
-    {
-        get => _sources.Count + _qualities.Count + _deliveries.Count + _wildMagics.Count;
-    }
+    public int spellsCount => _sources.Count + _qualities.Count + _deliveries.Count + _wildMagics.Count;
+    
 
     // добавить карту к руке
     public void AddCard(Card card)
@@ -40,18 +38,19 @@ public class HandController : MonoBehaviour
     List<Card> GetDeckOfCardType(Card card)
     {
         List<Card> deck = null;
-        bool isSpellCard = card is SpellCard;
-        if (isSpellCard)
+        switch (card.cardType)
         {
-            deck = GetDeckOfOrderType(((SpellCard) card).order);
-        }
-        else if (card is TreasureCard)
-        {
-            deck = _treasures;
-        }
-        else if (card is DeadCard)
-        {
-            deck = _deads;
+            case CardType.SPELL:
+                deck = GetDeckOfOrderType(((SpellCard) card).order);
+                break;
+            
+            case CardType.TREASURE:
+                deck = _treasures;
+                break;
+
+            case CardType.DEAD:
+                deck = _deads;
+                break;
         }
         return deck;
     }

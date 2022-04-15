@@ -13,14 +13,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private DeckController _treasuresDeck; // колода сокровищ
     [SerializeField] private DeckController _deadsDeck;     // колода мертвых магов
 
-    [SerializeField] private List<Mage> _mages;             // список всех доступных ScriptableObject магов
+    [SerializeField] private List<Mage> _mages    = new List<Mage>();             // список всех доступных ScriptableObject магов
                                                             
-    private List<MageController> _mageControllers;          // список всех созданных магов (контроллеров магов) в игре 
+    private List<MageController> _mageControllers = new List<MageController>();  // список всех созданных магов (контроллеров магов) в игре 
     
     private int _playerMageControllerIndex;                 // индекс мага игрока в списке магов
     private MageController _playerMageController;           // сам маг игрока
 
-    private State _state;                                   // настоящие состояние игры
+    private GameState _state;                               // настоящее состояние игры
 
 
 
@@ -32,7 +32,8 @@ public class GameManager : MonoBehaviour
     
     public  List<MageController>  mageControllers => _mageControllers;
     public  MageController   playerMageController => _playerMageController;
-
+    public  int playerMageControllerIndex => _playerMageControllerIndex;
+    public  List<Mage> mages => _mages;
 
 
     void Awake()
@@ -43,7 +44,20 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        
+        SetState(new BeginGameState(this));
+    }
+
+    // установить новое состояние игры
+    public void SetState(GameState state)
+    {
+        _state = state;
+        StartCoroutine(_state.Start());
+    }
+
+    // начальная загрузка игры
+    void SetupGame()
+    {
+        SetupMages(); 
     }
 
     // логика сингелтона
@@ -53,11 +67,6 @@ public class GameManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    // начальная загрузка игры
-    void SetupGame()        
-    {
-        SetupMages();        
-    }
 
     // загрузить нужных магов и сохранить мага игрока
     void SetupMages()       
@@ -74,13 +83,11 @@ public class GameManager : MonoBehaviour
                 _playerMageControllerIndex = index;
                 _playerMageController = newMageController;
                 newMage.tag = "Player";
-                
             }
             index++;
         }
     }
-    
-    
+
     // каждому магу взять карты до 8 штук
     void DrawCards()        
     {

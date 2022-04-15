@@ -9,9 +9,10 @@ public abstract class Card : ScriptableObject
     [SerializeField] protected string   _cardname;
     [SerializeField] protected string   _description;
     [SerializeField] protected CardType _cardType;
-    [SerializeField] private   Spell    _spell;
+    [SerializeField] protected Spell    _spell;
     
 
-    public Spell spell => _spell;
+    public CardType cardType => _cardType;
+    public Spell OnSpell => _spell;
  
 }

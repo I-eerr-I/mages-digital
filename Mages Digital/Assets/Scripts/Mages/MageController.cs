@@ -4,25 +4,23 @@ using UnityEngine;
 
 public class MageController : MonoBehaviour
 {
-    public Mage mage;
 
-    public bool isPlayer
-    {
-        get => gameObject.tag == "Player";
-    }
+    [SerializeField] private HandController _hand;  // рука мага
+    [SerializeField] private int _health = 20;      // здоровье мага
+
+
+    public Mage mage;  // данные мага
+    
+    public bool isPlayer => gameObject.tag == "Player"; // является ли маг игроком
+    public bool isDead => _health <= 0;                 // мертв ли маг
+    
+    public HandController hand => _hand;
 
     // TEST
     public MageController leftMage;
     public MageController rightMage;
     // TEST
 
-
-    [SerializeField] private HandController _hand;  
-    public HandController hand => _hand;
-
-    [SerializeField] private int _health = 20;
-
-    public bool isDead => _health <= 0;
 
     void Start()
     {
@@ -34,6 +32,7 @@ public class MageController : MonoBehaviour
         // TEST
     }
 
+    // взять карту из колоды
     public void TakeCard(DeckController deck)
     {
         Card card = deck.PassCard();
