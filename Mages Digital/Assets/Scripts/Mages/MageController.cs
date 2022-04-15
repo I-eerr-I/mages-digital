@@ -11,7 +11,13 @@ public class MageController : MonoBehaviour
         get => gameObject.tag == "Player";
     }
 
-    [SerializeField] private HandController _hand;
+    // TEST
+    public MageController leftMage;
+    public MageController rightMage;
+    // TEST
+
+
+    [SerializeField] private HandController _hand;  
     public HandController hand => _hand;
 
     [SerializeField] private int _health = 20;
