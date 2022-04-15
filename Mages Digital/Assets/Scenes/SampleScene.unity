@@ -187,7 +187,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &327581573
 PrefabInstance:
@@ -594,7 +594,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -630,15 +630,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6166b7be7519f1d448bd024f2a5cc939, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  magePrefab: {fileID: 1402197249802251914, guid: b9c8b7470e591094c981fd54b02ce4c5, type: 3}
-  cardPrefab: {fileID: 7255549559625644301, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
-  fieldCenter: {fileID: 1068947279}
   _spellsDeck: {fileID: 1882135942}
   _treasuresDeck: {fileID: 1493905897}
   _deadsDeck: {fileID: 1683345623}
   _mages:
   - {fileID: 11400000, guid: 5678014d9a4d30e4a9de55a2b73916fb, type: 2}
   - {fileID: 11400000, guid: bdd6f3d9a2ed5fa479afa83c45ea90cc, type: 2}
+  magePrefab: {fileID: 1402197249802251914, guid: b9c8b7470e591094c981fd54b02ce4c5, type: 3}
+  cardPrefab: {fileID: 7255549559625644301, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+  fieldCenter: {fileID: 1068947279}
   playerMage: {fileID: 11400000, guid: 5678014d9a4d30e4a9de55a2b73916fb, type: 2}
 --- !u!4 &710255898
 Transform:
@@ -768,7 +768,37 @@ Transform:
   - {fileID: 642304208}
   - {fileID: 327581574}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1304237659
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1304237660}
+  m_Layer: 0
+  m_Name: === UI ===========
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1304237660
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1304237659}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.15851927, y: -0.41922876, z: -1.0836476}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1493905897 stripped
 MonoBehaviour:

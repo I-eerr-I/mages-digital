@@ -6,66 +6,63 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-    // сингелтон объект GameManager
-    // должен быть доступен для всех GameObject в игре
-    private static GameManager _instance;
-    public  static GameManager  instance => _instance;
+    private static GameManager _instance;                   // сингелтон объект
+    public  static GameManager  instance => _instance;             
 
-    // шаблон мага в игре
-    public GameObject magePrefab;
+    [SerializeField] private DeckController _spellsDeck;    // колода заклинаний
+    [SerializeField] private DeckController _treasuresDeck; // колода сокровищ
+    [SerializeField] private DeckController _deadsDeck;     // колода мертвых магов
 
-    // шаблон карты
-    public GameObject cardPrefab;
+    [SerializeField] private List<Mage> _mages;             // список всех доступных ScriptableObject магов
+                                                            
+    private List<MageController> _mageControllers;          // список всех созданных магов (контроллеров магов) в игре 
+    
+    private int _playerMageControllerIndex;                 // индекс мага игрока в списке магов
+    private MageController _playerMageController;           // сам маг игрока
 
-    // GameObject поля игры
-    public GameObject fieldCenter;
+    private State _state;                                   // настоящие состояние игры
 
-    // все существующие начальные колоды (от GameObject)
-    [SerializeField] private DeckController _spellsDeck;
-    public DeckController spellsDeck => _spellsDeck;
-    [SerializeField] private DeckController _treasuresDeck;
-    public DeckController treasuresDeck => _treasuresDeck;
-    [SerializeField] private DeckController _deadsDeck;
-    public DeckController deadsDeck => _deadsDeck;
 
-    // список всех доступных ScriptableObject магов
-    [SerializeField] private List<Mage> _mages = new List<Mage>();
 
-    // список всех созданных магов (контроллеров магов) в игре 
-    private List<MageController> _mageControllers =  new List<MageController>();
+    public GameObject magePrefab;           // шаблон мага в игре
+    public GameObject cardPrefab;           // шаблон карты
+    public GameObject fieldCenter;          // GameObject поля игры
+    
+    public Mage playerMage;                 // выбранный игроком ScriptableObject мага
+    
     public  List<MageController>  mageControllers => _mageControllers;
+    public  MageController   playerMageController => _playerMageController;
 
-
-    // выбранный игроком ScriptableObject мага
-    public  Mage playerMage;
-
-    // сам маг игрока
-    private int _playerMageControllerIndex;
-    private MageController _playerMageController;
-    public  MageController  playerMageController => _playerMageController;
 
 
     void Awake()
     {
-        // логика сингелтона
-        if (_instance == null)
-            _instance = this;
-        else
-            Destroy(gameObject);
-
-        InitializeGame();
+        CreateSingleton();
+        SetupGame();
     }
 
     void Start()
     {
-        DrawCards();
+        
+    }
+
+    // логика сингелтона
+    void CreateSingleton()
+    {
+        if (_instance == null) _instance = this;
+        else Destroy(gameObject);
     }
 
     // начальная загрузка игры
-    void InitializeGame()
+    void SetupGame()        
     {
-        // создание всех магов
-        int index = 0;
+        SetupMages();        
+    }
+
+    // загрузить нужных магов и сохранить мага игрока
+    void SetupMages()       
+    {
+        int index = 0;      
         foreach (Mage mage in _mages)
         {
             GameObject newMage = Instantiate(magePrefab, fieldCenter.transform);
@@ -83,8 +80,9 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    
     // каждому магу взять карты до 8 штук
-    void DrawCards()
+    void DrawCards()        
     {
         List<MageController> magesToDrawCard = new List<MageController>(_mageControllers);
         Predicate<MageController> predicate = mage => mage.hand.spellsCount >= 8 && !mage.isDead;

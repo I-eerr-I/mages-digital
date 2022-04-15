@@ -4,7 +4,6 @@ using UnityEngine;
 public class SpellsCollection : ScriptableObject
 {
 
-
     public void Damage() // (цель, сколько)
     {
         

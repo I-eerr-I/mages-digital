@@ -21,6 +21,13 @@ namespace CardsToolKit
         ILLUSION
     }
 
+    public enum CardType
+    {
+        SPELL,
+        TREASURE,
+        DEAD
+    }
+
     [Serializable] public class Spell : UnityEvent {}
 
 }
