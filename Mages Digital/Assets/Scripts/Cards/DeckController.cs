@@ -49,6 +49,18 @@ public class DeckController : MonoBehaviour
         return card;
     }
 
+    public List<Card> PassCards(int amount)
+    {
+        List<Card> passedCards = new List<Card>();
+        for (int i = 0; i < amount; i++)
+        {
+            Card passedCard = PassCard();
+            if (passedCard == null) break;
+            passedCards.Add(PassCard());
+        }
+        return passedCards;
+    }
+
     // перемешать колоду
     void ShuffleDeck()
     {

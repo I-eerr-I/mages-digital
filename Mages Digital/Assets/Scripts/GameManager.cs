@@ -17,23 +17,23 @@ public class GameManager : MonoBehaviour
                                                             
     private List<MageController> _mageControllers = new List<MageController>();  // список всех созданных магов (контроллеров магов) в игре 
     
-    private int _playerMageControllerIndex;                 // индекс мага игрока в списке магов
-    private MageController _playerMageController;           // сам маг игрока
+    private PlayerController _playerController;           // сам маг игрока
 
     private GameState _state;                               // настоящее состояние игры
 
 
-
-    public GameObject magePrefab;           // шаблон мага в игре
+    public GameObject playerPrefab;
+    public GameObject enemyPrefab;          // шаблон врага в игре
     public GameObject cardPrefab;           // шаблон карты
     public GameObject fieldCenter;          // GameObject поля игры
     
     public Mage playerMage;                 // выбранный игроком ScriptableObject мага
     
-    public  List<MageController>  mageControllers => _mageControllers;
-    public  MageController   playerMageController => _playerMageController;
-    public  int playerMageControllerIndex => _playerMageControllerIndex;
-    public  List<Mage> mages => _mages;
+    public DeckController spellsDeck =>    _spellsDeck;
+    public DeckController treasuresDeck => _treasuresDeck;
+    public DeckController deadsDeck =>     _deadsDeck;
+    public List<MageController>  mageControllers => _mageControllers;
+    public PlayerController  playerController => _playerController;
 
 
     void Awake()
@@ -44,7 +44,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        SetState(new BeginGameState(this));
+        SetState(new RoundStartState(this));
     }
 
     // установить новое состояние игры
@@ -71,36 +71,49 @@ public class GameManager : MonoBehaviour
     // загрузить нужных магов и сохранить мага игрока
     void SetupMages()       
     {
-        int index = 0;      
-        foreach (Mage mage in _mages)
+        int index = 1;
+        _playerController = CreateMage<PlayerController>(playerPrefab, playerMage, 0.0f);
+        _mageControllers.Add(_playerController);
+        _mages.ForEach((Mage mage) => 
         {
-            GameObject newMage = Instantiate(magePrefab, fieldCenter.transform);
-            MageController newMageController = newMage.GetComponent<MageController>();
-            newMageController.mage = mage;
-            _mageControllers.Add(newMageController);
-            if (mage == playerMage) 
-            {
-                _playerMageControllerIndex = index;
-                _playerMageController = newMageController;
-                newMage.tag = "Player";
-            }
-            index++;
-        }
+                EnemyController enemyMage = CreateMage<EnemyController>(enemyPrefab, mage, index * 360.0f / (_mages.Count + 1));
+                MageController previousMage = _mageControllers[index-1];
+                enemyMage.rightMage   = previousMage;
+                previousMage.leftMage = enemyMage;
+                _mageControllers.Add(enemyMage);
+                index++;
+        });
+        _mageControllers[_mageControllers.Count - 1].leftMage = _playerController;
+    }
+
+    T CreateMage<T>(GameObject prefab, Mage mage, float angle) where T : MageController
+    {
+        GameObject newObject = Instantiate(prefab, fieldCenter.transform);
+        PositionMage(newObject, angle);
+        T mageController     = newObject.GetComponent<T>();
+        mageController.mage  = mage;
+        return mageController;
+    }
+
+    // поставить мага в нужное место относительно центра поля
+    void PositionMage(GameObject mage, float angle)
+    {
+        mage.transform.RotateAround(fieldCenter.transform.position, Vector3.forward, angle);
     }
 
     // каждому магу взять карты до 8 штук
-    void DrawCards()        
-    {
-        List<MageController> magesToDrawCard = new List<MageController>(_mageControllers);
-        Predicate<MageController> predicate = mage => mage.hand.spellsCount >= 8 && !mage.isDead;
-        while (_spellsDeck.Count > 0 && magesToDrawCard.Count > 0)
-        {
-            magesToDrawCard.RemoveAll(predicate);
-            foreach(MageController mage in magesToDrawCard)
-            {
-                mage.TakeCard(_spellsDeck);
-            }
-        }
-    }
+    // void DrawCards()        
+    // {
+    //     List<MageController> magesToDrawCard = new List<MageController>(_mageControllers);
+    //     Predicate<MageController> predicate = mage => mage.hand.spellsCount >= 8 && !mage.isDead;
+    //     while (_spellsDeck.Count > 0 && magesToDrawCard.Count > 0)
+    //     {
+    //         magesToDrawCard.RemoveAll(predicate);
+    //         foreach(MageController mage in magesToDrawCard)
+    //         {
+    //             mage.TakeCard(_spellsDeck);
+    //         }
+    //     }
+    // }
 
 }

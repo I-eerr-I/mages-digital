@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1402197249802251915}
   - component: {fileID: 2279108971638226503}
   - component: {fileID: 1402197249802251956}
+  - component: {fileID: 6818848386938045698}
   m_Layer: 0
   m_Name: Mage
   m_TagString: Untagged
@@ -26,11 +27,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1402197249802251914}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4126205417798573960}
-  - {fileID: 6239374135116145447}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -97,9 +97,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d79668da92e05ed4787c30f86b942eb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mage: {fileID: 0}
   _hand: {fileID: 5029636602414682471}
   _health: 20
+  mage: {fileID: 0}
+  leftMage: {fileID: 0}
+  rightMage: {fileID: 0}
+--- !u!95 &6818848386938045698
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402197249802251914}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 151238d5b1b337344b6b2fa56d0b85fb, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &4201642158292411462
 GameObject:
   m_ObjectHideFlags: 0
@@ -124,12 +145,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4201642158292411462}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1402197249802251915}
-  m_RootOrder: 1
+  m_Father: {fileID: 4126205417798573960}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8321432048662634065
 MonoBehaviour:
@@ -171,7 +192,8 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 6239374135116145447}
   m_Father: {fileID: 1402197249802251915}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

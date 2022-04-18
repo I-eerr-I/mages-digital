@@ -8,6 +8,7 @@ TagManager:
   - Spells Deck
   - Treasures Deck
   - Deads Deck
+  - Enemy
   layers:
   - Default
   - TransparentFX

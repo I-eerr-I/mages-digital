@@ -18,9 +18,19 @@ public class HandController : MonoBehaviour
     private List<Card> _deads = new List<Card>();
 
 
+    //TEST
+    public MageController mageController => _mageController;
+
     // количество заклинаний
     public int spellsCount => _sources.Count + _qualities.Count + _deliveries.Count + _wildMagics.Count;
     
+
+    void Awake()
+    {
+        _mageController  = gameObject.GetComponentInParent<MageController>();
+        _spellController = gameObject.GetComponentInChildren<HandSpellController>();
+    }
+
 
     // добавить карту к руке
     public void AddCard(Card card)
