@@ -46,6 +46,11 @@ public class MageController : MonoBehaviour
         }
     }
 
+    public virtual void Unready()
+    {
+        _isReady = false;
+    }
+
     // взять карту из колоды
     public void TakeCard(DeckController deck)
     {
