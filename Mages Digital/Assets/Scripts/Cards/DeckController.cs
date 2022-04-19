@@ -34,7 +34,7 @@ public class DeckController : MonoBehaviour
 
         if (_cardType == CardType.SPELL) DoubleDeck();
 
-        ShuffleDeck();
+        ShuffleDeck(); // перенести в состояние начала каждой игры
     }
 
     // выдать карту из колоды

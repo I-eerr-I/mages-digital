@@ -7,13 +7,22 @@ public class GameManager : MonoBehaviour
 {
 
     private static GameManager _instance;                   // сингелтон объект
-    public  static GameManager  instance => _instance;             
+    public  static GameManager  instance => _instance;      
 
+
+    [Header("Rounds")]
+    [SerializeField] private int _roundNumber = 0;
+
+
+    [Header("Decks")]
     [SerializeField] private DeckController _spellsDeck;    // колода заклинаний
     [SerializeField] private DeckController _treasuresDeck; // колода сокровищ
     [SerializeField] private DeckController _deadsDeck;     // колода мертвых магов
 
-    [SerializeField] private List<Mage> _mages    = new List<Mage>();             // список всех доступных ScriptableObject магов
+    
+    [Header("Mages")]
+    [SerializeField] private List<Mage> _mages = new List<Mage>();          // список всех доступных ScriptableObject магов
+    [SerializeField] private List<Mage> _enemyMages = new List<Mage>();     // список вражеских магов
                                                             
     private List<MageController> _mageControllers = new List<MageController>();  // список всех созданных магов (контроллеров магов) в игре 
     
@@ -22,29 +31,33 @@ public class GameManager : MonoBehaviour
     private GameState _state;                               // настоящее состояние игры
 
 
+    public Mage playerMage;                 // выбранный игроком ScriptableObject мага
+
+    [Header("Prefabs and GameObjects")]
     public GameObject playerPrefab;
     public GameObject enemyPrefab;          // шаблон врага в игре
     public GameObject cardPrefab;           // шаблон карты
     public GameObject fieldCenter;          // GameObject поля игры
     
-    public Mage playerMage;                 // выбранный игроком ScriptableObject мага
     
+    public List<Mage> mages => _mages;
+    public List<Mage> enemyMages => _enemyMages;
     public DeckController spellsDeck =>    _spellsDeck;
     public DeckController treasuresDeck => _treasuresDeck;
     public DeckController deadsDeck =>     _deadsDeck;
     public List<MageController>  mageControllers => _mageControllers;
     public PlayerController  playerController => _playerController;
+    public int roundNumber => _roundNumber;
 
 
     void Awake()
     {
         CreateSingleton();
-        SetupGame();
     }
 
     void Start()
     {
-        SetState(new RoundStartState(this));
+        SetState(new TournamentStartState());
     }
 
     // установить новое состояние игры
@@ -54,10 +67,26 @@ public class GameManager : MonoBehaviour
         StartCoroutine(_state.Start());
     }
 
+    public void TransitionToState(GameState state)
+    {
+        if (_state != null) StartCoroutine(_state.End(state));
+    }
+
+    public void SetPlayerMage(Mage mage)
+    {
+        playerMage = mage;
+        _enemyMages = new List<Mage>(_mages.FindAll((mage) => mage != playerMage));
+    }
+
     // начальная загрузка игры
-    void SetupGame()
+    public void SetupGame()
     {
         SetupMages(); 
+    }
+
+    public void StartNewRound()
+    {
+        _roundNumber++;
     }
 
     // логика сингелтона
@@ -74,9 +103,9 @@ public class GameManager : MonoBehaviour
         int index = 1;
         _playerController = CreateMage<PlayerController>(playerPrefab, playerMage, 0.0f);
         _mageControllers.Add(_playerController);
-        _mages.ForEach((Mage mage) => 
+        _enemyMages.ForEach((Mage mage) => 
         {
-                EnemyController enemyMage = CreateMage<EnemyController>(enemyPrefab, mage, index * 360.0f / (_mages.Count + 1));
+                EnemyController enemyMage = CreateMage<EnemyController>(enemyPrefab, mage, index * 360.0f / (_enemyMages.Count + 1));
                 MageController previousMage = _mageControllers[index-1];
                 enemyMage.rightMage   = previousMage;
                 previousMage.leftMage = enemyMage;

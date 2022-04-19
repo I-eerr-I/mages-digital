@@ -32,7 +32,7 @@ public class MageController : MonoBehaviour
         if (isDead)
             yield return DrawCards(GameManager.instance.deadsDeck, 1);
         else
-            yield return DrawCards(GameManager.instance.spellsDeck, 8 - _hand.spellsCount);
+            yield return DrawCards(GameManager.instance.spellsDeck, _hand.handSize - _hand.spellsCount);
         _isReady = true;
     }
 

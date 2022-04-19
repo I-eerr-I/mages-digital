@@ -18,12 +18,13 @@ public class HandController : MonoBehaviour
     private List<Card> _deads = new List<Card>();
 
 
-    //TEST
     public MageController mageController => _mageController;
 
     // количество заклинаний
     public int spellsCount => _sources.Count + _qualities.Count + _deliveries.Count + _wildMagics.Count;
-    
+
+
+    public int handSize = 8;
 
     void Awake()
     {

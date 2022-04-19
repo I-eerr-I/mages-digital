@@ -4,14 +4,21 @@ using UnityEngine;
 public abstract class GameState
 {
 
-    protected readonly GameManager _manager;
+    protected readonly GameManager _gameManager;
+    protected readonly UIManager   _uiManager;
 
-    public GameState(GameManager gameManager)
+    public GameState()
     {
-        _manager = gameManager;
+        _gameManager = GameManager.instance;
+        _uiManager   = UIManager.instance; 
     }
 
     public virtual IEnumerator Start()
+    {
+        yield break;
+    }
+
+    public virtual IEnumerator End(GameState state)
     {
         yield break;
     }

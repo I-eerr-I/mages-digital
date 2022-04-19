@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class RoundStartState : GameState
 {
-    public RoundStartState(GameManager gameManager) : base(gameManager) {}
+    public RoundStartState() : base() {}
 
     public override IEnumerator Start()
     {
-        foreach (MageController mage in _manager.mageControllers)
+        _gameManager.StartNewRound();
+        _gameManager.StartCoroutine(_uiManager.FadeInAndOutInfoText("Round " + _gameManager.roundNumber));
+        yield return new WaitForSeconds(2.0f);
+        foreach (MageController mage in _gameManager.mageControllers)
         {
-            _manager.StartCoroutine(mage.OnRoundStart());
+            yield return mage.OnRoundStart();
             yield return new WaitWhile(() => !mage.isReady);
         }
-        _manager.SetState(new SpellsCreationState(_manager));
+        _gameManager.SetState(new SpellsCreationState());
     }
 }
