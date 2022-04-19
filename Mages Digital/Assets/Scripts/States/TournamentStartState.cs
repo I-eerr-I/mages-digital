@@ -15,9 +15,10 @@ public class TournamentStartState : GameState
 
     public override IEnumerator End(GameState state)
     {
-        _gameManager.SetupGame();
         yield return _uiManager.FadeOutMagesChoiceMenu();
-        yield return new WaitForSeconds(2.0f);
+        yield return new WaitForSeconds(0.5f);
+        _gameManager.SetupGame();
+        yield return new WaitForSeconds(0.5f);
         _gameManager.SetState(state);
     }
 }

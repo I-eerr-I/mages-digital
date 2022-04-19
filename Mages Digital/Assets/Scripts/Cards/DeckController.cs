@@ -9,32 +9,23 @@ using UnityEngine;
 public class DeckController : MonoBehaviour
 {
 
-    [SerializeField] private List<Card>  _deck;     // список карт колоды
-    [SerializeField] private CardType    _cardType; // тип карт в колоде
+    [SerializeField] private List<Card>  _deck = new List<Card>();     // список карт колоды
+    [SerializeField] private List<Card>  _fold = new List<Card>();     // сброс карт
+    
+    private CardType    _cardType; // тип карт в колоде
     
     private Random _random = new Random();
     
-    // TEST
-    [SerializeField] private Color _color;
-    private SpriteRenderer _spriteRenderer;
-    // TEST
+    public GameObject cardToPass;
 
-    
     public CardType cardType => _cardType;
-
     public int Count => _deck.Count;        // количество карт в колоде
 
 
     void Awake()
     {
-        // TEST
-        _spriteRenderer = gameObject.GetComponent<SpriteRenderer>(); 
-        _spriteRenderer.color  = _color;
-        // TEST
-
+        _cardType = _deck[0].cardType;
         if (_cardType == CardType.SPELL) DoubleDeck();
-
-        ShuffleDeck(); // перенести в состояние начала каждой игры
     }
 
     // выдать карту из колоды
@@ -46,31 +37,38 @@ public class DeckController : MonoBehaviour
             card = _deck[0];
             _deck.RemoveAt(0);
         }
+        else if (_fold.Count > 0)
+        {
+            ShuffleWithFold();
+            return PassCard();
+        }
         return card;
     }
 
-    public List<Card> PassCards(int amount)
-    {
-        List<Card> passedCards = new List<Card>();
-        for (int i = 0; i < amount; i++)
-        {
-            Card passedCard = PassCard();
-            if (passedCard == null) break;
-            passedCards.Add(PassCard());
-        }
-        return passedCards;
-    }
-
     // перемешать колоду
-    void ShuffleDeck()
+    public void Shuffle()
     {
         _deck = _deck.OrderBy(a => _random.Next()).ToList();
+    }
+
+    public void ShuffleWithFold()
+    {
+        _deck.AddRange(_fold);
+        Shuffle();
+    }
+
+    public void HideCardToPass()
+    {
+        cardToPass.transform.position = new Vector3(0, 0, -20);
     }
 
     // удвоить карты в колоде
     void DoubleDeck()
     {
-        _deck.AddRange(_deck);
+        List<Card> deckToAdd = new List<Card>(_deck);
+        if (_cardType == CardType.SPELL)
+            deckToAdd = _deck.FindAll((card) => ((SpellCard)card).order != Order.WILDMAGIC);
+        _deck.AddRange(deckToAdd);
     }
 
 }

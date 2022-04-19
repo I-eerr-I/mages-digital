@@ -41,21 +41,32 @@ public class MageController : MonoBehaviour
     {
         for(int i = 0; i < amount; i++)
         {
-            TakeCard(deck);
-            yield return new WaitForFixedUpdate();
+            if (TakeCard(deck))
+            {
+                iTween.MoveTo(deck.cardToPass.gameObject, transform.position, 0.5f);
+                yield return new WaitForSeconds(0.6f);
+                deck.HideCardToPass();
+            }
+            else
+            {
+                break;
+            }
         }
     }
+
 
     public virtual void Unready()
     {
         _isReady = false;
     }
 
-    // взять карту из колоды
-    public void TakeCard(DeckController deck)
+    // взять карту из колоды, вернуть true если карта добавлена
+    public bool TakeCard(DeckController deck)
     {
         Card card = deck.PassCard();
         if (card != null) _hand.AddCard(card);
+        return card != null;
+
     }
 
 

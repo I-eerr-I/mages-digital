@@ -136,12 +136,12 @@ GameObject:
   - component: {fileID: 104193482}
   - component: {fileID: 104193484}
   m_Layer: 5
-  m_Name: Round Number
+  m_Name: Info Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &104193481
 RectTransform:
   m_ObjectHideFlags: 0
@@ -304,6 +304,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3269142295809802698, guid: f47b619d9133688429a27186eb5aeb34, type: 3}
+      propertyPath: cardToPass
+      value: 
+      objectReference: {fileID: 1323821152}
+    - target: {fileID: 3269142295809802698, guid: f47b619d9133688429a27186eb5aeb34, type: 3}
       propertyPath: _deck.Array.size
       value: 3
       objectReference: {fileID: 0}
@@ -317,7 +321,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 53ee257a33f3daa4cb2c26c4d590790b, type: 2}
     - target: {fileID: 3269142295809802699, guid: f47b619d9133688429a27186eb5aeb34, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3269142295809802699, guid: f47b619d9133688429a27186eb5aeb34, type: 3}
       propertyPath: m_LocalPosition.x
@@ -365,9 +369,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spells Deck
       objectReference: {fileID: 0}
+    - target: {fileID: 2008284477667913539, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2008284477667913548, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2008284477667913548, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -401,6 +409,10 @@ PrefabInstance:
       propertyPath: _color.a
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2008284477667913549, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
+      propertyPath: cardToPass
+      value: 
+      objectReference: {fileID: 1323821152}
     - target: {fileID: 2008284477667913549, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.size
       value: 13
@@ -662,7 +674,7 @@ GameObject:
   - component: {fileID: 628046976}
   - component: {fileID: 628046975}
   m_Layer: 5
-  m_Name: InfoPanel
+  m_Name: Info Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -681,7 +693,7 @@ RectTransform:
   m_Children:
   - {fileID: 104193481}
   m_Father: {fileID: 647071587}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -735,7 +747,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5569875631571145138, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5569875631571145138, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
       propertyPath: m_LocalPosition.x
@@ -769,6 +781,10 @@ PrefabInstance:
       propertyPath: _color.a
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5569875631571145139, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
+      propertyPath: cardToPass
+      value: 
+      objectReference: {fileID: 1323821152}
     - target: {fileID: 5569875631571145139, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
       propertyPath: _deck.Array.size
       value: 3
@@ -887,8 +903,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
-  - {fileID: 1648102808}
   - {fileID: 628046974}
+  - {fileID: 1648102808}
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -926,12 +942,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6166b7be7519f1d448bd024f2a5cc939, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _roundNumber: 0
   _spellsDeck: {fileID: 1882135942}
   _treasuresDeck: {fileID: 1493905897}
   _deadsDeck: {fileID: 1683345623}
   _mages:
   - {fileID: 11400000, guid: 5678014d9a4d30e4a9de55a2b73916fb, type: 2}
   - {fileID: 11400000, guid: bdd6f3d9a2ed5fa479afa83c45ea90cc, type: 2}
+  - {fileID: 11400000, guid: 537dbb3acab52834ba6175bc1354a360, type: 2}
+  - {fileID: 11400000, guid: 537dbb3acab52834ba6175bc1354a360, type: 2}
   - {fileID: 11400000, guid: 537dbb3acab52834ba6175bc1354a360, type: 2}
   _enemyMages: []
   playerMage: {fileID: 0}
@@ -1063,6 +1082,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 764788370}
+  - {fileID: 1323821151}
   - {fileID: 371037489}
   - {fileID: 642304208}
   - {fileID: 327581574}
@@ -1099,6 +1119,73 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1323821150
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1068947280}
+    m_Modifications:
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7255549559625644301, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+      propertyPath: m_Name
+      value: Card
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+--- !u!4 &1323821151 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7255549559625644298, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+  m_PrefabInstance: {fileID: 1323821150}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1323821152 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7255549559625644301, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
+  m_PrefabInstance: {fileID: 1323821150}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1416444736
 GameObject:
   m_ObjectHideFlags: 0
@@ -1392,7 +1479,7 @@ RectTransform:
   m_Children:
   - {fileID: 492855096}
   m_Father: {fileID: 647071587}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -1522,3 +1609,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mageChoiceMenu: {fileID: 1648102807}
+  info: {fileID: 104193480}

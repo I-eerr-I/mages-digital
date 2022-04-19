@@ -84,9 +84,12 @@ public class GameManager : MonoBehaviour
         SetupMages(); 
     }
 
-    public void StartNewRound()
+    public void SetupNewRound()
     {
         _roundNumber++;
+        spellsDeck.Shuffle();
+        treasuresDeck.Shuffle();
+        deadsDeck.Shuffle();
     }
 
     // логика сингелтона
