@@ -5,7 +5,8 @@ using UnityEngine;
 public class MageController : MonoBehaviour
 {
 
-    [SerializeField] protected HandController _hand;  // рука мага
+    [SerializeField] protected HandController _hand;       // рука мага
+    [SerializeField] protected HandSpellController _spell; // контроллер спела мага
     [SerializeField] protected int _health = 20;      // здоровье мага
     [SerializeField] protected TextMesh _healthText;  // текст здоровья мага
     [SerializeField] protected bool _isReady = false; // готовность мага к началу раунда
@@ -15,7 +16,8 @@ public class MageController : MonoBehaviour
     
     public bool isDead => _health <= 0; // мертв ли маг
     
-    public HandController hand => _hand;
+    public HandController       hand => _hand;
+    public HandSpellController spell => _spell;
     public int health
     {
         get => _health;
@@ -32,7 +34,8 @@ public class MageController : MonoBehaviour
 
     void Awake()
     {
-        _hand       = gameObject.GetComponentInChildren<HandController>(); 
+        _hand  = gameObject.GetComponentInChildren<HandController>();
+        _spell = _hand.gameObject.GetComponentInChildren<HandSpellController>();
     }
 
     void Start()
@@ -49,6 +52,7 @@ public class MageController : MonoBehaviour
     // добрать нужные карты и стать готовым
     public virtual IEnumerator OnRoundStart()
     {
+        spell.Reset();
         if (isDead)
             yield return DrawCards(GameManager.instance.deadsDeck, 1);
         else

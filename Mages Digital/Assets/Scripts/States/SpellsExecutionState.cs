@@ -8,7 +8,8 @@ public class SpellsExecutionState : GameState
 
     public override IEnumerator Start()
     {
-        Debug.Log("SPELLS EXECUTION STATE!"); // TEST
-        yield break;
+        yield return _uiManager.FadeInAndOutInfoText("Executing spells!");
+        yield return _seManager.SetupSpellExecution();
+        
     }
 }

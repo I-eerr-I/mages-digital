@@ -9,6 +9,7 @@ public class SpellCard : Card
     [SerializeField] protected Sign _sign;
     
 
+    public int initiative => _initiative;
     public Order order => _order;
     public Sign sign => _sign;
 

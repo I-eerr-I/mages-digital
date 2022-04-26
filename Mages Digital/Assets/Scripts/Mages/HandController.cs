@@ -8,24 +8,27 @@ public class HandController : MonoBehaviour
     
     public int handSize = 8;
 
-    public MageController       mageController;        // маг данной руки
-    public HandSpellController  spellController;  // заклинание данной руки
+    [SerializeField] private MageController       _mage;   // маг данной руки
+    [SerializeField] private HandSpellController  _spell;  // заклинание данной руки
 
     // карты руки
-    public List<Card> sources = new List<Card>();
-    public List<Card> qualities = new List<Card>();
+    public List<Card> sources    = new List<Card>();
+    public List<Card> qualities  = new List<Card>();
     public List<Card> deliveries = new List<Card>();
     public List<Card> wildMagics = new List<Card>();
-    public List<Card> treasures = new List<Card>();
-    public List<Card> deads = new List<Card>();
+    public List<Card> treasures  = new List<Card>();
+    public List<Card> deads      = new List<Card>();
 
     // количество заклинаний
-    public int spellsCount     => sources.Count + qualities.Count + deliveries.Count + wildMagics.Count;
+    public int spellsCount => sources.Count + qualities.Count + deliveries.Count + wildMagics.Count;
+
+    public MageController      mage  => _mage;
+    public HandSpellController spell => _spell; 
 
     void Awake()
     {
-        mageController  = gameObject.GetComponentInParent<MageController>();
-        spellController = gameObject.GetComponentInChildren<HandSpellController>();
+        _mage  = gameObject.GetComponentInParent<MageController>();
+        _spell = gameObject.GetComponentInChildren<HandSpellController>();
     }
 
 
