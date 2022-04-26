@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerController : MageController
 {
 
+    public Transform handLocation;
+
     // TEST
     public override IEnumerator DrawCards(DeckController deck, int amount)
     {
@@ -12,5 +14,13 @@ public class PlayerController : MageController
         return base.DrawCards(deck, amount);
     }
     // TEST
+
+    public override Card TakeCard(DeckController deck)
+    {
+        Card card = base.TakeCard(deck);
+        GameObject cardObject = Instantiate(cardPrefab, handLocation);
+        CardController cardController = cardObject.GetComponent<CardController>();
+        cardController.card = card;
+    }
 
 }

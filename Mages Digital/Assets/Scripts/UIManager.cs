@@ -18,6 +18,9 @@ public class UIManager : MonoBehaviour
     [Header("Info Panel")]
     public GameObject info;
 
+    [Header("Player UI")]
+    public GameObject playerUI;
+
 
 
     void Awake()

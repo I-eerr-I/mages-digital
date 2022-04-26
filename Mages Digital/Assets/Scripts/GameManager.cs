@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public GameObject enemyPrefab;          // шаблон врага в игре
     public GameObject cardPrefab;           // шаблон карты
     public GameObject fieldCenter;          // GameObject поля игры
+    public Transform  playerHandLocation;   // локация руки игрока
     
     
     public List<Mage> mages => _mages;
@@ -131,6 +132,7 @@ public class GameManager : MonoBehaviour
     void PositionMage(GameObject mage, float angle)
     {
         mage.transform.RotateAround(fieldCenter.transform.position, Vector3.forward, angle);
+        mage.transform.eulerAngles = new Vector3(0, 0, 0);
     }
 
     // каждому магу взять карты до 8 штук
