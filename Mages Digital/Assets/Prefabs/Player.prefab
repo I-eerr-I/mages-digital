@@ -83,6 +83,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1402197249802251914, guid: b9c8b7470e591094c981fd54b02ce4c5, type: 3}
   m_PrefabInstance: {fileID: 6894784883210393167}
   m_PrefabAsset: {fileID: 0}
+--- !u!102 &2977429766812923871 stripped
+TextMesh:
+  m_CorrespondingSourceObject: {fileID: 8574509316763279760, guid: b9c8b7470e591094c981fd54b02ce4c5, type: 3}
+  m_PrefabInstance: {fileID: 6894784883210393167}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1901620226366621480 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5029636602414682471, guid: b9c8b7470e591094c981fd54b02ce4c5, type: 3}
@@ -108,6 +113,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hand: {fileID: 1901620226366621480}
   _health: 20
+  _healthText: {fileID: 2977429766812923871}
+  _isReady: 0
   mage: {fileID: 0}
   leftMage: {fileID: 0}
   rightMage: {fileID: 0}
+  handLocation: {fileID: 0}

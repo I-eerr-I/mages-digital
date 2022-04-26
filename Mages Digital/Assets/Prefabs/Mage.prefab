@@ -100,6 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hand: {fileID: 5029636602414682471}
   _health: 20
+  _healthText: {fileID: 8574509316763279760}
   _isReady: 0
   mage: {fileID: 0}
   leftMage: {fileID: 0}
@@ -166,7 +167,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18ea2af88c0d2b344be1cea2ae2ff211, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _hand: {fileID: 5029636602414682471}
+  hand: {fileID: 0}
+  source: {fileID: 0}
+  quality: {fileID: 0}
+  delivery: {fileID: 0}
 --- !u!1 &5670126103541683761
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,9 +215,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47246d9f7fab6484cb6d17a466e383d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mageController: {fileID: 1402197249802251956}
-  _spellController: {fileID: 8321432048662634065}
   handSize: 8
+  mageController: {fileID: 0}
+  spellController: {fileID: 0}
+  sources: []
+  qualities: []
+  deliveries: []
+  wildMagics: []
+  treasures: []
+  deads: []
 --- !u!1 &9192148096592231679
 GameObject:
   m_ObjectHideFlags: 0

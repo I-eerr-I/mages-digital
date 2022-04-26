@@ -21,10 +21,11 @@ public class GameManager : MonoBehaviour
 
     
     [Header("Mages")]
-    [SerializeField] private List<Mage> _mages = new List<Mage>();          // список всех доступных ScriptableObject магов
+    [SerializeField] private List<Mage> _mages      = new List<Mage>();     // список всех доступных ScriptableObject магов
     [SerializeField] private List<Mage> _enemyMages = new List<Mage>();     // список вражеских магов
                                                             
-    private List<MageController> _mageControllers = new List<MageController>();  // список всех созданных магов (контроллеров магов) в игре 
+    private List<MageController>  _mageControllers  = new List<MageController>();  // список всех созданных магов (контроллеров магов) в игре 
+    private List<EnemyController> _enemyControllers = new List<EnemyController>();
     
     private PlayerController _playerController;           // сам маг игрока
 
@@ -41,13 +42,14 @@ public class GameManager : MonoBehaviour
     public Transform  playerHandLocation;   // локация руки игрока
     
     
-    public List<Mage> mages => _mages;
+    public List<Mage> mages      => _mages;
     public List<Mage> enemyMages => _enemyMages;
-    public DeckController spellsDeck =>    _spellsDeck;
+    public DeckController spellsDeck    =>    _spellsDeck;
     public DeckController treasuresDeck => _treasuresDeck;
-    public DeckController deadsDeck =>     _deadsDeck;
-    public List<MageController>  mageControllers => _mageControllers;
-    public PlayerController  playerController => _playerController;
+    public DeckController deadsDeck     =>     _deadsDeck;
+    public List<MageController>  mageControllers  => _mageControllers;
+    public List<EnemyController> enemyControllers => _enemyControllers;
+    public PlayerController  playerController     => _playerController;
     public int roundNumber => _roundNumber;
 
 
@@ -114,6 +116,7 @@ public class GameManager : MonoBehaviour
                 enemyMage.rightMage   = previousMage;
                 previousMage.leftMage = enemyMage;
                 _mageControllers.Add(enemyMage);
+                _enemyControllers.Add(enemyMage);
                 index++;
         });
         _mageControllers[_mageControllers.Count - 1].leftMage = _playerController;

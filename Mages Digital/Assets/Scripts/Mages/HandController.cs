@@ -6,30 +6,26 @@ using UnityEngine;
 public class HandController : MonoBehaviour
 {
     
-    [SerializeField] private MageController _mageController;        // маг данной руки
-    [SerializeField] private HandSpellController _spellController;  // заклинание данной руки
+    public int handSize = 8;
+
+    public MageController       mageController;        // маг данной руки
+    public HandSpellController  spellController;  // заклинание данной руки
 
     // карты руки
-    private List<Card> _sources = new List<Card>();
-    private List<Card> _qualities = new List<Card>();
-    private List<Card> _deliveries = new List<Card>();
-    private List<Card> _wildMagics = new List<Card>();
-    private List<Card> _treasures = new List<Card>();
-    private List<Card> _deads = new List<Card>();
-
-
-    public MageController mageController => _mageController;
+    public List<Card> sources = new List<Card>();
+    public List<Card> qualities = new List<Card>();
+    public List<Card> deliveries = new List<Card>();
+    public List<Card> wildMagics = new List<Card>();
+    public List<Card> treasures = new List<Card>();
+    public List<Card> deads = new List<Card>();
 
     // количество заклинаний
-    public int spellsCount => _sources.Count + _qualities.Count + _deliveries.Count + _wildMagics.Count;
-
-
-    public int handSize = 8;
+    public int spellsCount     => sources.Count + qualities.Count + deliveries.Count + wildMagics.Count;
 
     void Awake()
     {
-        _mageController  = gameObject.GetComponentInParent<MageController>();
-        _spellController = gameObject.GetComponentInChildren<HandSpellController>();
+        mageController  = gameObject.GetComponentInParent<MageController>();
+        spellController = gameObject.GetComponentInChildren<HandSpellController>();
     }
 
 
@@ -38,11 +34,42 @@ public class HandController : MonoBehaviour
     {
         List<Card> deck = GetDeckOfCardType(card);
         
-        deck?.Add(card);
-        
+        if (card.cardType == CardType.SPELL)
+            AddSpellCard(deck, (SpellCard) card);
+        else
+            deck?.Add(card);
+    }
+
+    public void AddSpellCard(List<Card> deck, SpellCard card)
+    {
         // XXX потенциально медленное решение (сортирует заклинания, при добавлении нового)
-        if (card is SpellCard)
-            deck.Sort((c1, c2) => ((SpellCard) c1).sign.CompareTo(((SpellCard) c2).sign));
+        deck.Add(card);
+        deck.Sort((c1, c2) => ((SpellCard)c1).sign.CompareTo(((SpellCard)c2).sign));
+    }
+
+    // получить список заклинаний для порядка определенного типа
+    public List<Card> GetDeckOfOrderType(Order order)
+    {
+        List<Card> deck = null;
+        switch (order)
+        {
+            case Order.SOURCE:
+                deck = sources;
+                break;
+            
+            case Order.QUALITY:
+                deck = qualities;
+                break;
+            
+            case Order.DELIVERY:
+                deck = deliveries;
+                break;
+            
+            case Order.WILDMAGIC:
+                deck = wildMagics;
+                break;
+        }
+        return deck;
     }
 
     // получить список карт для карты определенного типа
@@ -56,39 +83,15 @@ public class HandController : MonoBehaviour
                 break;
             
             case CardType.TREASURE:
-                deck = _treasures;
+                deck = treasures;
                 break;
 
             case CardType.DEAD:
-                deck = _deads;
+                deck = deads;
                 break;
         }
         return deck;
     }
 
-    // получить список заклинаний для порядка определенного типа
-    List<Card> GetDeckOfOrderType(Order order)
-    {
-        List<Card> deck = null;
-        switch (order)
-        {
-            case Order.SOURCE:
-                deck = _sources;
-                break;
-            
-            case Order.QUALITY:
-                deck = _qualities;
-                break;
-            
-            case Order.DELIVERY:
-                deck = _deliveries;
-                break;
-            
-            case Order.WILDMAGIC:
-                deck = _wildMagics;
-                break;
-        }
-        return deck;
-    }
 
 }

@@ -14,8 +14,18 @@ public class SpellsCreationState : GameState
         yield return new WaitForSeconds(0.5f);
         _gameManager.StartCoroutine(_uiManager.FadeInAndOutInfoText("Create spells now!"));
         _gameManager.mageControllers.ForEach((mage) => mage.Unready());
+        
+        foreach (EnemyController enemyMage in _gameManager.enemyControllers)
+        {
+            if (!enemyMage.isDead)
+                enemyMage.CreateRandomSpell();
+        }
+        // TEST
+        _gameManager.playerController.CreateRandomSpell();
+        // TEST
         List<MageController> aliveMages = _gameManager.mageControllers.FindAll((mage) => !mage.isDead);
         yield return new WaitWhile(() => aliveMages.FindAll((mage) => !mage.isReady).Count > 0); 
+        _gameManager.SetState(new SpellsExecutionState());
     }
 
 }

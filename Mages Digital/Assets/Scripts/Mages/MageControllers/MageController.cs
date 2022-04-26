@@ -6,7 +6,7 @@ public class MageController : MonoBehaviour
 {
 
     [SerializeField] protected HandController _hand;  // рука мага
-    [SerializeField] protected int _health   = 20;    // здоровье мага
+    [SerializeField] protected int _health = 20;      // здоровье мага
     [SerializeField] protected TextMesh _healthText;  // текст здоровья мага
     [SerializeField] protected bool _isReady = false; // готовность мага к началу раунда
 
@@ -32,7 +32,7 @@ public class MageController : MonoBehaviour
 
     void Awake()
     {
-        _hand = gameObject.GetComponentInChildren<HandController>();
+        _hand       = gameObject.GetComponentInChildren<HandController>(); 
     }
 
     void Start()
@@ -61,19 +61,22 @@ public class MageController : MonoBehaviour
     {
         for(int i = 0; i < amount; i++)
         {
-            if (TakeCard(deck) != null)
+            if (TakeCard(deck))
             {
-                iTween.MoveTo(deck.cardToPass.gameObject, transform.position, 0.5f);
-                yield return new WaitForSeconds(0.6f);
-                deck.HideCardToPass();
+                // RETURN
+                // iTween.MoveTo(deck.cardToPass.gameObject, transform.position, 0.5f);
+                // yield return new WaitForSeconds(0.6f);
+                // deck.HideCardToPass();
+                // RETURN
+                continue; // TEST
             }
             else
             {
                 break;
             }
         }
+        yield break;
     }
-
 
     public virtual void Unready()
     {
@@ -81,13 +84,13 @@ public class MageController : MonoBehaviour
     }
 
     // взять карту из колоды, вернуть true если карта добавлена
-    public virtual IEnumerator TakeCard(DeckController deck)
+    public virtual bool TakeCard(DeckController deck)
     {
         Card card = deck.PassCard();
         if (card != null) _hand.AddCard(card);
-        yield break;
-
+        return card != null;
     }
+
 
 
 }
