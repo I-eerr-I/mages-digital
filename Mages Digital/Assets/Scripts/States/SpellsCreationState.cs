@@ -11,6 +11,7 @@ public class SpellsCreationState : GameState
     // лучше использовать событие у магов
     public override IEnumerator Start()
     {
+        Debug.Log("Spells Creation State"); // TEST
         yield return new WaitForSeconds(0.5f);
         _gameManager.StartCoroutine(_uiManager.FadeInAndOutInfoText("Create spells now!"));
         _gameManager.mageControllers.ForEach((mage) => mage.Unready());

@@ -8,6 +8,7 @@ public class RoundStartState : GameState
 
     public override IEnumerator Start()
     {
+        Debug.Log("Round Start State"); // TEST
         _gameManager.SetupNewRound();
         _gameManager.StartCoroutine(_uiManager.FadeInAndOutInfoText("Round " + _gameManager.roundNumber));
         yield return new WaitForSeconds(2.0f);

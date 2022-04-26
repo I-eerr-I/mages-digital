@@ -12,18 +12,22 @@ public class PlayerController : MageController
 
     public Transform handLocation;
 
+    private _Random random = new _Random();
+
     // TEST
     public override IEnumerator DrawCards(DeckController deck, int amount)
     {
         Debug.Log("PLAYER DRAW FROM " + deck.ToString());
         return base.DrawCards(deck, amount);
     }
+
+    
     
     // автоматически создать заклинание
     // поставить мага в готовое состояние
+    // ADD можно добавить добавление шальной магии при неполном заклинании
     public void CreateRandomSpell()
     {
-        _Random random = new _Random();
         List<SpellCard> newSpell = new List<SpellCard>();
         List<Order> orders = new List<Order>();
         if (_hand.spellsCount > 0)
@@ -52,6 +56,7 @@ public class PlayerController : MageController
             while (newSpell.Count > nCardsInSpell)
             {
                 int index = random.Next(0, newSpell.Count);
+                hand.AddSpellCard(hand.GetDeckOfOrderType(orders[index]), newSpell[index]);
                 newSpell.RemoveAt(index);
                 orders.RemoveAt(index);
             }

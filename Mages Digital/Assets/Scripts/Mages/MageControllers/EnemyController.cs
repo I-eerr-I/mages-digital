@@ -21,6 +21,7 @@ public class EnemyController : MageController
 
     // автоматически создать заклинание
     // поставить мага в готовое состояние
+    // ADD можно добавить добавление шальной магии при неполном заклинании
     public void CreateRandomSpell()
     {
         List<SpellCard> newSpell = new List<SpellCard>();
@@ -51,6 +52,7 @@ public class EnemyController : MageController
             while (newSpell.Count > nCardsInSpell)
             {
                 int index = random.Next(0, newSpell.Count);
+                hand.AddSpellCard(hand.GetDeckOfOrderType(orders[index]), newSpell[index]);
                 newSpell.RemoveAt(index);
                 orders.RemoveAt(index);
             }

@@ -16,6 +16,14 @@ public class SpellExecutionManager : MonoBehaviour
     public List<HandSpellController> twoCardSpells   = new List<HandSpellController>();
     public List<HandSpellController> threeCardSpells = new List<HandSpellController>();
 
+    // список тех кто уже походил
+
+    public MageController current;
+     
+
+    // самый живучий враг
+
+    // самый хилый враг
 
     void Awake()
     {
@@ -48,6 +56,17 @@ public class SpellExecutionManager : MonoBehaviour
 
         yield break;
     }
+
+    public IEnumerator OnExecutionStart()
+    {
+        // установить в current данного врага
+        // найти самого хилого врага
+        // найти самого живочего
+        yield break;
+    }
+
+    // public MageController FindСамогоХилого(....);
+    // FindСамогоЖивочего(...);
 
     void AddSortedNCardSpells(List<HandSpellController> nCardSpells, int n)
     {
