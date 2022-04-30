@@ -8,7 +8,8 @@ namespace CardsToolKit
     {
         SOURCE,
         QUALITY,
-        DELIVERY
+        DELIVERY,
+        WILDMAGIC
     }
 
     public enum Sign
@@ -18,6 +19,13 @@ namespace CardsToolKit
         ELEMENTAL,
         DARK,
         ILLUSION
+    }
+
+    public enum CardType
+    {
+        SPELL,
+        TREASURE,
+        DEAD
     }
 
     [Serializable] public class Spell : UnityEvent {}

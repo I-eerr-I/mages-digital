@@ -3,7 +3,12 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Game Manager
+  - Spells Deck
+  - Treasures Deck
+  - Deads Deck
+  - Enemy
   layers:
   - Default
   - TransparentFX
