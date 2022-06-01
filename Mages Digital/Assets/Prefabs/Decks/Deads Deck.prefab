@@ -68,18 +68,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 53ee257a33f3daa4cb2c26c4d590790b, type: 2}
     - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_RootOrder
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -107,17 +95,26 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
+    - target: {fileID: 1093842482306473006, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
+    - target: {fileID: 8000965135276346729, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Name
+      value: Deck Mesh
+      objectReference: {fileID: 0}
+    - target: {fileID: 8499911649968478433, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: outlineColor.b
+      value: 0.08596872
+      objectReference: {fileID: 0}
+    - target: {fileID: 8499911649968478433, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: outlineColor.g
+      value: 0.5188679
+      objectReference: {fileID: 0}
+    - target: {fileID: 8499911649968478433, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: outlineColor.r
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1093842482306473006, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
