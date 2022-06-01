@@ -9,12 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b61505e9e8914394999067926fcd6cc9, type: 3}
+  m_Script: {fileID: 11500000, guid: 83844cebbb69dc342ac55cc8ed115fa5, type: 3}
   m_Name: Test Quality Card 1
   m_EditorClassIdentifier: 
-  front: {fileID: 0}
-  _cardname: QA
+  _front: {fileID: 0}
+  _cardname: Test Quality Card 1
   _description: 
+  _cardType: 0
   _spell:
     m_PersistentCalls:
       m_Calls: []

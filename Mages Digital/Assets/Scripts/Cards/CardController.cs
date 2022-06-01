@@ -6,6 +6,10 @@ using UnityEngine;
 public class CardController : MonoBehaviour
 {
 
-    public Card card; 
+    [SerializeField] private Card _card;
+    [SerializeField] private MageController _owner;
+
+    public Card           card  => _card;
+    public MageController owner => _owner;
 
 }

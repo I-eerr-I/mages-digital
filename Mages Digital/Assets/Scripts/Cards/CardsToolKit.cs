@@ -6,26 +6,26 @@ namespace CardsToolKit
 
     public enum Order
     {
-        SOURCE,
-        QUALITY,
-        DELIVERY,
-        WILDMAGIC
+        SOURCE,     // заводила
+        QUALITY,    // наворот
+        DELIVERY,   // приход
+        WILDMAGIC   // шальная магия
     }
 
     public enum Sign
     {
-        ARCANE,
-        PRIMAL,
-        ELEMENTAL,
-        DARK,
-        ILLUSION
+        ARCANE,     // порча
+        PRIMAL,     // трава
+        ELEMENTAL,  // угар
+        DARK,       // мрак
+        ILLUSION    // кумар
     }
 
     public enum CardType
     {
-        SPELL,
-        TREASURE,
-        DEAD
+        SPELL,      // заклинание
+        TREASURE,   // сокровище
+        DEAD        // дохлый колдун
     }
 
     [Serializable] public class Spell : UnityEvent {}
