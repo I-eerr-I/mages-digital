@@ -139,6 +139,22 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Intensity
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1354765105219542355, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -147,6 +163,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 25c5279b4450e114a8678f514631e2f1, type: 2}
+    - target: {fileID: 5699287143279329753, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: outlineColor.g
+      value: 0.045223236
+      objectReference: {fileID: 0}
     - target: {fileID: 8499911649968478433, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
       propertyPath: outlineColor.b
       value: 0.6107508
@@ -159,5 +179,9 @@ PrefabInstance:
       propertyPath: outlineColor.r
       value: 0.8773585
       objectReference: {fileID: 0}
+    - target: {fileID: 8738691545752194832, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: _deckFrontTexture
+      value: 
+      objectReference: {fileID: 21300000, guid: 5ee027a5a079f6745a82303d1034fb7e, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}

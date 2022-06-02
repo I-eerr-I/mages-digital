@@ -8,39 +8,63 @@ using UnityEngine;
 
 public class DeckController : MonoBehaviour
 {
-    [Header("Hidden/unhidden states")]
-    [SerializeField] private float _hiddenZ   =  0.75f;
-    [SerializeField] private float _unhiddenZ = -0.75f;
-    private bool _hidden = true;
+    [Header("Спрятанное состояние колоды")]
+    [SerializeField] private float _hiddenY   = 20.0f;  // координата Y колоды в скрытом состоянии
+    [SerializeField] private float _unhiddenY = 0.5f;   // координата Y колоды в видимом состоянии
+    [SerializeField] private float _hideTime  = 0.25f;  // время для анимации скрытия колоды
+    
+    [Header("Размер и вид 3D модели колоды")]
+    [SerializeField] private float  _cardThickness = 0.025f; // толщина одной карты
 
-    [Header("Decks")]
-    [SerializeField] private List<Card>  _deck = new List<Card>();     // список карт колоды
-    [SerializeField] private List<Card>  _fold = new List<Card>();     // сброс карт
-
+    [Header("Колоды")]
+    [SerializeField] private CardType _cardsType = CardType.SPELL;    // тип карт в колоде
+    [SerializeField] private List<Card>  _deck   = new List<Card>();  // список карт колоды
+    [SerializeField] private List<Card>  _fold   = new List<Card>();  // сброс карт
+    
     private Random _random = new Random();
     
-    private CardType _cardsType; // тип карт в колоде
+    private bool  _hidden       = true;   // спрятана ли колода
+    private bool _idleAnimation = false;  // включена анимация колоды
 
-    private BoxCollider _collider;
 
-    public float    hiddenZ   => _hiddenZ;
-    public float    unhiddenZ => _unhiddenZ;
-    public CardType cardsType => _cardsType;         
-    public int      Count     => _deck.Count;        // количество карт в колоде
+    public float    hiddenY     => _hiddenY;
+    public float    unhiddenY   => _unhiddenY;
+    public CardType cardsType   => _cardsType;         
+    public int      cardsAmount => _deck.Count;        // количество карт в колоде
 
+    // TEST
+    private int oldCardsAmount;
+    // TEST 
 
     void Awake()
     {
-        _collider = gameObject.GetComponent<BoxCollider>();
-
-        _cardsType = _deck[0].cardType;
         if (_cardsType == CardType.SPELL) DoubleDeck();
+
+        UpdateDeckSize();
+        
+        // TEST
+        oldCardsAmount = _deck.Count;
+        // TEST
     }
 
-    void Start()
+    void Update()
     {
-        SetHiddenState(_hidden, true);
+
+        // TEST
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Hide(!_hidden);
+        }
+
+        if (oldCardsAmount != cardsAmount)
+        {
+            UpdateDeckSize();
+            oldCardsAmount = _deck.Count;
+        }
+        // TEST
+
     }
+
 
     // выдать карту из колоды
     public Card PassCard()
@@ -65,6 +89,7 @@ public class DeckController : MonoBehaviour
         _deck = _deck.OrderBy(a => _random.Next()).ToList();
     }
 
+    // замешать сброс
     public void ShuffleWithFold()
     {
         _deck.AddRange(_fold);
@@ -81,32 +106,23 @@ public class DeckController : MonoBehaviour
         _deck.AddRange(deckToAdd);
     }
 
-    void SetHiddenState(bool hidden, bool changePosition=false)
+    // если количество карт в колоде было изменено, то и изменится размер самой колоды
+    void UpdateDeckSize()
     {
-        _hidden = hidden;
-        _collider.enabled = !hidden;
-        if (changePosition)
-        {
-            float z = (hidden) ? _hiddenZ : _unhiddenZ;
-            transform.position = new Vector3(transform.position.x, transform.position.y, z);
-        }
+        gameObject.SetActive(true);
+        float deckSize = _cardThickness * _deck.Count;
+        iTween.ScaleTo(gameObject, new Vector3(transform.localScale.x, transform.localScale.y, deckSize), 0.01f);   
     }
 
-    public void Unhide()
-    {
-        if (_hidden)
-        {
-            iTween.MoveTo(gameObject, iTween.Hash("z", _unhiddenZ, "time", 0.5f, "easetype", iTween.EaseType.easeInExpo));
-            SetHiddenState(!_hidden);
-        }
-    }
 
-    public void Hide()
+    // показать колоду
+    public void Hide(bool hide)
     {
-        if (!_hidden)
+        if (hide != _hidden)
         {
-            iTween.MoveTo(gameObject, iTween.Hash("z", _hiddenZ, "time", 0.5f, "easetype", iTween.EaseType.easeInExpo));
-            SetHiddenState(!_hidden);
+            float y = (hide) ? _hiddenY : _unhiddenY;
+            iTween.MoveTo(gameObject, iTween.Hash("y", y, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
+            _hidden = hide;
         }
     }
 

@@ -6,4 +6,9 @@ public class GameLoopManager : MonoBehaviour
 {
     private static GameLoopManager _instance;
     public  static GameLoopManager instance => _instance;
+
+    void Start()
+    {
+        
+    }
 }
