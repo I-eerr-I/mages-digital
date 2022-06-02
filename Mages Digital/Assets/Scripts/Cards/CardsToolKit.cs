@@ -30,4 +30,5 @@ namespace CardsToolKit
 
     [Serializable] public class Spell : UnityEvent {}
 
+
 }

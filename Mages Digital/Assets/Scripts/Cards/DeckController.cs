@@ -8,6 +8,14 @@ using UnityEngine;
 
 public class DeckController : MonoBehaviour
 {
+ 
+    public static Dictionary<CardType, Color> DECK_MAIN_COLOR = new Dictionary<CardType, Color>()
+    {
+        { CardType.SPELL,    new Color(1.0f, 0.0f, 0.0f) },
+        { CardType.TREASURE, new Color(1.0f, 0.8427867f, 0.0f) },
+        { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
+    };
+
     [Header("Спрятанное состояние колоды")]
     [SerializeField] private float _hiddenY   = 20.0f;  // координата Y колоды в скрытом состоянии
     [SerializeField] private float _unhiddenY = 0.5f;   // координата Y колоды в видимом состоянии
@@ -24,8 +32,8 @@ public class DeckController : MonoBehaviour
     private Random _random = new Random();
     
     private bool  _hidden       = true;   // спрятана ли колода
-    private bool _idleAnimation = false;  // включена анимация колоды
 
+    private Sprite _back; // рубашка карт колоды
 
     public float    hiddenY     => _hiddenY;
     public float    unhiddenY   => _unhiddenY;
@@ -38,8 +46,9 @@ public class DeckController : MonoBehaviour
 
     void Awake()
     {
+        _back = gameObject.GetComponentInChildren<SpriteRenderer>().sprite;
+        gameObject.GetComponentInChildren<Light>().color = DECK_MAIN_COLOR[_cardsType];
         if (_cardsType == CardType.SPELL) DoubleDeck();
-
         UpdateDeckSize();
         
         // TEST
@@ -54,6 +63,17 @@ public class DeckController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Hide(!_hidden);
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            if (_cardsType == CardType.SPELL)
+            {
+                GameObject cardObject = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
+                cardObject.transform.position = new Vector3(-2.0f, 1.0f, 0.0f);
+                CardController cardController = cardObject.GetComponent<CardController>();
+                cardController.SetupCard(_deck[0], _back);
+                _deck.RemoveAt(0);
+            }
         }
 
         if (oldCardsAmount != cardsAmount)
@@ -95,6 +115,7 @@ public class DeckController : MonoBehaviour
         _deck.AddRange(_fold);
         _fold.Clear();
         Shuffle();
+        UpdateDeckSize();
     }
 
     // удвоить карты в колоде
@@ -104,6 +125,7 @@ public class DeckController : MonoBehaviour
         if (_cardsType == CardType.SPELL)
             deckToAdd = _deck.FindAll((card) => ((SpellCard)card).order != Order.WILDMAGIC);
         _deck.AddRange(deckToAdd);
+        UpdateDeckSize();
     }
 
     // если количество карт в колоде было изменено, то и изменится размер самой колоды
