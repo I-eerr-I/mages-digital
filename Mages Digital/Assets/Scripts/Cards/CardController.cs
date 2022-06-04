@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class CardController : MonoBehaviour
@@ -9,66 +10,141 @@ public class CardController : MonoBehaviour
     {
         { Order.SOURCE,      new Color(1.0f, 0.8427867f, 0.0f) },
         { Order.QUALITY,     new Color(0.9960785f, 0.4745098f, 0.0f) },
-        { Order.DELIVERY,    new Color(0.9960785f, 0.0509804f, 0.1529412f) }
+        { Order.DELIVERY,    new Color(0.9960785f, 0.0509804f, 0.1529412f) },
+        { Order.WILDMAGIC,   new Color(0.0f, 0.60784f, 0.5843f) }
     };
 
-    public Card card;
-    public MageController owner;
+    [SerializeField] private Card _card;
+    [SerializeField] private MageController _owner;
 
     private SpriteRenderer _frontSpriteRenderer;
     private SpriteRenderer _backSpriteRenderer;
-    private Outline _outline;
-    private Light _outlineLight;
+
+    private OutlineController _outlineController;
     
+
+    public bool inHand  = false;
+    public bool inSpell = false;
+
+    public Card card => _card;
+    public MageController owner => _owner;
+    public bool withOwner => _owner != null;
+    public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
+    public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
 
     void Awake()
     {
-        _frontSpriteRenderer = transform.GetChild(0).gameObject.GetComponent<SpriteRenderer>();
-        _backSpriteRenderer  = transform.GetChild(1).gameObject.GetComponent<SpriteRenderer>();
+        _frontSpriteRenderer     = transform.GetChild(0).gameObject.GetComponent<SpriteRenderer>();
+        _backSpriteRenderer      = transform.GetChild(1).gameObject.GetComponent<SpriteRenderer>();
         GameObject outlineObject = transform.GetChild(2).gameObject;
-        _outline = outlineObject.GetComponent<Outline>();
-        _outlineLight = outlineObject.GetComponent<Light>();
-
-        // TEST
-        _frontSpriteRenderer.material.SetFloat("_OutlineEnabled", 0.0f);
-        // TEST
+        _outlineController       = outlineObject.GetComponent<OutlineController>();
     }
 
-    public void SetupCard(Card card, Sprite back)
+    public bool IsSpell()
     {
-        this.card = card;
+        if (_card)
+            return _card.cardType == CardType.SPELL;
+        return false;
+    }
+
+    public void SetupCard(Card card, Sprite back = null)
+    {
+        _card = card;
         _frontSpriteRenderer.sprite = card.front;
-        _backSpriteRenderer.sprite  = back;
+        if (back != null)
+            _backSpriteRenderer.sprite  = back;
         Color cardColor;
         if (card.cardType == CardType.SPELL)
             cardColor = SPELL_CARD_MAIN_COLOR[((SpellCard) card).order];
         else
             cardColor = DeckController.DECK_MAIN_COLOR[card.cardType];
-        _outline.OutlineColor = cardColor;
-        _outlineLight.color   = cardColor;
+        _outlineController.SetColor(cardColor);
     }
 
-    // TEST
-    void OnMouseOver()
+    public void SetOwner(MageController owner)
     {
-        _frontSpriteRenderer.material.SetFloat("_OutlineEnabled", 1.0f);
-    }
+        _owner = owner;
+    } 
 
-    void OnMouseExit()
+    public void OnMouseOverTrigger()
     {
-        _frontSpriteRenderer.material.SetFloat("_OutlineEnabled", 0.0f);
+        if (withOwner)
+        {
+            UIManager.instance.ShowCardInfo(card.front, true);
+            if (IsSpell())
+                owner.owner.OnSpellCardSelected(this, true);
+        }
+
     }
 
-    void OnMouseDown()
+    public void OnMouseExitTrigger()
     {
-        print("Clicked!");
+        UIManager.instance.ShowCardInfo(card.front, false);
+        if (IsSpell() && withOwner)
+            owner.owner.OnSpellCardSelected(this, false);
     }
-    // TEST
 
-    public void SetBack(Sprite back)
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    public void OnMouseDownTrigger()
     {
-        _backSpriteRenderer.sprite = back;
+        if (IsSpell() && withOwner)
+        {
+            SpellCard spellCard = (SpellCard) card;
+            Order order = spellCard.order;
+            if (inHand)
+            {
+                if (order == Order.WILDMAGIC)
+                    return; // XXX
+                StartCoroutine(owner.AddToSpell(this, order));
+                StateToSpell();
+            }
+            else if (inSpell)
+            {
+                StartCoroutine(owner.BackToHand(this, order));
+                StateToHand();
+            }
+        }
     }
 
+    public IEnumerator RotateFrontUp()
+    {
+        Vector3 rotation;
+        Vector3 current = transform.eulerAngles;
+        if (!inHand)
+            rotation = new Vector3(current.x, 0.0f, current.z);
+        else
+            rotation = new Vector3(90.0f, current.y, current.z);
+        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", 0.15f, "islocal", inHand));
+        yield return new WaitForSeconds(0.15f);
+    }
+
+    public IEnumerator RotateBackUp()
+    {
+        Vector3 rotation;
+        Vector3 current = transform.eulerAngles;
+        if (!inHand)
+            rotation = new Vector3(current.x, 180.0f, current.z);
+        else
+            rotation = new Vector3(-90.0f, current.y, current.z);
+        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", 0.15f, "islocal", inHand));
+        yield return new WaitForSeconds(0.15f);
+    }
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+    public void StateToSpell()
+    {
+        inHand  = false;
+        inSpell = true;
+    }
+
+    public void StateToHand()
+    {
+        inHand  = true;
+        inSpell = false;
+    }
 
 }

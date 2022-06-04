@@ -33,10 +33,15 @@ public class DeckController : MonoBehaviour
     
     private bool  _hidden       = true;   // спрятана ли колода
 
+    private MeshRenderer   _baseMeshRenderer;
+    private Light          _baseLight;
+    private SpriteRenderer _backSpriteRenderer;
+
     private Sprite _back; // рубашка карт колоды
 
     public float    hiddenY     => _hiddenY;
     public float    unhiddenY   => _unhiddenY;
+    public float    hideTime    => _hideTime;
     public CardType cardsType   => _cardsType;         
     public int      cardsAmount => _deck.Count;        // количество карт в колоде
 
@@ -46,14 +51,22 @@ public class DeckController : MonoBehaviour
 
     void Awake()
     {
-        _back = gameObject.GetComponentInChildren<SpriteRenderer>().sprite;
-        gameObject.GetComponentInChildren<Light>().color = DECK_MAIN_COLOR[_cardsType];
+        _backSpriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
+        _baseLight          = gameObject.GetComponentInChildren<Light>();
+        _baseMeshRenderer   = gameObject.GetComponentInChildren<MeshRenderer>();
+        _back = _backSpriteRenderer.sprite;
+        _baseLight.color = DECK_MAIN_COLOR[_cardsType];
         if (_cardsType == CardType.SPELL) DoubleDeck();
         UpdateDeckSize();
         
         // TEST
         oldCardsAmount = _deck.Count;
         // TEST
+    }
+
+    void Start()
+    {
+        Shuffle();
     }
 
     void Update()
@@ -87,7 +100,24 @@ public class DeckController : MonoBehaviour
 
 
     // выдать карту из колоды
-    public Card PassCard()
+    public IEnumerator PassCardsTo(MageController owner, int nCards)
+    {
+        Hide(false);
+        yield return new WaitForSeconds(_hideTime);
+        for (int i = 0; i < nCards; i++)
+        {
+            Card card = TakeLastCard();
+            if (card != null)
+            {
+                CardController cardController = SpawnCard(card, transform.position);
+                StartCoroutine(owner.AddCard(cardController, true));
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+        Hide(true);
+    }
+
+    public Card TakeLastCard()
     {
         Card card = null;
         if (_deck.Count > 0)
@@ -98,9 +128,19 @@ public class DeckController : MonoBehaviour
         else if (_fold.Count > 0)
         {
             ShuffleWithFold();
-            return PassCard();
+            return TakeLastCard();
         }
         return card;
+    }
+
+    public CardController SpawnCard(Card card, Vector3 position)
+    {
+        GameObject cardObject = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
+        cardObject.name = card.cardName;
+        cardObject.transform.position = position;
+        CardController cardController = cardObject.GetComponent<CardController>();
+        cardController.SetupCard(card, _back);
+        return cardController;
     }
 
     // перемешать колоду
@@ -131,9 +171,13 @@ public class DeckController : MonoBehaviour
     // если количество карт в колоде было изменено, то и изменится размер самой колоды
     void UpdateDeckSize()
     {
-        gameObject.SetActive(true);
-        float deckSize = _cardThickness * _deck.Count;
-        iTween.ScaleTo(gameObject, new Vector3(transform.localScale.x, transform.localScale.y, deckSize), 0.01f);   
+        bool isDeckEmpty = _deck.Count == 0;
+        _baseLight.enabled = _baseMeshRenderer.enabled = _backSpriteRenderer.enabled = !isDeckEmpty;
+        if (!isDeckEmpty)
+        {
+            float deckSize = _cardThickness * _deck.Count;
+            iTween.ScaleTo(gameObject, new Vector3(transform.localScale.x, transform.localScale.y, deckSize), 0.01f);   
+        }
     }
 
 

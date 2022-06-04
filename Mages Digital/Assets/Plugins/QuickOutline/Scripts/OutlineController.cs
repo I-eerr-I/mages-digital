@@ -1,34 +1,68 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class OutlineController : MonoBehaviour
 {
-    private Outline _outline;
-    private Light   _light;
+
+    [SerializeField] private Color _color;
+
+    private Outline   _outline;
+    private Light     _light;
+    private SerializedObject _halo;
 
     void Awake()
     {
         _outline = gameObject.GetComponent<Outline>();
         _light   = gameObject.GetComponent<Light>();
+        _halo    = new SerializedObject(gameObject.GetComponent("Halo"));
     }
 
     void Start()
     {
-        if (_outline) _outline.enabled = false;
-        if (_light)   _light.enabled   = false;
+        if (_light != null)   _light.enabled   = false;
+        if (_outline != null) _outline.enabled = false;
+        if (_halo != null)    
+        {
+            _halo.FindProperty("m_Enabled").boolValue = false;
+            _halo.ApplyModifiedProperties();
+        }
+        SetColor(_color);
+    }
+
+    public void SetColor(Color color)
+    {
+        _color = color;
+        if (_light != null)   _light.color = _color;
+        if (_outline != null) _outline.OutlineColor = _color;
+        if (_halo != null)    
+        {
+            _halo.FindProperty("m_Color").colorValue = _color;
+            _halo.ApplyModifiedProperties();
+        }
     }
 
     void OnMouseOver()
     {
-        if (_outline) _outline.enabled = true;
-        if (_light)   _light.enabled   = true;
+        if (_light != null)   _light.enabled   = true;
+        if (_outline != null) _outline.enabled = true;
+        if (_halo != null)    
+        {
+            _halo.FindProperty("m_Enabled").boolValue = true;
+            _halo.ApplyModifiedProperties();
+        }
     }
 
     void OnMouseExit()
     {
-        if (_outline) _outline.enabled = false;
-        if (_light)   _light.enabled   = false;
+        if (_light != null)   _light.enabled   = false;
+        if (_outline != null) _outline.enabled = false;
+        if (_halo != null)    
+        {
+            _halo.FindProperty("m_Enabled").boolValue = false;
+            _halo.ApplyModifiedProperties();
+        }
     }
 
 }

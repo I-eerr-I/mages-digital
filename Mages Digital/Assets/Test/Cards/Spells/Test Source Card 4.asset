@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Test Source Card 4
   m_EditorClassIdentifier: 
   _front: {fileID: -7136840529013852981, guid: bda59c4c6c0ac4b4b938aebf236c85ee, type: 3}
-  _cardname: Test Source Card 4
+  _cardName: Test Source Card 4
   _description: 
   _cardType: 0
   _spell:

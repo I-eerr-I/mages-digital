@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Test Quality Card 4
   m_EditorClassIdentifier: 
   _front: {fileID: -5229922940850303493, guid: 2a8d9305a6d606b45a9257813089a8db, type: 3}
-  _cardname: Test Quality Card 4
+  _cardName: Test Quality Card 4
   _description: 
   _cardType: 0
   _spell:

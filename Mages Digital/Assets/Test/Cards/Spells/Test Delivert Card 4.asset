@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Test Delivert Card 4
   m_EditorClassIdentifier: 
   _front: {fileID: 9008660230051194950, guid: 5858bf4c0ef293949928c355c870d3d1, type: 3}
-  _cardname: Test Delivert Card 4
+  _cardName: Test Delivert Card 4
   _description: 
   _cardType: 0
   _spell:
