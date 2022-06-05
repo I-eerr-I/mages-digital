@@ -8,9 +8,14 @@ public class OutlineController : MonoBehaviour
 
     [SerializeField] private Color _color;
 
-    private Outline   _outline;
-    private Light     _light;
+    private Outline          _outline;
+    private Light            _light;
     private SerializedObject _halo;
+
+    public bool withLight = true;
+    public bool withHalo  = true;
+
+    public bool state     = false;
 
     void Awake()
     {
@@ -21,21 +26,24 @@ public class OutlineController : MonoBehaviour
 
     void Start()
     {
-        if (_light != null)   _light.enabled   = false;
-        if (_outline != null) _outline.enabled = false;
-        if (_halo != null)    
-        {
-            _halo.FindProperty("m_Enabled").boolValue = false;
-            _halo.ApplyModifiedProperties();
-        }
+        SetState(state);
         SetColor(_color);
+    }
+
+    public void SetProperties(bool light, bool halo)
+    {
+        withLight = true;
+        withHalo  = true;
+        SetState(false);
+        withLight = light;
+        withHalo  = halo;
     }
 
     public void SetColor(Color color)
     {
         _color = color;
-        if (_light != null)   _light.color = _color;
         if (_outline != null) _outline.OutlineColor = _color;
+        if (_light != null)   _light.color = _color;
         if (_halo != null)    
         {
             _halo.FindProperty("m_Color").colorValue = _color;
@@ -43,26 +51,25 @@ public class OutlineController : MonoBehaviour
         }
     }
 
-    void OnMouseOver()
+    void SetState(bool state)
     {
-        if (_light != null)   _light.enabled   = true;
-        if (_outline != null) _outline.enabled = true;
-        if (_halo != null)    
+        if (_outline != null) _outline.enabled = state;
+        if (_light != null && withLight) _light.enabled = state;
+        if (_halo != null && withHalo)    
         {
-            _halo.FindProperty("m_Enabled").boolValue = true;
+            _halo.FindProperty("m_Enabled").boolValue = state;
             _halo.ApplyModifiedProperties();
         }
     }
 
+    void OnMouseOver()
+    {
+        SetState(true);
+    }
+
     void OnMouseExit()
     {
-        if (_light != null)   _light.enabled   = false;
-        if (_outline != null) _outline.enabled = false;
-        if (_halo != null)    
-        {
-            _halo.FindProperty("m_Enabled").boolValue = false;
-            _halo.ApplyModifiedProperties();
-        }
+        SetState(false);
     }
 
 }

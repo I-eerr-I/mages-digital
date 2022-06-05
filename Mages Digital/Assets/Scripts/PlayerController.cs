@@ -12,14 +12,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _handCardsY = -2.75f;   // локальная координата Y в руке по-умолчанию
     
     [Header("Параметры перемещения карт")]
-    [SerializeField] private Vector3 _cardMovingDestination = new Vector3(0.0f, -5.5f, 7.5f); // глобальная позиция, куда карта перемещается после спауна
-    [SerializeField] private float   _cardMovingToHandTime   = 1.0f;  // время перемещения карты к руке
-    [SerializeField] private float   _cardMovingToSpellTime  = 0.25f; // время перемещения карты к заклинанию
-    [SerializeField] private float   _cardAvgFittingTime     = 0.15f; // среднее время выравнивания карты заклинания в руке
+    [SerializeField] private Vector3 _cardMovingDestination       = new Vector3(0.0f, -5.5f, 7.5f); // глобальная позиция, куда карта перемещается после спауна
+    [SerializeField] private float   _bonusCardMovingToHandTime   = 1.0f;  // время перемещения карты к руке
+    [SerializeField] private float   _cardMovingToSpellTime       = 0.25f; // время перемещения карты к заклинанию
+    [SerializeField] private float   _cardAvgFittingTime          = 0.15f; // среднее время выравнивания карты заклинания в руке
 
     [Header("Параметры расположения и анимации карт заклинаний в руке")]
-    [SerializeField] private float _spellsStartX        = 0.0f;     // локальная начальная координата X для заклинаний
-    [SerializeField] private float _spellsRightMaxX     = 2.5f;     // локальное крайнее правое зачение X для заклинаний
+    // [SerializeField] private float _spellsStartX        = 0.0f;     // локальная начальная координата X для заклинаний
+    [SerializeField] private float _spellsRightMaxX     = 3.0f;     // локальное крайнее правое зачение X для заклинаний
     [SerializeField] private float _spellsSelectedZ     = 5.25f;    // локальная координата Z при наведении на карту
     [SerializeField] private float _spellsSelectedY     = -2.5f;    // локальная координата Y при наведении на карту
     
@@ -52,19 +52,34 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(FitSpellCardsInHand());
         }
         // TEST
+
+        if (Input.GetButton("Execute"))
+        {
+            // StartCoroutine(OnExecute());
+        }
+    }
+
+    public IEnumerator OnExecute()
+    {
+        // if (_mage.spellIsReady)
+        // {
+
+        // }
+        yield break;
     }
 
     // реакция на добавление карты к руке
     public IEnumerator OnCardAddedToHand(CardController cardController)
     {
-        float x = cardController.isSpell ? _spellsStartX : _bonusesStartX;
-        Vector3 position = GetHandPositionVector(x);
+
+        Vector3 position = GetHandPositionVector(_bonusesStartX);
 
         cardController.transform.SetParent(transform);
 
-        iTween.MoveTo(cardController.gameObject, iTween.Hash("position", position, "time", _cardMovingToHandTime, "islocal", true));
         StartCoroutine(cardController.PositionFrontUp());
-        if (cardController.isSpell)
+        if (!cardController.isSpell)
+            iTween.MoveTo(cardController.gameObject, iTween.Hash("position", position, "time", _bonusCardMovingToHandTime, "islocal", true));
+        else
             yield return FitSpellCardsInHand();
         yield break;
     }
@@ -77,7 +92,7 @@ public class PlayerController : MonoBehaviour
         Transform orderLocation = GetLocationOfOrder(order);
 
         iTween.MoveTo(addedCard.gameObject, iTween.Hash("position", orderLocation.position, "time", _cardMovingToSpellTime));
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(_cardMovingToSpellTime);
         yield return addedCard.PositionFrontUp();
         yield return FitSpellCardsInHand();
     }
@@ -92,6 +107,8 @@ public class PlayerController : MonoBehaviour
             float x = cardController.transform.position.x;
             if (_rotateSpells) y += 0.25f * Mathf.Cos(x);
             iTween.MoveTo(cardController.gameObject, iTween.Hash("position", new Vector3(x, y, z), "time", _cardAvgFittingTime, "islocal", true));
+            if (!isSelected && cardController.isSpell)
+                StartCoroutine(FitSpellCardsInHand());
         }
     }
 
@@ -102,7 +119,7 @@ public class PlayerController : MonoBehaviour
         float step    = (_spellsRightMaxX * 2.0f) / (spellCards.Count + 1);
         float rotStep = (_spellsRotLeftMaxZ * 2.0f) / (spellCards.Count + 1);
         float x      = -_spellsRightMaxX + step;
-        float z      = _handCardsZ;
+        // float z      = _handCardsZ;
         float rotZ   = _spellsRotLeftMaxZ - rotStep;
         for (int i = 0; i < spellCards.Count; i++)
         {
@@ -111,7 +128,7 @@ public class PlayerController : MonoBehaviour
             card.transform.SetSiblingIndex(i);
             card.frontSpriteRenderer.sortingOrder = i;
 
-            Vector3 position = new Vector3(x, _handCardsY, z);
+            Vector3 position = new Vector3(x, _handCardsY, _handCardsZ);
         
             if (_rotateSpells)
             {
@@ -122,7 +139,7 @@ public class PlayerController : MonoBehaviour
             }
             iTween.MoveTo(card.gameObject, iTween.Hash("position", position, "time", _cardAvgFittingTime, "islocal", true));
             
-            z += 0.01f;
+            // z += 0.01f;
             x    += step;
         }
         yield break;

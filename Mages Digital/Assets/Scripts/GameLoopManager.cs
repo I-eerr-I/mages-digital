@@ -13,15 +13,15 @@ public class GameLoopManager : MonoBehaviour
     {
 
         yield return new WaitForSeconds(2.0f);
-        foreach (MageController mage in gm.mages)
-        {
-            yield return gm.spellsDeck.PassCardsTo(mage, 8);
-        }
+        yield return gm.CardDraw();
+        
+        // TEST
         foreach (MageController mage in gm.mages)
         {
             yield return gm.treasuresDeck.PassCardsTo(mage, 8);
-        }
-        yield return new WaitForSeconds(gm.spellsDeck.hideTime);
-        
+        }   
+        // TEST
+
+        yield return gm.SpellCreationStart();
     }
 }

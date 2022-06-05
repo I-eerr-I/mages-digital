@@ -11,6 +11,7 @@ public class OnMouseEventsCardTrigger : MonoBehaviour
         _cardController = gameObject.GetComponentInParent<CardController>();
     }
 
+
     void OnMouseOver()
     {
         _cardController.OnMouseOverTrigger();

@@ -27,13 +27,18 @@ public class CardController : MonoBehaviour
     [SerializeField] private MageController _owner; // маг владеющий картой
 
     [Header("Анимация карты")]
-    [SerializeField] private float _cardFlippingTime = 0.15f;
+    [SerializeField] private float _cardFlippingTime     = 0.15f;
+    [SerializeField] private float _cardShowInfoWaitTime = 1.5f;
+
+    private float _mouseOverTime = 0.0f; // время, прошедшее с момента наведения на карту
 
     private SpriteRenderer _frontSpriteRenderer;    // рендер передней части карты
     private SpriteRenderer _backSpriteRenderer;     // рендер задней части (рубашки) карты
 
     private OutlineController _outlineController;   // управление подсветкой карты
+
     
+    public bool  discoverable  = true; // можно ли взаимодействовать с картой
 
     public CardState cardState = CardState.NO_OWNER; // состояние карты
 
@@ -97,44 +102,55 @@ public class CardController : MonoBehaviour
     // триггер при наведении курсора на карту
     public void OnMouseOverTrigger()
     {
-        if (withOwner && isSpell)
+        if (discoverable)
         {
-            UIManager.instance.ShowCardInfo(card.front, true);
-            owner.owner.OnSpellCardSelected(this, true);
+            if (withOwner && isSpell)
+            {
+                _mouseOverTime += Time.deltaTime;
+                if (_mouseOverTime >= _cardShowInfoWaitTime)
+                    UIManager.instance.ShowCardInfo(card.front, true);
+                owner.owner.OnSpellCardSelected(this, true);
+            }
         }
     }
 
     // триггер при выходе курсора из области карты
     public void OnMouseExitTrigger()
     {
+        _mouseOverTime = 0.0f;
         UIManager.instance.ShowCardInfo(card.front, false);
-        if (isSpell && withOwner)
-            owner.owner.OnSpellCardSelected(this, false);
+        if (discoverable)
+        {
+            if (isSpell && withOwner)
+                owner.owner.OnSpellCardSelected(this, false);
+        }
     }
 
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     // триггер при клике на карту
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // XXX баг при быстром клике на карту одного и того же порядка
+    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     public void OnMouseDownTrigger()
     {
-        if (isSpell && withOwner)
+        if (discoverable && GameManager.instance.isSpellCreationState)
         {
-            SpellCard spellCard = (SpellCard) card;
-            Order order = spellCard.order;
-            if (inHand)
+            if (isSpell && withOwner)
             {
-                if (order == Order.WILDMAGIC) return; // XXX
-                StartCoroutine(owner.AddToSpell(this, order));
-                StateToSpell();
-            }
-            else if (inSpell)
-            {
-                StartCoroutine(owner.BackToHand(this, order));
-                StateToHand();
+                SpellCard spellCard = (SpellCard) card;
+                Order order = spellCard.order;
+                if (inHand)
+                {
+                    if (order == Order.WILDMAGIC) return; // XXX
+                    StartCoroutine(owner.AddToSpell(this, order));
+                }
+                else if (inSpell)
+                {
+                    StartCoroutine(owner.BackToHand(this, order));
+                }
             }
         }
     }
+
 
     // перевернуть карту лицевой строной вверх
     public IEnumerator PositionFrontUp()
@@ -159,19 +175,23 @@ public class CardController : MonoBehaviour
         iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", _cardFlippingTime, "islocal", inHand));
         yield return new WaitForSeconds(0.15f);
     }
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-    
-    public void StateToSpell()
+    public void StateToNoOwner()
     {
-        cardState = CardState.IN_SPELL;
+        cardState = CardState.NO_OWNER;
+        _outlineController.SetProperties(true, false);
     }
 
-    public void StateToHand()
+    public void StateToInSpell()
+    {
+        cardState = CardState.IN_SPELL;
+        _outlineController.SetProperties(true, false);
+    }
+
+    public void StateToInHand()
     {
         cardState = CardState.IN_HAND;
+        _outlineController.SetProperties(false, true);
     }
 
 }

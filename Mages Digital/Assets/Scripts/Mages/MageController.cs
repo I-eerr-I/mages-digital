@@ -30,7 +30,6 @@ public class MageController : MonoBehaviour
     public Mage mage;               // данные мага
     public PlayerController owner;  // игрок, управляющий магом
     
-    public bool isDead  => _health <= 0;  // мертв ли маг
     public int health   => _health;
     public MageController leftMage  => _leftMage;
     public MageController rightMage => _rightMage;  
@@ -42,6 +41,9 @@ public class MageController : MonoBehaviour
     public List<CardController> wildMagics => _wildMagics;
     public List<CardController> spell      => _spell;
 
+    public bool isDead       => _health <= 0;  // мертв ли маг
+    public int  cardsInSpell => _spell.FindAll(x => x != null).Count;
+    public bool spellIsReady => cardsInSpell > 0;
 
     // добавить карту в руку мага
     public IEnumerator AddCard(CardController cardController)
@@ -61,32 +63,44 @@ public class MageController : MonoBehaviour
     // добавить карту в заклинание
     public IEnumerator AddToSpell(CardController cardToAdd, Order order)
     {
+
+        cardToAdd.discoverable = false;
+
         // индекс расположения карты в заклинании
         int spellCardIndex = GetSpellIndexOfOrder(order);
-        print($"{order} {spellCardIndex} {_spell.Count}");
 
         // текущая карта в заклинании
         CardController backToHandCard = _spell[spellCardIndex];
+    
+        // вернуть старую карту в заклинании обратно в руку
+        if (backToHandCard != null)
+        {
+            backToHandCard.discoverable = false;
+            yield return AddCard(backToHandCard);
+            backToHandCard.discoverable = true;
+        }
 
         // удалить карту для заклинания из руки и добавить в заклинание
         List<CardController> hand = GetHandOfCardType(cardToAdd.card);
         hand.Remove(cardToAdd);
         _spell[spellCardIndex] = cardToAdd;
-        cardToAdd.StateToSpell();
+        cardToAdd.StateToInSpell();
 
-        // вернуть старую карту в заклинании обратно в руку
-        if (backToHandCard != null)
-            StartCoroutine(AddCard(backToHandCard));
 
         yield return owner.OnCardAddedToSpell(cardToAdd, order);
+        cardToAdd.StateToInSpell();
+
+        cardToAdd.discoverable = true;
     }
 
     // вернуть карту обратно в руку
     public IEnumerator BackToHand(CardController backToHandCard, Order order)
     {
+
         int spellCardIndex = GetSpellIndexOfOrder(order);
         _spell[spellCardIndex] = null;
         yield return AddCard(backToHandCard);
+        backToHandCard.StateToInHand();
     }
 
     // вернуть список, состоящий из всех карт заклинаний на руке мага
@@ -106,7 +120,7 @@ public class MageController : MonoBehaviour
     public void AddCardToHand(List<CardController> hand, CardController cardController)
     {
         hand?.Add(cardController);
-        cardController.StateToHand();
+        cardController.StateToInHand();
         if (cardController.card != null && cardController.isSpell)
         {
             hand.Sort((c1, c2) => ((SpellCard)c1.card).sign.CompareTo(((SpellCard)c2.card).sign));
