@@ -86,11 +86,18 @@ public class MageController : MonoBehaviour
         _spell[spellCardIndex] = cardToAdd;
         cardToAdd.StateToInSpell();
 
-
         yield return owner.OnCardAddedToSpell(cardToAdd, order);
-        cardToAdd.StateToInSpell();
 
+        cardToAdd.spellOrder   = order;
         cardToAdd.discoverable = true;
+    }
+
+    // добавить шальную магию к заклинанию
+    public IEnumerator AddWildMagicToSpell(CardController cardToAdd)
+    {
+        yield return owner.ChooseOrder();
+        if (owner.chosenOrder != Order.WILDMAGIC)
+            yield return AddToSpell(cardToAdd, owner.chosenOrder);
     }
 
     // вернуть карту обратно в руку
@@ -128,7 +135,7 @@ public class MageController : MonoBehaviour
     }
 
     // вернуть индекс заклинания
-    public int GetSpellIndexOfOrder(Order order)
+    public static int GetSpellIndexOfOrder(Order order)
     {
         switch (order)
         {
@@ -140,6 +147,20 @@ public class MageController : MonoBehaviour
                 return 2;
         }
         return -1;
+    }
+
+    public static Order GetOrderOfSpellIndex(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return Order.SOURCE;
+            case 1:
+                return Order.QUALITY;
+            case 2:
+                return Order.DELIVERY;
+        }
+        return Order.WILDMAGIC;
     }
 
     // вернуть определенную руку по типу карты

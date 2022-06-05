@@ -7,16 +7,20 @@ public class GameManager : MonoBehaviour
     public enum GameState
     {
         ROUND_START,
-        SPELL_CREATION
+        SPELL_CREATION,
+        SPELL_EXECUTION,
+        CHOOSING
     }
 
     private static GameManager _instance;
     public  static GameManager  instance => _instance;
 
+    private GameState _prevGameState;
     private GameState _gameState = GameState.ROUND_START;
 
     private List<MageController> _mages = new List<MageController>();
 
+    private List<Transform> _spellLocations = new List<Transform>();
     private List<SpellLocationController> _spellLocationControllers = new List<SpellLocationController>();
 
 
@@ -38,6 +42,7 @@ public class GameManager : MonoBehaviour
 
     public GameState gameState => _gameState;
     public List<MageController> mages => _mages;
+    public List<Transform> spellLocations => _spellLocations;
     public List<SpellLocationController> spellLocationControllers => _spellLocationControllers;
 
     public bool isSpellCreationState => _gameState == GameState.SPELL_CREATION;
@@ -47,13 +52,18 @@ public class GameManager : MonoBehaviour
         if (_instance == null) _instance = this;
         else Destroy(gameObject);
 
-        _spellLocationControllers.Add(sourceLocation.gameObject.GetComponent<SpellLocationController>());
-        _spellLocationControllers.Add(qualityLocation.gameObject.GetComponent<SpellLocationController>());
-        _spellLocationControllers.Add(deliveryLocation.gameObject.GetComponent<SpellLocationController>());
+        _spellLocations.Add(sourceLocation);
+        _spellLocations.Add(qualityLocation);
+        _spellLocations.Add(deliveryLocation);
+        foreach (Transform spellLocation in _spellLocations)
+            _spellLocationControllers.Add(spellLocation.gameObject.GetComponent<SpellLocationController>());
+        
     }
 
     void Start()
     {
+        _prevGameState = _gameState;
+
         GameObject[] mageObjects = GameObject.FindGameObjectsWithTag("Mage");
         foreach (GameObject mageObject in mageObjects)
         {
@@ -69,11 +79,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public IEnumerator SpellCreationStart()
+    public IEnumerator SpellCreation()
     {
-        _gameState = GameState.SPELL_CREATION;
+        SetNewState(GameState.SPELL_CREATION);
         foreach (SpellLocationController slc in _spellLocationControllers)
-            slc.FadeIn();
+            slc.FadeInOutline();
+        // XXX to slow (c)
+        yield return new WaitUntil(() => _mages.FindAll(x => x.owner.readyToExecute).Count == _mages.FindAll(x => !x.isDead).Count);
+    }
+
+    public IEnumerator SpellExecution()
+    {
+        SetNewState(GameState.SPELL_EXECUTION);
         yield break;
+    }
+
+    public void SetChoosingState()
+    {
+        SetNewState(GameState.CHOOSING);
+    }
+
+    public void ReturnToPrevState()
+    {
+        SetNewState(_prevGameState);
+    }
+
+    void SetNewState(GameState newState)
+    {
+        _prevGameState = _gameState;
+        _gameState = newState;
     }
 }

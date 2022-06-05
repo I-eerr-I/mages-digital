@@ -16,12 +16,14 @@ public class GameLoopManager : MonoBehaviour
         yield return gm.CardDraw();
         
         // TEST
-        foreach (MageController mage in gm.mages)
-        {
-            yield return gm.treasuresDeck.PassCardsTo(mage, 8);
-        }   
+        // foreach (MageController mage in gm.mages)
+        // {
+        //     yield return gm.treasuresDeck.PassCardsTo(mage, 8);
+        // }   
         // TEST
 
-        yield return gm.SpellCreationStart();
+        yield return gm.SpellCreation();
+
+        yield return gm.SpellExecution();
     }
 }

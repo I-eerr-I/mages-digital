@@ -37,7 +37,10 @@ public class CardController : MonoBehaviour
 
     private OutlineController _outlineController;   // управление подсветкой карты
 
-    
+    private Order _spellOrder = Order.WILDMAGIC; // порядок в заклинании (нужен для шальной магии)
+
+
+
     public bool  discoverable  = true; // можно ли взаимодействовать с картой
 
     public CardState cardState = CardState.NO_OWNER; // состояние карты
@@ -46,11 +49,19 @@ public class CardController : MonoBehaviour
     public bool inSpell   => cardState == CardState.IN_SPELL; // находится ли карта в заклинании
     public bool withOwner => cardState != CardState.NO_OWNER; // есть ли у карты владелец
     public bool isSpell   => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
+    
+    public Order spellOrder
+    {
+        get => _spellOrder;
+        set => _spellOrder = value;
+    }
 
     public Card card => _card;
     public MageController owner => _owner;
     public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
     public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
+
+
 
     void Awake()
     {
@@ -134,18 +145,23 @@ public class CardController : MonoBehaviour
     {
         if (discoverable && GameManager.instance.isSpellCreationState)
         {
-            if (isSpell && withOwner)
+            if (withOwner)
             {
-                SpellCard spellCard = (SpellCard) card;
-                Order order = spellCard.order;
-                if (inHand)
+                if (isSpell)
                 {
-                    if (order == Order.WILDMAGIC) return; // XXX
-                    StartCoroutine(owner.AddToSpell(this, order));
-                }
-                else if (inSpell)
-                {
-                    StartCoroutine(owner.BackToHand(this, order));
+                    SpellCard spellCard = (SpellCard) card;
+                    Order order = spellCard.order;
+                    if (inHand)
+                    {
+                        if (order == Order.WILDMAGIC)
+                            StartCoroutine(owner.AddWildMagicToSpell(this));
+                        else
+                            StartCoroutine(owner.AddToSpell(this, order));
+                    }
+                    else if (inSpell)
+                    {
+                        StartCoroutine(owner.BackToHand(this, spellOrder));
+                    }
                 }
             }
         }

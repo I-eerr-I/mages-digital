@@ -112,6 +112,7 @@ public class DeckController : MonoBehaviour
         {
             card = _deck[0];
             _deck.RemoveAt(0);
+            UpdateDeckSize();
         }
         else if (_fold.Count > 0)
         {
