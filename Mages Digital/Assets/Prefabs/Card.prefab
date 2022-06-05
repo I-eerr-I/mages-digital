@@ -284,7 +284,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _card: {fileID: 0}
   _owner: {fileID: 0}
-  inHand: 0
+  cardState: 2
 --- !u!1 &6321173911512981663
 GameObject:
   m_ObjectHideFlags: 0

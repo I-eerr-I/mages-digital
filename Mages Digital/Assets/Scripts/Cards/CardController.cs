@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class CardController : MonoBehaviour
 {
+    // словарь для получения цвета подсветки карты в зависимости от порядка в заклинании
     public static Dictionary<Order, Color> SPELL_CARD_MAIN_COLOR = new Dictionary<Order, Color>()
     {
         { Order.SOURCE,      new Color(1.0f, 0.8427867f, 0.0f) },
@@ -14,21 +15,35 @@ public class CardController : MonoBehaviour
         { Order.WILDMAGIC,   new Color(0.0f, 0.60784f, 0.5843f) }
     };
 
-    [SerializeField] private Card _card;
-    [SerializeField] private MageController _owner;
+    // словарь для получения цвета подсветки карты в зависимости от ее типа
+    public static Dictionary<CardType, Color> CARD_MAIN_COLOR = new Dictionary<CardType, Color>()
+    {
+        { CardType.SPELL,    new Color(1.0f, 0.0f, 0.0f) },
+        { CardType.TREASURE, new Color(1.0f, 0.8427867f, 0.0f) },
+        { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
+    };
 
-    private SpriteRenderer _frontSpriteRenderer;
-    private SpriteRenderer _backSpriteRenderer;
+    [SerializeField] private Card _card;            // данные карты
+    [SerializeField] private MageController _owner; // маг владеющий картой
 
-    private OutlineController _outlineController;
+    [Header("Анимация карты")]
+    [SerializeField] private float _cardFlippingTime = 0.15f;
+
+    private SpriteRenderer _frontSpriteRenderer;    // рендер передней части карты
+    private SpriteRenderer _backSpriteRenderer;     // рендер задней части (рубашки) карты
+
+    private OutlineController _outlineController;   // управление подсветкой карты
     
 
-    public bool inHand  = false;
-    public bool inSpell = false;
+    public CardState cardState = CardState.NO_OWNER; // состояние карты
+
+    public bool inHand    => cardState == CardState.IN_HAND;  // находится ли карта в руке
+    public bool inSpell   => cardState == CardState.IN_SPELL; // находится ли карта в заклинании
+    public bool withOwner => cardState != CardState.NO_OWNER; // есть ли у карты владелец
+    public bool isSpell   => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
 
     public Card card => _card;
     public MageController owner => _owner;
-    public bool withOwner => _owner != null;
     public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
     public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
 
@@ -36,67 +51,80 @@ public class CardController : MonoBehaviour
     {
         _frontSpriteRenderer     = transform.GetChild(0).gameObject.GetComponent<SpriteRenderer>();
         _backSpriteRenderer      = transform.GetChild(1).gameObject.GetComponent<SpriteRenderer>();
-        GameObject outlineObject = transform.GetChild(2).gameObject;
-        _outlineController       = outlineObject.GetComponent<OutlineController>();
+        _outlineController       = transform.GetChild(2).gameObject.GetComponent<OutlineController>();
     }
 
-    public bool IsSpell()
+    // TEST
+    bool isup = false;
+    void Update()
     {
-        if (_card)
-            return _card.cardType == CardType.SPELL;
-        return false;
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            if (isup)
+                StartCoroutine(PositionBackUp());
+            else
+                StartCoroutine(PositionFrontUp());
+            isup = !isup;
+        }
     }
+    // TEST
 
+    // настроить карту
     public void SetupCard(Card card, Sprite back = null)
     {
+        // данные карты
         _card = card;
+        // передняя часть карты
         _frontSpriteRenderer.sprite = card.front;
+        // задняя часть карты
         if (back != null)
             _backSpriteRenderer.sprite  = back;
+        // подсветка карты
         Color cardColor;
         if (card.cardType == CardType.SPELL)
             cardColor = SPELL_CARD_MAIN_COLOR[((SpellCard) card).order];
         else
-            cardColor = DeckController.DECK_MAIN_COLOR[card.cardType];
+            cardColor = CARD_MAIN_COLOR[card.cardType];
         _outlineController.SetColor(cardColor);
     }
 
+    // установить владельца карты
     public void SetOwner(MageController owner)
     {
         _owner = owner;
     } 
 
+    // триггер при наведении курсора на карту
     public void OnMouseOverTrigger()
     {
-        if (withOwner)
+        if (withOwner && isSpell)
         {
             UIManager.instance.ShowCardInfo(card.front, true);
-            if (IsSpell())
-                owner.owner.OnSpellCardSelected(this, true);
+            owner.owner.OnSpellCardSelected(this, true);
         }
-
     }
 
+    // триггер при выходе курсора из области карты
     public void OnMouseExitTrigger()
     {
         UIManager.instance.ShowCardInfo(card.front, false);
-        if (IsSpell() && withOwner)
+        if (isSpell && withOwner)
             owner.owner.OnSpellCardSelected(this, false);
     }
 
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    // триггер при клике на карту
     public void OnMouseDownTrigger()
     {
-        if (IsSpell() && withOwner)
+        if (isSpell && withOwner)
         {
             SpellCard spellCard = (SpellCard) card;
             Order order = spellCard.order;
             if (inHand)
             {
-                if (order == Order.WILDMAGIC)
-                    return; // XXX
+                if (order == Order.WILDMAGIC) return; // XXX
                 StartCoroutine(owner.AddToSpell(this, order));
                 StateToSpell();
             }
@@ -108,43 +136,42 @@ public class CardController : MonoBehaviour
         }
     }
 
-    public IEnumerator RotateFrontUp()
+    // перевернуть карту лицевой строной вверх
+    public IEnumerator PositionFrontUp()
     {
         Vector3 rotation;
-        Vector3 current = transform.eulerAngles;
-        if (!inHand)
-            rotation = new Vector3(current.x, 0.0f, current.z);
+        if (inHand)
+            rotation = new Vector3(0.0f, 0.0f, 0.0f);
         else
-            rotation = new Vector3(90.0f, current.y, current.z);
-        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", 0.15f, "islocal", inHand));
+            rotation = new Vector3(90.0f, 0.0f, 0.0f);
+        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", _cardFlippingTime, "islocal", inHand));
         yield return new WaitForSeconds(0.15f);
     }
 
-    public IEnumerator RotateBackUp()
+    // перевернуть карту рубашкой вверх
+    public IEnumerator PositionBackUp()
     {
         Vector3 rotation;
-        Vector3 current = transform.eulerAngles;
-        if (!inHand)
-            rotation = new Vector3(current.x, 180.0f, current.z);
+        if (inHand)
+            rotation = new Vector3(0.0f, 180.0f, 0.0f);
         else
-            rotation = new Vector3(-90.0f, current.y, current.z);
-        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", 0.15f, "islocal", inHand));
+            rotation = new Vector3(-90.0f, 0.0f, 0.0f);
+        iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", _cardFlippingTime, "islocal", inHand));
         yield return new WaitForSeconds(0.15f);
     }
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
+    
     public void StateToSpell()
     {
-        inHand  = false;
-        inSpell = true;
+        cardState = CardState.IN_SPELL;
     }
 
     public void StateToHand()
     {
-        inHand  = true;
-        inSpell = false;
+        cardState = CardState.IN_HAND;
     }
 
 }

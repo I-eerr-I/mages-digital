@@ -10,7 +10,7 @@ public class MageController : MonoBehaviour
     [SerializeField] private int _health = 20;      // здоровье мага
 
     [Header("Hand")]
-    [SerializeField] private List<CardController> _treasures  = new List<CardController>();
+    [SerializeField] private List<CardController> _treasures  = new List<CardController>(); // рука мага
     [SerializeField] private List<CardController> _deads      = new List<CardController>();
     [SerializeField] private List<CardController> _sources    = new List<CardController>();
     [SerializeField] private List<CardController> _qualities  = new List<CardController>();
@@ -18,18 +18,19 @@ public class MageController : MonoBehaviour
     [SerializeField] private List<CardController> _wildMagics = new List<CardController>();
 
     [Header("Spell")]
-    [SerializeField] private CardController _spellSource;
-    [SerializeField] private CardController _spellQuality;
-    [SerializeField] private CardController _spellDelivery;
+    [SerializeField] private List<CardController> _spell = new List<CardController>(3)
+    {
+        null, null, null
+    };
 
-    private MageController _leftMage  = null;
-    private MageController _rightMage = null;
+    private MageController _leftMage  = null; // левый соседний маг
+    private MageController _rightMage = null; // правый соседний маг
 
 
-    public Mage mage;  // данные мага
-    public PlayerController owner;
+    public Mage mage;               // данные мага
+    public PlayerController owner;  // игрок, управляющий магом
     
-    public bool isDead  => _health <= 0; // мертв ли маг
+    public bool isDead  => _health <= 0;  // мертв ли маг
     public int health   => _health;
     public MageController leftMage  => _leftMage;
     public MageController rightMage => _rightMage;  
@@ -39,11 +40,11 @@ public class MageController : MonoBehaviour
     public List<CardController> qualities  => _qualities;
     public List<CardController> deliveries => _deliveries;
     public List<CardController> wildMagics => _wildMagics;
-    public CardController spellSource => _spellSource;
-    public CardController spellQuality => _spellQuality;
-    public CardController spellDelivery => _spellDelivery;
+    public List<CardController> spell      => _spell;
 
-    public IEnumerator AddCard(CardController cardController, bool moveToOwner = false)
+
+    // добавить карту в руку мага
+    public IEnumerator AddCard(CardController cardController)
     {
         cardController.SetOwner(this);
         Card card = cardController.card;
@@ -52,12 +53,44 @@ public class MageController : MonoBehaviour
             List<CardController> hand = GetHandOfCardType(card);
             AddCardToHand(hand, cardController);
 
-            if (moveToOwner)
-                yield return owner.AddToHand(cardController);
+            yield return owner.OnCardAddedToHand(cardController);
         }
         yield break;
     }
 
+    // добавить карту в заклинание
+    public IEnumerator AddToSpell(CardController cardToAdd, Order order)
+    {
+        // индекс расположения карты в заклинании
+        int spellCardIndex = GetSpellIndexOfOrder(order);
+        print($"{order} {spellCardIndex} {_spell.Count}");
+
+        // текущая карта в заклинании
+        CardController backToHandCard = _spell[spellCardIndex];
+
+        // удалить карту для заклинания из руки и добавить в заклинание
+        List<CardController> hand = GetHandOfCardType(cardToAdd.card);
+        hand.Remove(cardToAdd);
+        _spell[spellCardIndex] = cardToAdd;
+        cardToAdd.StateToSpell();
+
+        // вернуть старую карту в заклинании обратно в руку
+        if (backToHandCard != null)
+            StartCoroutine(AddCard(backToHandCard));
+
+        yield return owner.OnCardAddedToSpell(cardToAdd, order);
+    }
+
+    // вернуть карту обратно в руку
+    public IEnumerator BackToHand(CardController backToHandCard, Order order)
+    {
+        int spellCardIndex = GetSpellIndexOfOrder(order);
+        _spell[spellCardIndex] = null;
+        yield return AddCard(backToHandCard);
+    }
+
+    // вернуть список, состоящий из всех карт заклинаний на руке мага
+    // последовательно: заводилы, навороты, приходы, шальные магии
     public List<CardController> GetSpells()
     {
         List<CardController> spellCards = new List<CardController>();
@@ -68,58 +101,41 @@ public class MageController : MonoBehaviour
         return spellCards;
     }
 
+    // добавить карту в определенную часть руки
+    // если добавляется заклинание, то сортировать обновленный список
     public void AddCardToHand(List<CardController> hand, CardController cardController)
     {
         hand?.Add(cardController);
-        cardController.inHand = true;
-        if (cardController.card != null && cardController.card.cardType == CardType.SPELL)
+        cardController.StateToHand();
+        if (cardController.card != null && cardController.isSpell)
         {
             hand.Sort((c1, c2) => ((SpellCard)c1.card).sign.CompareTo(((SpellCard)c2.card).sign));
         }
     }
 
-    public IEnumerator AddToSpell(CardController cardToAdd, Order order)
-    {
-        CardController spellCard = GetSpellCardOfOrder(order);
-        CardController backToHandCard = spellCard;
-        if (backToHandCard != null)
-        {
-            StartCoroutine(AddCard(backToHandCard, true));
-        }
-        List<CardController> hand = GetHandOfCardType(cardToAdd.card);
-        hand.Remove(cardToAdd);
-        spellCard = cardToAdd;
-        yield return owner.OnSpellCardAddedToSpell(spellCard, order);
-    }
-
-    public IEnumerator BackToHand(CardController backToHandCard, Order order)
-    {
-        CardController spellCard = GetSpellCardOfOrder(order);
-        spellCard = null;
-        yield return AddCard(backToHandCard, true);
-    }
-
-    public CardController GetSpellCardOfOrder(Order order)
+    // вернуть индекс заклинания
+    public int GetSpellIndexOfOrder(Order order)
     {
         switch (order)
         {
             case Order.SOURCE:
-                return _spellSource;
+                return 0;
             case Order.QUALITY:
-                return _spellQuality;
+                return 1;
             case Order.DELIVERY:
-                return _spellDelivery;
+                return 2;
         }
-        return null;
+        return -1;
     }
 
+    // вернуть определенную руку по типу карты
     public List<CardController> GetHandOfCardType(Card card)
     {
         List<CardController> hand = null;
         switch (card.cardType)
         {
             case CardType.SPELL:
-                hand = GetSpellHandOfCardType(card);
+                hand = GetSpellHandOfCardOrder(card);
                 break;
             case CardType.TREASURE:
                 hand = _treasures;
@@ -131,7 +147,8 @@ public class MageController : MonoBehaviour
         return hand;
     }
 
-    public List<CardController> GetSpellHandOfCardType(Card card)
+    // вернуть определенный список по порядку карты заклинания
+    public List<CardController> GetSpellHandOfCardOrder(Card card)
     {
         SpellCard spellCard = (SpellCard) card;
         List<CardController> hand = null;

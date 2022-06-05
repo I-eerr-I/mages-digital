@@ -8,13 +8,6 @@ using UnityEngine;
 
 public class DeckController : MonoBehaviour
 {
- 
-    public static Dictionary<CardType, Color> DECK_MAIN_COLOR = new Dictionary<CardType, Color>()
-    {
-        { CardType.SPELL,    new Color(1.0f, 0.0f, 0.0f) },
-        { CardType.TREASURE, new Color(1.0f, 0.8427867f, 0.0f) },
-        { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
-    };
 
     [Header("Спрятанное состояние колоды")]
     [SerializeField] private float _hiddenY   = 20.0f;  // координата Y колоды в скрытом состоянии
@@ -31,37 +24,31 @@ public class DeckController : MonoBehaviour
     
     private Random _random = new Random();
     
-    private bool  _hidden       = true;   // спрятана ли колода
+    private bool  _hidden  = true;   // спрятана ли колода
 
-    private MeshRenderer   _baseMeshRenderer;
-    private Light          _baseLight;
-    private SpriteRenderer _backSpriteRenderer;
+    private MeshRenderer   _baseMeshRenderer;   // рендер основы колоды
+    private Light          _baseLight;          // свет от основы колоды
+    private SpriteRenderer _backSpriteRenderer; // рендер задней (верхней) части колоды (рубашка)
 
     private Sprite _back; // рубашка карт колоды
 
-    public float    hiddenY     => _hiddenY;
+    public float    hiddenY     => _hiddenY;   
     public float    unhiddenY   => _unhiddenY;
     public float    hideTime    => _hideTime;
     public CardType cardsType   => _cardsType;         
-    public int      cardsAmount => _deck.Count;        // количество карт в колоде
-
-    // TEST
-    private int oldCardsAmount;
-    // TEST 
+    public int      cardsAmount => _deck.Count;  // количество карт в колоде
 
     void Awake()
     {
         _backSpriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
         _baseLight          = gameObject.GetComponentInChildren<Light>();
         _baseMeshRenderer   = gameObject.GetComponentInChildren<MeshRenderer>();
+
         _back = _backSpriteRenderer.sprite;
-        _baseLight.color = DECK_MAIN_COLOR[_cardsType];
+        _baseLight.color = CardController.CARD_MAIN_COLOR[_cardsType];
+
         if (_cardsType == CardType.SPELL) DoubleDeck();
         UpdateDeckSize();
-        
-        // TEST
-        oldCardsAmount = _deck.Count;
-        // TEST
     }
 
     void Start()
@@ -71,52 +58,53 @@ public class DeckController : MonoBehaviour
 
     void Update()
     {
-
         // TEST
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.H))
         {
             Hide(!_hidden);
         }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            if (_cardsType == CardType.SPELL)
-            {
-                GameObject cardObject = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
-                cardObject.transform.position = new Vector3(-2.0f, 1.0f, 0.0f);
-                CardController cardController = cardObject.GetComponent<CardController>();
-                cardController.SetupCard(_deck[0], _back);
-                _deck.RemoveAt(0);
-            }
-        }
-
-        if (oldCardsAmount != cardsAmount)
-        {
-            UpdateDeckSize();
-            oldCardsAmount = _deck.Count;
-        }
         // TEST
-
     }
 
-
-    // выдать карту из колоды
+    // выдать N карт магу из колоды
     public IEnumerator PassCardsTo(MageController owner, int nCards)
     {
-        Hide(false);
-        yield return new WaitForSeconds(_hideTime);
+        // показать колоду
+        yield return Hide(false);
+
         for (int i = 0; i < nCards; i++)
         {
+            // взять последнюю верхнюю карту из колоды
             Card card = TakeLastCard();
+            // если карта есть
             if (card != null)
             {
-                CardController cardController = SpawnCard(card, transform.position);
-                StartCoroutine(owner.AddCard(cardController, true));
+                // создать карту
+                CardController cardController = SpawnCard(card);
+                // добавить карту владельцу
+                StartCoroutine(owner.AddCard(cardController));
                 yield return new WaitForSeconds(0.25f);
             }
         }
-        Hide(true);
+        // скрыть колоду
+        yield return Hide(true);
     }
 
+    // показать\спрятать колоду
+    public IEnumerator Hide(bool hide)
+    {
+        if (hide != _hidden)
+        {
+            float y = (hide) ? _hiddenY : _unhiddenY;
+            iTween.MoveTo(gameObject, iTween.Hash("y", y, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
+            _hidden = hide;
+            yield return new WaitForSeconds(_hideTime);
+        }
+        yield break;
+    }
+
+    // вернуть последнюю верхнюю карту из колоды и удалить ее из колоды
+    // если в колоде карт нет, то перемешать колоду со сбросом
     public Card TakeLastCard()
     {
         Card card = null;
@@ -133,13 +121,18 @@ public class DeckController : MonoBehaviour
         return card;
     }
 
-    public CardController SpawnCard(Card card, Vector3 position)
+    // спаун карты на поле на месте колоды
+    public CardController SpawnCard(Card card)
     {
-        GameObject cardObject = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
-        cardObject.name = card.cardName;
-        cardObject.transform.position = position;
+        // создание и настройка объекта карты
+        GameObject cardObject         = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
+        cardObject.name               = card.cardName;
+        cardObject.transform.position = transform.position;
+        
+        // настройка контроллера карты
         CardController cardController = cardObject.GetComponent<CardController>();
         cardController.SetupCard(card, _back);
+        
         return cardController;
     }
 
@@ -177,18 +170,6 @@ public class DeckController : MonoBehaviour
         {
             float deckSize = _cardThickness * _deck.Count;
             iTween.ScaleTo(gameObject, new Vector3(transform.localScale.x, transform.localScale.y, deckSize), 0.01f);   
-        }
-    }
-
-
-    // показать колоду
-    public void Hide(bool hide)
-    {
-        if (hide != _hidden)
-        {
-            float y = (hide) ? _hiddenY : _unhiddenY;
-            iTween.MoveTo(gameObject, iTween.Hash("y", y, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
-            _hidden = hide;
         }
     }
 

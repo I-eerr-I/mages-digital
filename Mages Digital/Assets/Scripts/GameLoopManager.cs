@@ -15,7 +15,7 @@ public class GameLoopManager : MonoBehaviour
         yield return new WaitForSeconds(2.0f);
         foreach (MageController mage in gm.mages)
         {
-            yield return gm.spellsDeck.PassCardsTo(mage, 6);
+            yield return gm.spellsDeck.PassCardsTo(mage, 8);
         }
         foreach (MageController mage in gm.mages)
         {
