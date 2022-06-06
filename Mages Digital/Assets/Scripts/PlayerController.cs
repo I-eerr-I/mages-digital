@@ -121,8 +121,9 @@ public class PlayerController : MonoBehaviour
             iTween.ShakePosition(gameObject, _shakeAmount, _shakeTime);
 
             yield return new WaitForSeconds(_shakeTime);
+            
+            _readyToExecute = true; 
         }
-        _readyToExecute = true;
         yield break;
     }
 

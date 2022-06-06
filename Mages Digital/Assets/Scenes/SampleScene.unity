@@ -3756,7 +3756,6 @@ MonoBehaviour:
   _spellDownTime: 0.25
   _shakeAmount: {x: 1, y: 1, z: 1}
   _shakeTime: 0.25
-  _spellDownEaseType: 0
 --- !u!4 &2097391906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6321173911342138579, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}

@@ -82,8 +82,8 @@ public class GameManager : MonoBehaviour
     public IEnumerator SpellCreation()
     {
         SetNewState(GameState.SPELL_CREATION);
-        foreach (SpellLocationController slc in _spellLocationControllers)
-            slc.FadeInOutline();
+        _spellLocationControllers.ForEach(x => x.FadeInOutline());
+
         // XXX to slow (c)
         yield return new WaitUntil(() => _mages.FindAll(x => x.owner.readyToExecute).Count == _mages.FindAll(x => !x.isDead).Count);
     }
@@ -91,6 +91,8 @@ public class GameManager : MonoBehaviour
     public IEnumerator SpellExecution()
     {
         SetNewState(GameState.SPELL_EXECUTION);
+        _spellLocationControllers.ForEach(x => x.FadeOutOutline());
+
         yield break;
     }
 

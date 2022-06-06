@@ -138,9 +138,6 @@ public class CardController : MonoBehaviour
     }
 
     // триггер при клике на карту
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    // XXX баг при быстром клике на карту одного и того же порядка
-    // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     public void OnMouseDownTrigger()
     {
         if (discoverable && GameManager.instance.isSpellCreationState)
