@@ -11,57 +11,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Treasures Deck
       objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306472994, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_TagString
-      value: Treasures Deck
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: back
-      value: 
-      objectReference: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: color.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: color.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: color.g
-      value: 0.6459644
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: color.r
-      value: 0.8018868
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: deck.Array.size
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: deck.Array.data[0]
-      value: 
-      objectReference: {fileID: 11400000, guid: fcc6dfcfe16c979428f14169290a1642, type: 2}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: deck.Array.data[1]
-      value: 
-      objectReference: {fileID: 11400000, guid: f02f989abe4db7940abe68b88712bbd7, type: 2}
-    - target: {fileID: 1093842482306473004, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: deck.Array.data[2]
-      value: 
-      objectReference: {fileID: 11400000, guid: c295775b76d683b4e97dd99b753fe78f, type: 2}
     - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
       propertyPath: m_RootOrder
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1093842482306473005, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
       propertyPath: m_LocalPosition.x
@@ -103,5 +55,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.g
+      value: 0.84278667
+      objectReference: {fileID: 0}
+    - target: {fileID: 1276772573309392067, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1354765105219542355, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 761899458d060fc4e8df08fbb96408f6, type: 2}
+    - target: {fileID: 4233932983493183729, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 761899458d060fc4e8df08fbb96408f6, type: 2}
+    - target: {fileID: 8627020853270162228, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ea0a68e9baada4b4c9a659f505af82a0, type: 3}
+    - target: {fileID: 8738691545752194832, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: _cardsType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8738691545752194832, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
+      propertyPath: _deckFrontTexture
+      value: 
+      objectReference: {fileID: 21300000, guid: ea0a68e9baada4b4c9a659f505af82a0, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 618128f87d6ce6b40a8755a447ddba55, type: 3}
