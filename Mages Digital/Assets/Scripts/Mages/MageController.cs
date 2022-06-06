@@ -45,6 +45,7 @@ public class MageController : MonoBehaviour
     public int  cardsInSpell => _spell.FindAll(x => x != null).Count;
     public bool spellIsReady => cardsInSpell > 0;
 
+
     // добавить карту в руку мага
     public IEnumerator AddCard(CardController cardController)
     {
@@ -54,7 +55,6 @@ public class MageController : MonoBehaviour
         {
             List<CardController> hand = GetHandOfCardType(card);
             AddCardToHand(hand, cardController);
-
             yield return owner.OnCardAddedToHand(cardController);
         }
         yield break;

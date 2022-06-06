@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private static GameManager _instance;
     public  static GameManager  instance => _instance;
 
+
     private GameState _prevGameState;
     private GameState _gameState = GameState.ROUND_START;
 
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviour
     public DeckController spellsDeck;
     public DeckController treasuresDeck;
     public DeckController deadsDeck;
+
 
     [Header("Spell Creation")]
     public Transform sourceLocation;

@@ -35,6 +35,4 @@ namespace CardsToolKit
         NO_OWNER    // без владельца
     }    
 
-    [Serializable] public class Spell : UnityEvent {}
-
 }
