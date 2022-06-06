@@ -1,12 +1,13 @@
+using System.Collections;
 using UnityEngine;
 
 [CreateAssetMenuAttribute(menuName="Spells Collection")]
 public class SpellsCollection : ScriptableObject
 {
 
-    public void Damage() // (цель, сколько)
+    public void Damage(MageController target, int damage ) // (цель, сколько)
     {
-        
+        // target.TakeDamage(damage);
     }
 
     public void DiceRoll()
@@ -44,5 +45,11 @@ public class SpellsCollection : ScriptableObject
         // найти каждого врага( предикат без сокровищ )
         // Switch(результат броска, врагов, список спелов)
     }
-        
+    
+    public IEnumerator OtKoroluaOberonna()
+    {
+        // Накрути 2 жизни
+        Damage(SpellExecutionManager.instance.current, - 2);
+        yield break;
+    }
 }
