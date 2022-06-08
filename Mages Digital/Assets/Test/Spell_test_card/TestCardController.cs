@@ -340,6 +340,11 @@ public class TestCardController : MonoBehaviour
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
         
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
         if      (resultDice <= 4){damage = 1;}
         else if (resultDice <= 9){damage = 2;}
         else
@@ -347,11 +352,6 @@ public class TestCardController : MonoBehaviour
         damage = 2;
         //Отжать у жертвы Delivery и добавить к заклинанию
         }
-        TestGameManager.instance.mages.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого живучего мага
-
-        int maxHp = TestGameManager.instance.mages[0].health; // Сохранение его здоровья
-
-        var listTargets = TestGameManager.instance.mages.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
 
         DamageToTargets(damage, listTargets);
         yield break;
@@ -435,11 +435,10 @@ public class TestCardController : MonoBehaviour
         else if (resultDice <= 9){damage = 1;}
         else                     {damage = 7;}
 
-        TestGameManager.instance.mages.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого живучего мага
-
-        int maxHp = TestGameManager.instance.mages[0].health; // Сохранение его здоровья
-
-        var listTargets = TestGameManager.instance.mages.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
 
         DamageToTargets(damage, listTargets);
         yield break;
@@ -483,11 +482,10 @@ public class TestCardController : MonoBehaviour
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
         int damageNeighbors = 0; // Урон соседям
 
-        TestGameManager.instance.mages.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого живучего мага
-
-        int maxHp = TestGameManager.instance.mages[0].health; // Сохранение его здоровья
-
-        var listTargets = TestGameManager.instance.mages.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
 
         if      (resultDice <= 4)
         {
@@ -545,5 +543,26 @@ public class TestCardController : MonoBehaviour
         DamageToTarget(damage, owner.leftMage); //Левый маг
         yield break;
     }
-    
+    // Шалтай Болтай
+    public IEnumerator  ShaltaiBoltai()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 3;}
+        else
+        {
+            damage = 5;
+            yield return TestGameManager.instance.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+
+        DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
 }
