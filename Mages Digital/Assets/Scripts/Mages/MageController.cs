@@ -7,7 +7,7 @@ using UnityEngine;
 public class MageController : MonoBehaviour
 {
 
-    [SerializeField] private int _health = 20;        // здоровье мага
+    [SerializeField] private int _health    = 20;     // здоровье мага
     [SerializeField] private Mage _mage;              // данные мага
     [SerializeField] private PlayerController _owner; // игрок, управляющий магом
 
@@ -24,6 +24,7 @@ public class MageController : MonoBehaviour
     {
         null, null, null
     };
+    [SerializeField] private bool _readyToExecute = false;
 
     [Header("Медали недобитого колдуна")]
     [SerializeField] private int _deadMedals = 0; // количество медалей недобитого колдуна
@@ -32,7 +33,7 @@ public class MageController : MonoBehaviour
     [SerializeField] private MageController _leftMage  = null; // левый соседний маг
     [SerializeField] private MageController _rightMage = null; // правый соседний маг
 
-
+    private int _healthMax = 25;
 
     public Mage mage   => _mage;
     public int  health => _health;
@@ -48,6 +49,8 @@ public class MageController : MonoBehaviour
     public List<CardController> deliveries => _deliveries;
     public List<CardController> wildMagics => _wildMagics;
     public List<CardController> spell      => _spell;
+    
+    public bool readyToExecute => _readyToExecute;
 
     public int deadMedals => _deadMedals;
 
@@ -59,11 +62,22 @@ public class MageController : MonoBehaviour
     public bool spellIsReady    => nCardsInSpell > 0;   // готово ли заклинание
     public int  spellInitiative => nonNullSpell.Sum(x => ((SpellCard) x.card).initiative); // сумарная инициатива спела
     public int  nCardsToDraw    => 8 - GetSpellsInHand().Count; // количество карт для добора из колоды
+    public bool isGameWinner    => _deadMedals == 3;
 
     void Awake()
     {
         _owner = gameObject.GetComponent<PlayerController>();
     }
+
+    // TEST
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            TakeDamage(_healthMax);
+        }
+    }
+    // TEST
 
     // добавить карту в руку мага
     public IEnumerator AddCard(CardController cardController)
@@ -136,6 +150,8 @@ public class MageController : MonoBehaviour
     // выполнить заклинание
     public IEnumerator ExecuteSpells()
     {
+        yield return owner.ShowSpellToAll();
+
         // замена шальной магии
         List<CardController> spellWildMagics = nonNullSpell.Where(card => card.GetSpellCard().order == Order.WILDMAGIC).ToList();
         foreach (CardController wildMagic in spellWildMagics)
@@ -153,8 +169,28 @@ public class MageController : MonoBehaviour
             yield return card.ExecuteSpell();
             yield return card.Highlight(false);
         }
+        
+        UnreadyToExecute();
 
-        yield break;
+        yield return owner.HideSpellFromAll();
+    }
+
+    public void DropSpell()
+    {
+        List<CardController> spellCopy = new List<CardController>(_spell);
+        _spell = new List<CardController>(3) {null, null, null};
+        spellCopy.FindAll(card => card != null).ForEach(card => card.ToFold());
+        StartCoroutine(owner.OnSpellDrop());
+    }
+
+    public void ReadyToExecute()
+    {
+        _readyToExecute = true;
+    }
+
+    public void UnreadyToExecute()
+    {
+        _readyToExecute = false;
     }
 
     // вернуть список, состоящий из всех карт заклинаний на руке мага
@@ -194,6 +230,48 @@ public class MageController : MonoBehaviour
         {
             hand.Sort((c1, c2) => ((SpellCard)c1.card).sign.CompareTo(((SpellCard)c2.card).sign));
         }
+    }
+
+
+    public void RemoveCard(CardController card)
+    {
+        List<CardController> hand = GetHandOfCardType(card.card);
+        if (hand.Contains(card))
+        {
+            hand.Remove(card);
+        }
+        else if (_spell.Contains(card))
+        {
+            int index = _spell.IndexOf(card);
+            if (index < 3)
+                _spell[index] = null;
+            else
+                _spell.RemoveAt(index);
+        }
+    }
+
+
+    public void TakeDamage(int damage)
+    {
+        if (!isDead) 
+            _health = _health - damage;
+        else
+            return;
+        if (isDead)
+        {
+            GetAllCards().ForEach(card => card.ToFold(destroy: true));
+            StartCoroutine(GameManager.instance.deadsDeck.PassCardsTo(this, 1));
+        }
+    }
+
+    public void Heal(int heal)
+    {
+        _health = Mathf.Clamp(_health + heal, 0, _healthMax);
+    }
+
+    public void TournamentWon()
+    {
+        _deadMedals += 1;
     }
 
     // вернуть определенную руку по типу карты
@@ -267,23 +345,5 @@ public class MageController : MonoBehaviour
         return Order.WILDMAGIC;
     }
 
-    public void TakeDamage(int damage)
-    {
-        _health = _health - damage;
-        if (isDead)
-        {
-            
-        }
-    } 
-
-    public void Heal(int heal)
-    {
-        _health += heal;
-
-        if(_health > maxHpMage)
-        {
-            _health = maxHpMage;
-        }
-    }
 
 }

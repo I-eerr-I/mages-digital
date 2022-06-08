@@ -26,8 +26,9 @@ public class CardController : MonoBehaviour
         { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
     };
 
-    [SerializeField] private Card _card;            // данные карты
-    [SerializeField] private MageController _owner; // маг владеющий картой
+    [SerializeField] private Card _card;                 // данные карты
+    [SerializeField] private MageController _owner;      // маг владеющий картой
+    [SerializeField] private DeckController _sourceDeck; // колода, откуда была создана карта
 
     [Header("Анимация карты")]
     [SerializeField] private float _cardFlippingTime          = 0.15f; // время переворота карты
@@ -68,10 +69,12 @@ public class CardController : MonoBehaviour
 
     public Card           card  => _card;
     public MageController owner => _owner;
+    public DeckController sourceDeck => _sourceDeck;
     public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
     public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
     public bool visible => _visible;
     
+    public bool withSourceDeck => _sourceDeck != null;
     public bool inHand    => cardState == CardState.IN_HAND;  // находится ли карта в руке
     public bool inSpell   => cardState == CardState.IN_SPELL; // находится ли карта в заклинании
     public bool withOwner => cardState != CardState.NO_OWNER; // есть ли у карты владелец
@@ -192,10 +195,12 @@ public class CardController : MonoBehaviour
     }
 
     // настроить карту
-    public void SetupCard(Card card, Sprite back = null)
+    public void SetupCard(Card card, DeckController deck = null, Sprite back = null)
     {
         // данные карты
         _card = card;
+        // колода карты
+        _sourceDeck = deck;
         // передняя часть карты
         _frontSpriteRenderer.sprite = card.front;
         // задняя часть карты
@@ -321,6 +326,17 @@ public class CardController : MonoBehaviour
         StartCoroutine(owner.BackToHand(this, spellOrder));
     }
 
+    public void ToFold(bool destroy = true)
+    {
+        if (withOwner)
+        {
+            owner.RemoveCard(this);
+            RemoveOwner();
+        }
+        if (_sourceDeck != null) 
+            _sourceDeck.AddCardToFold(this);
+        StartCoroutine(FlyOutAndDestroy(destroy: destroy));
+    }
 
     public void StateToNoOwner()
     {

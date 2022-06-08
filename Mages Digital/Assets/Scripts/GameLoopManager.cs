@@ -11,19 +11,22 @@ public class GameLoopManager : MonoBehaviour
 
     IEnumerator Start()
     {
-
-        yield return new WaitForSeconds(2.0f);
-        yield return gm.CardDraw();
         
-        // TEST
-        // foreach (MageController mage in gm.mages)
-        // {
-        //     yield return gm.treasuresDeck.PassCardsTo(mage, 8);
-        // }   
-        // TEST
+        while (!gm.isGameEnd)
+        {
+            while (!gm.isTournamentEnd)
+            {
+                yield return new WaitForSeconds(2.0f);
+                
+                yield return gm.CardDraw();
+                
+                yield return gm.SpellCreation();
 
-        yield return gm.SpellCreation();
+                yield return gm.SpellExecution();
 
-        yield return gm.SpellExecution();
+                yield return gm.RoundEnd();
+            }
+            yield return gm.TournamentWon();            
+        }
     }
 }

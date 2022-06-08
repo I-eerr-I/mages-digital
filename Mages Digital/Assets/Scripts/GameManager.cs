@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
         ROUND_START,
         SPELL_CREATION,
         SPELL_EXECUTION,
+        ROUND_END,
+        TOURNAMENT_END,
+        GAME_END,
         CHOOSING
     }
 
@@ -25,6 +28,7 @@ public class GameManager : MonoBehaviour
     [Header("Состояние игры")]
     [SerializeField] private GameState _prevGameState;                      // предыдущее состояние игры
     [SerializeField] private GameState _gameState = GameState.ROUND_START;  // настоящее состояние игры
+    
 
     [Header("Маги")]
     [SerializeField] private List<MageController> _mages = new List<MageController>(); // все маги в игре
@@ -42,12 +46,12 @@ public class GameManager : MonoBehaviour
 
 
     [Header("Расположения")]
-    [SerializeField] private Transform _fieldCenter;        // центр поля
-    [SerializeField] private Transform _spellLocation;      // место расположения карт заклинаний
-    [SerializeField] private Transform _sourceLocation;     // место расположения заводилы
-    [SerializeField] private Transform _qualityLocation;    // место расположения наворота
-    [SerializeField] private Transform _deliveryLocation;   // место расположения прихода
-    [SerializeField] private Transform _spellGroupLocation; // место расположения группы заклинаний
+    [SerializeField] private Transform _fieldCenter;         // центр поля
+    [SerializeField] private Transform _spellLocation;       // место расположения карт заклинаний
+    [SerializeField] private Transform _sourceLocation;      // место расположения заводилы
+    [SerializeField] private Transform _qualityLocation;     // место расположения наворота
+    [SerializeField] private Transform _deliveryLocation;    // место расположения прихода
+    [SerializeField] private Transform _spellGroupLocation;  // место расположения группы заклинаний
 
 
 
@@ -73,6 +77,11 @@ public class GameManager : MonoBehaviour
     public Transform spellGroupLocation => _spellGroupLocation;
 
     public List<MageController> aliveMages => _mages.FindAll(mage => !mage.isDead); // живые маги
+    public MageController onlyOneAlive     => aliveMages[0];
+    public bool isAliveOnlyOne       => aliveMages.Count == 1;
+    public bool isGameEnd            => _gameState == GameState.GAME_END;
+    public bool isRoundEnd           => _gameState == GameState.ROUND_END;
+    public bool isTournamentEnd      => _gameState == GameState.TOURNAMENT_END;
     public bool isSpellCreationState => _gameState == GameState.SPELL_CREATION;
     public bool isChoosingState      => _gameState == GameState.CHOOSING;
 
@@ -116,7 +125,7 @@ public class GameManager : MonoBehaviour
         _spellLocationControllers.ForEach(x => x.FadeInOutline());
 
         // XXX too slow (c)
-        yield return new WaitUntil(() => _mages.FindAll(x => x.owner.readyToExecute).Count == aliveMages.Count);
+        yield return new WaitUntil(() => _mages.FindAll(x => x.readyToExecute).Count == aliveMages.Count);
 
         _spellLocationControllers.ForEach(x => x.FadeOutOutline());
     }
@@ -136,12 +145,39 @@ public class GameManager : MonoBehaviour
         // ANIMATE
 
         foreach(MageController mage in _magesOrder)
-        {
-            yield return mage.owner.ShowSpellToAll();
             yield return mage.ExecuteSpells();
-            yield return mage.owner.HideSpellFromAll();
-        }
 
+        SetNewState(GameState.ROUND_END);
+
+        yield break;
+    }
+
+    public IEnumerator RoundEnd()
+    {
+        foreach (MageController mage in aliveMages)
+            mage.DropSpell();
+
+        if (isAliveOnlyOne)
+            SetNewState(GameState.TOURNAMENT_END);
+        else
+            SetNewState(GameState.ROUND_START);
+        
+        yield break;
+    }
+
+    public IEnumerator TournamentWon()
+    {
+        MageController roundWinner = onlyOneAlive;
+        roundWinner.TournamentWon();
+        
+        if (roundWinner.isGameWinner)
+            SetNewState(GameState.GAME_END);
+        else
+            SetNewState(GameState.ROUND_START);
+        
+        if (isGameEnd)
+            print($"Winner: {roundWinner.mage.mageName}");
+        
         yield break;
     }
 

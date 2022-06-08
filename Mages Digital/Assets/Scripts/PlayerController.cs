@@ -9,7 +9,6 @@ public class PlayerController : MonoBehaviour
 
     private Order _chosenOrder = Order.WILDMAGIC; // выбранный порядок (для шальной магии1)
 
-    private bool _readyToExecute = false;  // готовность к выполнению заклинания
     private bool _handIsHidden   = false;  // видимость карт руки
 
     [Header("Рука")]
@@ -67,7 +66,6 @@ public class PlayerController : MonoBehaviour
     public Transform bonusLocation => _bonusLocation;
 
     public Order chosenOrder    => _chosenOrder;
-    public bool  readyToExecute => _readyToExecute;
     public bool  handIsHidden   => _handIsHidden;
 
     public bool  isOrderChosen  => _chosenOrder != Order.WILDMAGIC;
@@ -152,12 +150,13 @@ public class PlayerController : MonoBehaviour
 
         yield return MoveSpellGroup(true);
 
-        _readyToExecute = true; 
+        mage.ReadyToExecute();
     }
 
     // анимация скрытия карт руки
     public IEnumerator HideHand(bool hide)
     {
+        _handIsHidden = hide;
         float y = (hide) ? _handHiddenY : _handUnhiddenY;
         iTween.MoveTo(_handLocation.gameObject, iTween.Hash("y", y, "time", _handHideTime, "islocal", true));
         yield return new WaitForSeconds(_handHideTime);
@@ -180,6 +179,12 @@ public class PlayerController : MonoBehaviour
         }
         yield return new WaitForSeconds(_spellGroupMovingTime);
         
+    }
+
+    public IEnumerator OnSpellDrop()
+    {
+        if (_handIsHidden)
+            yield return HideHand(false);
     }
 
     // показать заклинание все для выполнения

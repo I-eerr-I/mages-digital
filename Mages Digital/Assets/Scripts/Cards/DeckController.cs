@@ -138,7 +138,9 @@ public class DeckController : MonoBehaviour
         // отправить ненужные карты в сброс
         foreach (CardController cardToFold in cardsToFold)
         {
-            StartCoroutine(AddCardToFold(cardToFold));
+            if (!cardToFold.withSourceDeck)
+                AddCardToFold(cardToFold);
+            cardToFold.ToFold(destroy: true);
             yield return new WaitForSeconds(0.15f);
         }
 
@@ -147,9 +149,9 @@ public class DeckController : MonoBehaviour
             replaceCard.SetOwner(owner);   // установить владельца карты
             replaceCard.Highlight(false);  // убрать выделение карты
 
-            wildMagic.RemoveOwner();       // убрать владельца у предыдущей карты
-            
-            StartCoroutine(AddCardToFold(wildMagic, destroy: false));  // отправить предыдущую карту в сброс
+            if (!wildMagic.withSourceDeck)
+                AddCardToFold(wildMagic);
+            wildMagic.ToFold(destroy: false);  // отправить предыдущую карту в сброс
 
             yield return owner.AddToSpell(replaceCard, order, backToHand: false, ownerReaction: false); // добавить новую карту в заклинание
             yield return owner.owner.ShowSpellToAll();  // выровнять карты заклинаний
@@ -158,10 +160,9 @@ public class DeckController : MonoBehaviour
     }
 
     // добавить карту в сброс
-    public IEnumerator AddCardToFold(CardController cardToFold, bool destroy = true)
+    public void AddCardToFold(CardController cardToFold)
     {
         _fold.Add(cardToFold.card);
-        yield return cardToFold.FlyOutAndDestroy(destroy: destroy);
     }
 
     // показать\спрятать колоду
@@ -206,7 +207,7 @@ public class DeckController : MonoBehaviour
         
         // настройка контроллера карты
         CardController cardController = cardObject.GetComponent<CardController>();
-        cardController.SetupCard(card, _back);
+        cardController.SetupCard(card, deck: this, back: _back);
         
         return cardController;
     }
