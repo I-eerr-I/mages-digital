@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bc87fac7ae94544ea6b64fd795bdbfb, type: 3}
+  m_Name: OtKoroluaOberona
+  m_EditorClassIdentifier: 
+  _front: {fileID: -7136840529013852981, guid: bda59c4c6c0ac4b4b938aebf236c85ee, type: 3}
+  _cardName: "\u041E\u0442 \u041A\u043E\u0440\u043E\u043B\u044F \u041E\u0431\u0435\u0440\u043E\u043D\u0430"
+  _description: "\u041D\u0430\u043A\u0440\u0443\u0442\u0438 2 \u0436\u0438\u0437\u043D\u0438."
+  _cardType: 0
+  _spell: OtKoroluaOberona
+  _initiative: 0
+  _order: 0
+  _sign: 1
