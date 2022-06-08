@@ -42,7 +42,7 @@ public class TestMageController : MonoBehaviour
     public List<TestCardController> deliveries => _deliveries;
     public List<TestCardController> wildMagics => _wildMagics;
     public List<TestCardController> spell      => _spell;
-    public int deadMedals                      => _deadMedals;
+    public int deadMedals                      => _deadMedals;// CHANGE
 
 
     public bool isDead       => health <= 0;  // мертв ли маг
@@ -216,43 +216,73 @@ public class TestMageController : MonoBehaviour
     //CHANGE
 ///////////////////////////////////////////////////////////////////////////////////////////////////   
 
+    // Метод нанесение урона цели
     public void TakeDamage(int damage)
     {
         _health = _health - damage;
     } 
 
+    // Метод лечение цели
     public void Heal(int heal)
     {
         _health += heal;
 
-        if(_health > maxHpMage)
+        if(_health > maxHpMage)// В случае когда здоровье будет больше максимального
         {
-            _health = maxHpMage;
+            _health = maxHpMage;// Здоровье становится максимальным
         }
     }
 
-    // Выбор и сброс сокровища
-    public bool ChooseAndDropTreasure()
-    {
-        //Если сокровища нет возвращаем false
-        if(_treasures.Count == 0)
-        {
-            return false;
-        }
+    // Метод удаляет сокровище у выбранного мага и возвращает его
+    // public List<TestCardController> DropTreasure ()
+    // {
+    //     if(_treasures.Count == 0)
+    //     {
+    //         return _treasures;
+    //     }
+
+    // }
+
+    // Игрок выбирает сокровище, возвращает данное сокровище
+    // Переписать полносттью функцию
+    // public bool ChooseTreasure()
+    // {
+    //     //Если сокровища нет возвращаем false
+    //     if(_treasures.Count == 0)
+    //     {
+    //         return false;
+    //     }
+
+    //     return true;
+
         
-        return true;// заменить на код ниже
+    // }
 
-        // Либо если игрок не согласен сбрасывать сокровище, возвращаем false
-        // if(cansel() == true)
-        // {
-        //     return false;
-        // }
-        // Иначе, скидываем выбранную игроком карту сокровища
-        // else
-        // {
-        //     DropCard(_treasures[index]);
-        //     return true;
-        // }
-    }
+    // Выбор врага
+    // Игрок выбирает врага
+    // Метод возвращает выбранного мага
+    // public TestMageController ChooseEnemyMage()
+    // {
+
+    //     return Mage;
+    // }
+
+    // Метод принимает игрока и его цель
+    // Удаляет у цели выбранное сокровище
+    // Добавляет выбранное сокровище игроку(ownerу карты заклинания)
+    // public List<TestCardController> TakeEnemyTreasures (Mage owner, Mage chooseMage)
+    // {
+          
+
+    // }
+
+    // Метод для карты дискотечный
+    // Во время выполнения карты, вызывается данная функция
+    // Игрок выбирает карты заводилы или прихода
+    // В карте происходит выполнение карты, которую вернул метод
+    // public TestCardController ChooseCardInSpell()
+    // {
+    //     return spellCard;
+    // }
 
 }

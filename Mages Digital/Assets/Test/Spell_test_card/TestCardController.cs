@@ -224,7 +224,7 @@ public class TestCardController : MonoBehaviour
     // CHANGE
     public int NumberDice(Sign sign)
     {
-        int numberDice = 1; // Кол-во кубиков
+        int numberDice = 0; // Кол-во кубиков
         // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
         foreach(TestCardController spellCard in owner.spell)
         {
@@ -287,6 +287,24 @@ public class TestCardController : MonoBehaviour
         }
     } 
 
+    // Увеличение урона от кол-ва одинаковых знаков (некоторые карты)
+    public int BuffDamageSing(Sign sign)
+    {
+        int BuffDamage = 0; // Стартовое увеличение урона
+        // Цикл нахождения кол-во одинаковых знаков карты заклинания => Увеличение урона
+        foreach(TestCardController spellCard in owner.spell)
+        {
+            if(spellCard == null)
+            {
+                continue;
+            }
+            if(((SpellCard) spellCard.card).sign == sign)
+            {
+                BuffDamage+= 1;
+            }
+        }
+        return BuffDamage;
+    }
 ////////////////////////////////////////////////////////////////////////////////////
 /* 
 Карты заклинаний
@@ -335,7 +353,9 @@ public class TestCardController : MonoBehaviour
         yield break;
     }
     
-    //Договор с Дьяволом
+    // Договор с Дьяволом
+    // Недописанная карта
+    // Нет отжатия прихода у жертвы и добавление к своему заклинания
     public IEnumerator DogovorSDuavolom()
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
@@ -509,6 +529,8 @@ public class TestCardController : MonoBehaviour
     }
 
     // Раздвоитель личности
+    // Недописанная карта
+    // Нет сброса выбранного жертвой сокровища
     public IEnumerator RazdvoitelLichnosti()
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
@@ -517,14 +539,14 @@ public class TestCardController : MonoBehaviour
         else if (resultDice <= 9){damage = 3;}
         else                  
         {
-            if(owner.leftMage.ChooseAndDropTreasure())
-            {
-                damage = 3;
-            }
-            else
-            {
-                damage = 6;
-            }
+            // if(owner.leftMage.ChooseAndDropTreasure())
+            // {
+            //     damage = 3;
+            // }
+            // else
+            // {
+            //     damage = 6;
+            // }
         }
 
         DamageToTarget(damage, owner.leftMage); //Левый маг
@@ -563,6 +585,149 @@ public class TestCardController : MonoBehaviour
 
         DamageToTargets(damage, listTargets);
 
+        yield break;
+    }
+
+    // Удар милосердия
+    public IEnumerator  YdarMiloserdiya()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
+        if      (resultDice <= 4){damage = 2;}
+        else if (resultDice <= 9){damage = 3;}
+        else                     {damage = 3;}
+
+        DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+    
+    // Змеиный жор
+    public IEnumerator  ZmeinuiJor()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        var listTargets = new List<TestMageController> {}; // Лист целей
+        resultDice = 10;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else                     {damage = 2 * BuffDamageSing(((SpellCard) card).sign);}// Увеличение урона на кол-во знаков травы(для этой карты)
+
+        listTargets.Add(owner.leftMage);
+        listTargets.Add(owner.rightMage);
+
+        DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+
+    // Отсос Мозга
+    // Недописанная карта
+    // Нет выбора врага
+    // Нет отжатия сокровища у данного врага
+    public IEnumerator  OtsosMozga()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+
+        // if      (resultDice <= 4){damage = 1;}
+        // else if (resultDice <= 9){damage = 3;}
+        // else                     
+        // {
+        //     damage = 4;
+        //     TakeEnemyTreasures(owner, target);// Отжать сокровище у врага по своему выбору
+        // }
+
+        // DamageToTarget(damage, target);
+
+        yield break;
+    }
+    
+    // Нетерпеливый
+    // Недописанная карта
+    // Нет свойства начинать ход первым
+    // Проверка во время определения очередност хода игроков
+    public IEnumerator  Neterpeliviu()
+    {
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        damage = 1;
+        DamageToTargets(damage, magesWithOutOwner);
+
+        yield break;
+    }
+
+    // Ритуальный
+    // Недописанная карта
+    // Нет выбора врага
+    public IEnumerator  Rityalnui()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+
+        if(resultDice <= 4)
+        {
+            damage = 3;
+            DamageToTarget(damage, owner);
+        }
+        // else if (resultDice <= 9)
+        // {
+        //     damage = 3;
+        //     DamageToTarget(damage, target);
+        // }
+        // else                     
+        // {
+        //     damage = 5;
+        // DamageToTarget(damage, target);
+        // }
+
+        yield break;
+    }
+
+    // Дьявольский
+    // Недописанная карта
+    // Нет выбора врага
+    public IEnumerator  Dyavolskiu()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        int selfDamage = 0;
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+
+        // if(resultDice <= 4)
+        // {
+        //     damage = 2;
+        //     DamageToTarget(damage, target);
+        // }
+        // else if (resultDice <= 9)
+        // {
+        //     damage = 4;
+        //     selfDamage = 1;
+        //     DamageToTarget(damage, target);
+        //     DamageToTarget(selfDamage, owner);
+        // }
+        // else                     
+        // {
+        //     damage = 5;
+        //     selfDamage = 2;
+        //     DamageToTarget(damage, target);
+        //     DamageToTarget(selfDamage, owner);
+        // }
+        yield break;
+    }
+
+
+    
+    // Дискотечный
+    // Недописанная карта
+    // Нужен метод выбора заводилы или прихода
+    public IEnumerator  Diskotechnui()
+    {
+        // card.ExecuteSpell(ChooseCardInSpell());
         yield break;
     }
 }
