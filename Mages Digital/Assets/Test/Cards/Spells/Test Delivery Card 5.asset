@@ -10,15 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: efe8297cd915f6f449ffcb64e0e0e24f, type: 3}
-  m_Name: Test Delivert Card 5
+  m_Name: Test Delivery Card 5
   m_EditorClassIdentifier: 
   _front: {fileID: 9008660230051194950, guid: 5858bf4c0ef293949928c355c870d3d1, type: 3}
-  _cardName: Test Delivert Card 5
+  _cardName: Test Delivery Card 5
   _description: 
   _cardType: 0
-  _spell:
-    m_PersistentCalls:
-      m_Calls: []
+  _spell: 
   _initiative: 5
   _order: 2
   _sign: 4

@@ -1,4 +1,8 @@
 using System;
+using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 namespace CardsToolKit
@@ -33,6 +37,6 @@ namespace CardsToolKit
         IN_HAND,    // в руке (есть владелец карты)
         IN_SPELL,   // в заклинании (есть владелец карты)
         NO_OWNER    // без владельца
-    }    
+    }  
 
 }

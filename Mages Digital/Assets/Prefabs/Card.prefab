@@ -207,6 +207,7 @@ MonoBehaviour:
   _color: {r: 1, g: 0.89550054, b: 0, a: 1}
   withLight: 1
   withHalo: 1
+  state: 0
 --- !u!114 &2092122955165500933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -351,6 +352,7 @@ MonoBehaviour:
   _owner: {fileID: 0}
   _cardFlippingTime: 0.15
   _cardShowInfoWaitTime: 1.5
+  discoverable: 1
   cardState: 2
 --- !u!1 &6321173911512981663
 GameObject:

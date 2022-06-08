@@ -64,12 +64,14 @@ public class OutlineController : MonoBehaviour
 
     void OnMouseOver()
     {
-        SetState(true);
+        if (enabled)
+            SetState(true);
     }
 
     void OnMouseExit()
     {
-        SetState(false);
+        if (enabled)
+            SetState(false);
     }
 
 }

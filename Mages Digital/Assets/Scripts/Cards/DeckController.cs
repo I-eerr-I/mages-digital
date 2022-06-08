@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class DeckController : MonoBehaviour
 {
+    
+    private Random random = new Random();
 
     [Header("Спрятанное состояние колоды")]
     [SerializeField] private float _hiddenY   = 20.0f;  // координата Y колоды в скрытом состоянии
@@ -22,8 +24,6 @@ public class DeckController : MonoBehaviour
     [SerializeField] private List<Card>  _deck   = new List<Card>();  // список карт колоды
     [SerializeField] private List<Card>  _fold   = new List<Card>();  // сброс карт
     
-    private Random _random = new Random();
-    
     private bool  _hidden  = true;   // спрятана ли колода
 
     private MeshRenderer   _baseMeshRenderer;   // рендер основы колоды
@@ -32,11 +32,15 @@ public class DeckController : MonoBehaviour
 
     private Sprite _back; // рубашка карт колоды
 
-    public float    hiddenY     => _hiddenY;   
-    public float    unhiddenY   => _unhiddenY;
-    public float    hideTime    => _hideTime;
-    public CardType cardsType   => _cardsType;         
-    public int      cardsAmount => _deck.Count;  // количество карт в колоде
+
+
+    public float    hiddenY        => _hiddenY;   
+    public float    unhiddenY      => _unhiddenY;
+    public float    hideTime       => _hideTime;
+    public CardType cardsType      => _cardsType;         
+
+    public int      cardsAmount    => _deck.Count;               // количество карт в колоде
+    public int      allCardsAmount => _deck.Count + _fold.Count; // количество карт в колоде и сбросе
 
     void Awake()
     {
@@ -56,15 +60,15 @@ public class DeckController : MonoBehaviour
         Shuffle();
     }
 
+    // TEST
     void Update()
     {
-        // TEST
         if (Input.GetKeyDown(KeyCode.H))
         {
             Hide(!_hidden);
         }
-        // TEST
     }
+    // TEST
 
     // выдать N карт магу из колоды
     public IEnumerator PassCardsTo(MageController owner, int nCards)
@@ -76,27 +80,97 @@ public class DeckController : MonoBehaviour
         {
             // взять последнюю верхнюю карту из колоды
             Card card = TakeLastCard();
+            
             // если карта есть
             if (card != null)
             {
                 // создать карту
                 CardController cardController = SpawnCard(card);
+                
                 // добавить карту владельцу
                 StartCoroutine(owner.AddCard(cardController));
+                
                 yield return new WaitForSeconds(0.25f);
             }
         }
+
         // скрыть колоду
         yield return Hide(true);
     }
 
+    // заменить шальную магию в заклинании
+    public IEnumerator ReplaceWildMagic(CardController wildMagic)
+    {
+        // показать колоду со свдигом вверх
+        yield return Hide(false, GameManager.instance.spellGroupLocation.position.y);
+
+        Order order                = wildMagic.spellOrder;
+        MageController owner       = wildMagic.owner;
+        CardController replaceCard = null;
+
+        List<CardController> cardsToFold = new List<CardController>();
+        
+        float addY = 0.25f;
+        while (replaceCard == null && allCardsAmount > 0)
+        {
+            // спаун карты
+            Card card = TakeLastCard();
+            CardController cardController = SpawnCard(card);
+            StartCoroutine(cardController.PositionFrontUp());
+            StartCoroutine(cardController.Highlight(true));
+
+            // сдвиг карты в сторону
+            Vector3 position = cardController.transform.position;
+            iTween.MoveTo(cardController.gameObject, iTween.Hash("x", position.x + cardController.cardSizeX, "y", position.y + addY, "time", 0.05f));
+            addY += 0.2f;
+            yield return new WaitForSeconds(0.15f);
+            
+            
+            SpellCard spellCard = (SpellCard) card;
+            if (spellCard.order == order)           // если карта на замену найдена
+                replaceCard = cardController;       // сохранить ее
+            else                                    // иначе
+                cardsToFold.Add(cardController);    // добавить в список карт для сброса
+        }
+
+        yield return Hide(true);    // спрятать колоду
+        
+        // отправить ненужные карты в сброс
+        foreach (CardController cardToFold in cardsToFold)
+        {
+            StartCoroutine(AddCardToFold(cardToFold));
+            yield return new WaitForSeconds(0.15f);
+        }
+
+        if (replaceCard != null) // если нужная карта была найдена
+        {
+            replaceCard.SetOwner(owner);   // установить владельца карты
+            replaceCard.Highlight(false);  // убрать выделение карты
+
+            wildMagic.RemoveOwner();       // убрать владельца у предыдущей карты
+            
+            StartCoroutine(AddCardToFold(wildMagic, destroy: false));  // отправить предыдущую карту в сброс
+
+            yield return owner.AddToSpell(replaceCard, order, backToHand: false, ownerReaction: false); // добавить новую карту в заклинание
+            yield return owner.owner.ShowSpellToAll();  // выровнять карты заклинаний
+        }
+        yield break;
+    }
+
+    // добавить карту в сброс
+    public IEnumerator AddCardToFold(CardController cardToFold, bool destroy = true)
+    {
+        _fold.Add(cardToFold.card);
+        yield return cardToFold.FlyOutAndDestroy(destroy: destroy);
+    }
+
     // показать\спрятать колоду
-    public IEnumerator Hide(bool hide)
+    public IEnumerator Hide(bool hide, float addY = 0.0f)
     {
         if (hide != _hidden)
         {
             float y = (hide) ? _hiddenY : _unhiddenY;
-            iTween.MoveTo(gameObject, iTween.Hash("y", y, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
+            iTween.MoveTo(gameObject, iTween.Hash("y", y + addY, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
             _hidden = hide;
             yield return new WaitForSeconds(_hideTime);
         }
@@ -140,7 +214,7 @@ public class DeckController : MonoBehaviour
     // перемешать колоду
     public void Shuffle()
     {
-        _deck = _deck.OrderBy(a => _random.Next()).ToList();
+        _deck = _deck.OrderBy(a => random.Next()).ToList();
     }
 
     // замешать сброс
