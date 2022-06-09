@@ -44,6 +44,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Text
+    uniqueID: 2889366853
+    locked: 0
+  - name: Mage
+    uniqueID: 533677373
+    locked: 0
   - name: Background
     uniqueID: 2730075383
     locked: 0

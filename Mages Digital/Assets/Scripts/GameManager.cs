@@ -31,10 +31,10 @@ public class GameManager : MonoBehaviour
     
 
     [Header("Маги")]
-    [SerializeField] private List<MageController> _mages = new List<MageController>(); // все маги в игре
+    [SerializeField] private List<MageController> _mages = new List<MageController>(); // все маги в игре (вообще все, считая мертвых)
     
     [Header("Порядок хода магов")]
-    [SerializeField] private List<MageController> _magesOrder = new List<MageController>(); // порядок хода
+    [SerializeField] private List<MageController> _magesOrder = new List<MageController>(); // порядок хода (тут только живые маги)
 
     [Header("Префабы")]
     [SerializeField] private GameObject _cardPrefab; // префаб карты
@@ -77,7 +77,9 @@ public class GameManager : MonoBehaviour
     public Transform spellGroupLocation => _spellGroupLocation;
 
     public List<MageController> aliveMages => _mages.FindAll(mage => !mage.isDead); // живые маги
+    public List<MageController> magesWhoExecutedSpell => _mages.FindAll(mage => mage.spellsAreExecuted);
     public MageController onlyOneAlive     => aliveMages[0];
+    public bool areAllDead           => aliveMages.Count == 0;
     public bool isAliveOnlyOne       => aliveMages.Count == 1;
     public bool isGameEnd            => _gameState == GameState.GAME_END;
     public bool isRoundEnd           => _gameState == GameState.ROUND_END;
@@ -112,7 +114,7 @@ public class GameManager : MonoBehaviour
     // раздать нужно количество карт магам
     public IEnumerator CardDraw()
     {
-        foreach (MageController mage in _mages)
+        foreach (MageController mage in aliveMages)
         {
             yield return spellsDeck.PassCardsTo(mage, mage.nCardsToDraw);
         }
@@ -125,7 +127,7 @@ public class GameManager : MonoBehaviour
         _spellLocationControllers.ForEach(x => x.FadeInOutline());
 
         // XXX too slow (c)
-        yield return new WaitUntil(() => _mages.FindAll(x => x.readyToExecute).Count == aliveMages.Count);
+        yield return new WaitUntil(() => aliveMages.FindAll(x => x.readyToExecute).Count == aliveMages.Count);
 
         _spellLocationControllers.ForEach(x => x.FadeOutOutline());
     }
@@ -145,7 +147,10 @@ public class GameManager : MonoBehaviour
         // ANIMATE
 
         foreach(MageController mage in _magesOrder)
-            yield return mage.ExecuteSpells();
+        {
+            if (!mage.isDead)
+                yield return mage.ExecuteSpells();
+        }
 
         SetNewState(GameState.ROUND_END);
 
@@ -157,7 +162,7 @@ public class GameManager : MonoBehaviour
         foreach (MageController mage in aliveMages)
             mage.DropSpell();
 
-        if (isAliveOnlyOne)
+        if (isAliveOnlyOne || areAllDead)
             SetNewState(GameState.TOURNAMENT_END);
         else
             SetNewState(GameState.ROUND_START);
@@ -165,19 +170,29 @@ public class GameManager : MonoBehaviour
         yield break;
     }
 
-    public IEnumerator TournamentWon()
+    public IEnumerator TournamentEnd()
     {
-        MageController roundWinner = onlyOneAlive;
-        roundWinner.TournamentWon();
-        
-        if (roundWinner.isGameWinner)
-            SetNewState(GameState.GAME_END);
+        if (!areAllDead)
+        {
+            MageController roundWinner = onlyOneAlive;
+            roundWinner.TournamentWon();
+            
+            if (roundWinner.isGameWinner)
+                SetNewState(GameState.GAME_END);
+            else
+                SetNewState(GameState.ROUND_START);
+            
+            if (isGameEnd)
+                print($"Winner: {roundWinner.mage.mageName}");
+        }
         else
+        {
             SetNewState(GameState.ROUND_START);
-        
-        if (isGameEnd)
-            print($"Winner: {roundWinner.mage.mageName}");
-        
+        }
+
+        foreach (MageController mage in _mages)
+            mage.ResetMage();
+
         yield break;
     }
 

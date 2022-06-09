@@ -7,9 +7,12 @@ using UnityEngine;
 public class MageController : MonoBehaviour
 {
 
-    [SerializeField] private int _health    = 20;     // здоровье мага
+    [SerializeField] private int _startHealth = 20;
+    [SerializeField] private int _health      = 20;   // здоровье мага
     [SerializeField] private Mage _mage;              // данные мага
     [SerializeField] private PlayerController _owner; // игрок, управляющий магом
+    [SerializeField] private bool _spellsAreExecuted = false;
+    [SerializeField] private bool _readyToExecute    = false;
 
     [Header("Рука")]
     [SerializeField] private List<CardController> _treasures  = new List<CardController>(); // рука мага
@@ -24,7 +27,6 @@ public class MageController : MonoBehaviour
     {
         null, null, null
     };
-    [SerializeField] private bool _readyToExecute = false;
 
     [Header("Медали недобитого колдуна")]
     [SerializeField] private int _deadMedals = 0; // количество медалей недобитого колдуна
@@ -33,10 +35,15 @@ public class MageController : MonoBehaviour
     [SerializeField] private MageController _leftMage  = null; // левый соседний маг
     [SerializeField] private MageController _rightMage = null; // правый соседний маг
 
+    [Header("Внешний вид")]
+    [SerializeField] private Color _mainColor;
+
     private int _healthMax = 25;
 
     public Mage mage   => _mage;
     public int  health => _health;
+    public bool spellsAreExecuted => _spellsAreExecuted;
+    public bool readyToExecute => _readyToExecute;
 
     public PlayerController owner     => _owner;  
     public MageController   leftMage  => _leftMage;
@@ -50,10 +57,10 @@ public class MageController : MonoBehaviour
     public List<CardController> wildMagics => _wildMagics;
     public List<CardController> spell      => _spell;
     
-    public bool readyToExecute => _readyToExecute;
 
     public int deadMedals => _deadMedals;
 
+    public Color mainColor => _mainColor;
 
     public bool isDead        => _health <= 0;  // мертв ли маг
 
@@ -163,16 +170,19 @@ public class MageController : MonoBehaviour
             spellWildMagics.ForEach(wildMagic => Destroy(wildMagic.gameObject));
         
         // выполнение спелов карт
-        foreach (CardController card in nonNullSpell)
+        List<CardController> currentNonNullSpell = new List<CardController>(nonNullSpell);
+        foreach (CardController card in currentNonNullSpell)
         {
             yield return card.Highlight(true);
             yield return card.ExecuteSpell();
             yield return card.Highlight(false);
+            if (isDead) break;
         }
         
         UnreadyToExecute();
-
-        yield return owner.HideSpellFromAll();
+        
+        if (!isDead)
+            yield return owner.HideSpellFromAll();
     }
 
     public void DropSpell()
@@ -185,12 +195,14 @@ public class MageController : MonoBehaviour
 
     public void ReadyToExecute()
     {
-        _readyToExecute = true;
+        _readyToExecute    = true;
+        _spellsAreExecuted = false;
     }
 
     public void UnreadyToExecute()
     {
-        _readyToExecute = false;
+        _readyToExecute    = false;
+        _spellsAreExecuted = true;
     }
 
     // вернуть список, состоящий из всех карт заклинаний на руке мага
@@ -254,7 +266,7 @@ public class MageController : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (!isDead) 
-            _health = _health - damage;
+            _health = Mathf.Clamp(_health - damage, 0, _healthMax);
         else
             return;
         if (isDead)
@@ -272,6 +284,12 @@ public class MageController : MonoBehaviour
     public void TournamentWon()
     {
         _deadMedals += 1;
+    }
+
+    public void ResetMage()
+    {
+        _health = _startHealth;
+        owner.OnMageReset();
     }
 
     // вернуть определенную руку по типу карты

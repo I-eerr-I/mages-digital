@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
     // при нажатии кнопки готовности заклинания
     public IEnumerator OnExecute()
     {
-        if (_mage.spellIsReady)
+        if (_mage.spellIsReady && !_mage.readyToExecute)
         {
             yield return LockSpell();
         }
@@ -291,6 +291,11 @@ public class PlayerController : MonoBehaviour
             x    += step;
         }
         yield break;
+    }
+
+    public void OnMageReset()
+    {
+        StartCoroutine(HideHand(false));
     }
 
     // реакция на наведение на карту

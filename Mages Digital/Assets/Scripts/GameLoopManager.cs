@@ -26,7 +26,7 @@ public class GameLoopManager : MonoBehaviour
 
                 yield return gm.RoundEnd();
             }
-            yield return gm.TournamentWon();            
+            yield return gm.TournamentEnd();            
         }
     }
 }

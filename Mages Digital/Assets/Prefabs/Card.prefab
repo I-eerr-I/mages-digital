@@ -350,8 +350,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _card: {fileID: 0}
   _owner: {fileID: 0}
+  _sourceDeck: {fileID: 0}
   _cardFlippingTime: 0.15
   _cardShowInfoWaitTime: 1.5
+  _cardHighlightDeltaY: 1
+  _cardHighlightTime: 1
+  _cardHighlightLightDelta: 2
+  _cardFlyOutY: 10
+  _cardFlyOutXMin: -3
+  _cardFlyOutXMax: 3
+  _cardFlyOutTime: 1
   discoverable: 1
   cardState: 2
 --- !u!1 &6321173911512981663

@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: Mage 1
   m_EditorClassIdentifier: 
   _magename: Mage 1
-  _icon: {fileID: 0}
+  _icon: {fileID: 21300000, guid: 024f27ee9caf3744d906bd35fbf410dc, type: 3}
