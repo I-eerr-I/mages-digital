@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
 using UnityEngine;
+using System.Linq;
 
 
 public class TestMageController : MonoBehaviour
@@ -43,7 +44,7 @@ public class TestMageController : MonoBehaviour
     public List<TestCardController> wildMagics => _wildMagics;
     public List<TestCardController> spell      => _spell;
     public int deadMedals                      => _deadMedals;// CHANGE
-
+    public List<TestCardController> nonNullSpell => _spell.Where(card => card != null).ToList();//CHANGE
 
     public bool isDead       => health <= 0;  // мертв ли маг
     public int  cardsInSpell => _spell.FindAll(x => x != null).Count;
@@ -268,7 +269,7 @@ public class TestMageController : MonoBehaviour
     // }
 
     // Метод принимает игрока и его цель
-    // Удаляет у цели выбранное сокровище
+    // Удаляет у цели выбранное (владельцем карты) сокровище 
     // Добавляет выбранное сокровище игроку(ownerу карты заклинания)
     // public List<TestCardController> TakeEnemyTreasures (Mage owner, Mage chooseMage)
     // {
@@ -283,6 +284,21 @@ public class TestMageController : MonoBehaviour
     // public TestCardController ChooseCardInSpell()
     // {
     //     return spellCard;
+    // }
+
+    // Метод принимает цель
+    // Удаляет у цели выбранное (Жертвой) сокровище 
+    // public List<TestCardController> DropEnemyTreasures(Mage chooseMage)
+    // {
+
+    // }
+
+    // Метод принимает список целей
+    // Сбрасывает у целей карту Quality
+    // Сохраняет полученные заклинания у целей
+    // public void DropQuality(listTargets)
+    // {
+    //      listTargets.ForEach(mage => spell.quality.drop())
     // }
 
 }

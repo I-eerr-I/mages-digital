@@ -214,7 +214,7 @@ public class TestCardController : MonoBehaviour
     public int RollDice(int numberDice)
     {
         int totalRoll = 0; // Счет выпавших кубиков
-        for (int i = 1; i < numberDice;  i++)
+        for (int i = 0; i < numberDice;  i++)
         {
            totalRoll += Random.Range(1, 6); // Бросок кубика
         }
@@ -305,11 +305,25 @@ public class TestCardController : MonoBehaviour
         }
         return BuffDamage;
     }
+    
+    // Метод возвращающий случайного врага(принимает владельца)
+    public TestMageController RandomEnemy(TestMageController ownerCard)
+    {
+        // Создаем список без владельца карты
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => ownerCard !=mage);
+        // Рандомим индекс
+        int index = Random.Range(0, magesWithOutOwner.Count);
+        // Возвращаем мага из списка
+        return magesWithOutOwner[index];
+    }
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 /* 
 Карты заклинаний
 */
 ////////////////////////////////////////////////////////////////////////////////////
+// Перебрать все карты и исправить на списки живых магов
 
     // От Короля Оберона
     public IEnumerator  OtKoroluaOberona()
@@ -337,7 +351,7 @@ public class TestCardController : MonoBehaviour
         }
 
         // Нахождение магов без сокровища
-        foreach(TestMageController mage in TestGameManager.instance.mages)
+        foreach(TestMageController mage in TestGameManager.instance.aliveMages)
         {
             if(mage.treasures.Count == 0)
             {
@@ -360,7 +374,7 @@ public class TestCardController : MonoBehaviour
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
         
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
         var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
@@ -408,7 +422,7 @@ public class TestCardController : MonoBehaviour
         int damageDeads = 0; // Урон недобитым магам
 
 
-        foreach(TestMageController mage in TestGameManager.instance.mages)
+        foreach(TestMageController mage in TestGameManager.instance.aliveMages)
         {
             if(mage != owner)
             {
@@ -455,7 +469,7 @@ public class TestCardController : MonoBehaviour
         else if (resultDice <= 9){damage = 1;}
         else                     {damage = 7;}
 
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
         var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
@@ -502,7 +516,7 @@ public class TestCardController : MonoBehaviour
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
         int damageNeighbors = 0; // Урон соседям
 
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
         var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
@@ -570,7 +584,7 @@ public class TestCardController : MonoBehaviour
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
 
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
         var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
@@ -593,7 +607,7 @@ public class TestCardController : MonoBehaviour
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
 
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
         var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
@@ -612,7 +626,7 @@ public class TestCardController : MonoBehaviour
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
         var listTargets = new List<TestMageController> {}; // Лист целей
-        resultDice = 10;
+        
         if      (resultDice <= 4){damage = 1;}
         else if (resultDice <= 9){damage = 2;}
         else                     {damage = 2 * BuffDamageSing(((SpellCard) card).sign);}// Увеличение урона на кол-во знаков травы(для этой карты)
@@ -654,7 +668,7 @@ public class TestCardController : MonoBehaviour
     // Проверка во время определения очередност хода игроков
     public IEnumerator  Neterpeliviu()
     {
-        List<TestMageController> magesWithOutOwner = TestGameManager.instance.mages.FindAll(mage => owner !=mage);
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
         damage = 1;
         DamageToTargets(damage, magesWithOutOwner);
 
@@ -695,7 +709,7 @@ public class TestCardController : MonoBehaviour
     public IEnumerator  Dyavolskiu()
     {
         int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
-        int selfDamage = 0;
+        // int selfDamage = 0;
         // var target = owner.ChooseEnemyMage(); // Враг по выбору
 
         // if(resultDice <= 4)
@@ -720,8 +734,6 @@ public class TestCardController : MonoBehaviour
         yield break;
     }
 
-
-    
     // Дискотечный
     // Недописанная карта
     // Нужен метод выбора заводилы или прихода
@@ -730,4 +742,211 @@ public class TestCardController : MonoBehaviour
         // card.ExecuteSpell(ChooseCardInSpell());
         yield break;
     }
+    
+    //Двуличный
+    // Недописанная карта
+    // Нет выбора врага
+    public IEnumerator  Dvylichniu()
+    {
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+
+        // выдать сокровище выбранному врагу
+        // yield return TestGameManager.instance.treasuresDeck.PassCardsTo(target, 1); 
+
+        // damage = target.treasures.Count * 2; // Урон = Кол-во сокровищ * 2
+        
+        // DamageToTargets(damage, target);
+
+        yield break;
+    }
+
+    // Опарышный
+    public IEnumerator  Oparishniu()
+    {
+        damage = 2 * BuffDamageSing(((SpellCard) card).sign);// Увеличение урона на кол-во знаков мрака(для этой карты)
+
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
+        DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+
+    
+    // Котострофический
+    public IEnumerator  Kotostroficheskiu()
+    {
+        // Словарь маг key бросок value
+        Dictionary<TestMageController, int> magesAndRolls = new Dictionary<TestMageController, int>();
+
+        int numberDice = 1;// кол-во кубиков
+        
+        foreach(TestMageController mage in TestGameManager.instance.aliveMages)
+        {
+            int resultDice = RollDice(numberDice);
+            if(mage == owner )
+            {
+                resultDice = resultDice + 2;// Если цель владелец, +2 к результату
+            }
+            magesAndRolls.Add(mage, resultDice); 
+        }
+
+        var maxValue = magesAndRolls.Values.Max();// Нахождение максимального броска
+
+        foreach (var mageRoll in magesAndRolls)
+        {
+            if( mageRoll.Value == maxValue )
+            {
+                // Если маг выкинул максимальное число, получает сокровище
+                yield return TestGameManager.instance.treasuresDeck.PassCardsTo(mageRoll.Key, 1);
+            }
+            else
+            {
+                // Остальные получают урон = броску
+                DamageToTarget(mageRoll.Value,mageRoll.Key);
+            }
+        }
+        yield break;
+    }
+
+    
+    //Мозголомный
+    public IEnumerator  Mozgolomniu()
+    {
+        // Урон
+        damage = 3;
+        // Выбираем случайного врага
+        var randomEnemy = RandomEnemy(owner);
+        // Наносим урон
+        DamageToTarget(damage, randomEnemy);
+        // Берем сокровище для себя и случайного врага
+        yield return TestGameManager.instance.treasuresDeck.PassCardsTo(owner, 1);
+        yield return TestGameManager.instance.treasuresDeck.PassCardsTo(randomEnemy, 1);
+        
+        yield break;
+    }
+    
+    // Разрывной
+    // Недописанная карта
+    // Нет выбора врага
+    // Нет выбора сокровища для сброса
+    public IEnumerator  Razrivnoi()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        // int selfDamage = 0;
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+
+        // if(resultDice <= 4)
+        // {
+        //     damage = 1;
+        //     DamageToTarget(damage, target);
+        // }
+        // else if (resultDice <= 9)
+        // {
+        //     damage = 3;
+        //     selfDamage = 1;
+        //     DamageToTarget(damage, target);
+        //     DamageToTarget(selfDamage, owner);
+        // }
+        // else                     
+        // {
+        //     damage = 4;
+        //     DamageToTarget(damage, target);
+        //     DropEnemyTreasures(target);
+        // }
+        yield break;
+    }
+
+    // Непонятный
+    // Недописанная карта
+    // Не учитывает знак который дает сокровище
+    public IEnumerator  Neponuatnui()
+    {
+        
+        int squares = owner.nonNullSpell.Select(spellCard => ((SpellCard) spellCard.card).sign).Distinct().Count();
+        damage = 1 * (squares + owner.treasures.Count);
+        
+        DamageToTarget(damage, owner.rightMage);
+
+        yield break;
+    }
+    
+    //Шипастый
+    public IEnumerator Shipastui()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        
+        if      (resultDice <= 4){damage = 1; healHp = 0;}
+        else if (resultDice <= 9){damage = 1; healHp = 1;}
+        else                     {damage = 3; healHp = 3;}
+
+        HealToTarget(healHp, owner);
+        DamageToTarget(damage, owner.rightMage);
+        
+        yield break;
+    }
+
+    // Загнивающий
+    // Недописанная карта
+    // Убрать из списка сходивших магов
+    // Нужна функция сбрасывания Quality у таргетов
+    public IEnumerator Zagnivaushui()
+    {
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);
+        // Убрать с листа сходивших магов 
+
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        // DropQuality(listTargets);
+        
+        yield break;
+    }
+
+   
+    
+    //Каменючный
+    public IEnumerator Kamenuchnui()
+    {
+        TestMageController target = owner.leftMage;// Берем левого врага у владельца
+
+        damage = 1;
+
+        while (target != owner)// Пока цель не владелец
+        {
+            if (!target.isDead)// Если враг не умер
+            {
+                DamageToTarget(damage, target);
+                damage++;
+            }
+            target = target.leftMage; // Берем следующего левого мага
+        }
+        yield break;
+    }
+
+    
+    // Аппетитный
+    // Недописанная карта
+    // Не учитывает знак который дает сокровище
+    public IEnumerator  Appetitnui()
+    {
+        // Подсчет уникальных знаков в заклинании
+        int squares = owner.nonNullSpell.Select(spellCard => ((SpellCard) spellCard.card).sign).Distinct().Count();
+
+        damage = 1 * (squares);
+        
+        
+        List<TestMageController> magesWithOutOwner = TestGameManager.instance.aliveMages.FindAll(mage => owner !=mage);// Все живые враги
+
+        DamageToTargets(damage, magesWithOutOwner);
+
+        yield break;
+    }
+
+    
+
 }

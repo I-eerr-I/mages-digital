@@ -44,6 +44,7 @@ public class TestGameManager : MonoBehaviour
     public List<TestMageController> mages => _mages;
     public List<Transform> spellLocations => _spellLocations;
     public List<SpellLocationController> spellLocationControllers => _spellLocationControllers;
+    public List<TestMageController> aliveMages => _mages.FindAll(mage => !mage.isDead);// CHANGE
 
     [SerializeField] private List<MageController> _magesOrder = new List<MageController>();//CHANGE
 
