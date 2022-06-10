@@ -35,26 +35,26 @@ public class CardController : MonoBehaviour
     [SerializeField] Card _card;                 // данные карты
     [SerializeField] MageController _owner;      // маг владеющий картой
     [SerializeField] DeckController _sourceDeck; // колода, откуда была создана карта
+    [SerializeField] bool _visible = true;       // видимость карты
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    [Header("Анимация карты")]
-    [SerializeField] float _cardFlippingTime          = 0.15f; // время переворота карты
-    [SerializeField] float _cardShowInfoWaitTime      = 1.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
-    [SerializeField] float _cardHighlightDeltaY       = 1.0f;  // насколько поднять карту вверх для выделения
-    [SerializeField] float _cardHighlightTime         = 1.0f;  // время поднятия карты для выделения
-    [SerializeField] float _cardHighlightLightDelta   = 2.0f;  // увеличение дальности света (яркости) при выделении
-    [SerializeField] float _cardFlyOutY               = 10.0f; // глобальная координата Y при вылете карты за экран
-    [SerializeField] float _cardFlyOutXMin            = -3.0f; // минимальное значение X при вылете карты за экран
-    [SerializeField] float _cardFlyOutXMax            = 3.0f;  // максимальное значение X при вылете карты за экран
-    [SerializeField] float _cardFlyOutTime            = 1.0f;  // время вылета карты за экран
+    float _cardFlippingTime          = 0.15f; // время переворота карты
+    float _cardShowInfoWaitTime      = 1.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
+    float _cardHighlightDeltaY       = 1.0f;  // насколько поднять карту вверх для выделения
+    float _cardHighlightTime         = 1.0f;  // время поднятия карты для выделения
+    float _cardHighlightLightDelta   = 2.0f;  // увеличение дальности света (яркости) при выделении
+    float _cardFlyOutY               = 10.0f; // глобальная координата Y при вылете карты за экран
+    float _cardFlyOutXMin            = -3.0f; // минимальное значение X при вылете карты за экран
+    float _cardFlyOutXMax            = 3.0f;  // максимальное значение X при вылете карты за экран
+    float _cardFlyOutTime            = 1.0f;  // время вылета карты за экран
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    bool _visible             = true;               // видимость карты
+
     bool _discoverable        = true;               // можно ли взаимодействовать с картой
     bool _isMouseOver         = false;              // находится ли курсор на карте
     float _mouseOverTime      = 0.0f;               // время, прошедшее с момента наведения на карту
@@ -153,7 +153,7 @@ public class CardController : MonoBehaviour
     void AddToSpell()
     {
         Order order = ((SpellCard) card).order;
-        if (order == Order.WILDMAGIC)
+        if (order == Order.WILDMAGIC && owner.owner.isBot)
             StartCoroutine(owner.AddWildMagicToSpell(this));
         else
             StartCoroutine(owner.AddToSpell(this, order));
@@ -272,6 +272,7 @@ public class CardController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    // WILDMAGIC BUG
 
     // триггер при наведении курсора на карту
     public void OnMouseOverTrigger()
@@ -317,7 +318,7 @@ public class CardController : MonoBehaviour
         {
             if (GameManager.instance.isSpellCreationState)
             {
-                if (withOwner)
+                if (withOwner && !owner.ownerIsBot)
                 {
                     if (isSpell)
                     {
@@ -376,7 +377,8 @@ public class CardController : MonoBehaviour
     // выделить карту
     void SelectCard(bool select)
     {
-        owner.owner.OnSpellCardSelected(this, select);
+        if (!owner.ownerIsBot)
+            owner.owner.OnSpellCardSelected(this, select);
     }
 
 
@@ -445,7 +447,8 @@ public class CardController : MonoBehaviour
     public void SetStateToInHand()
     {
         cardState = CardState.IN_HAND;
-        _outlineController.SetProperties(false, true);
+        if (!owner.ownerIsBot)
+            _outlineController.SetProperties(false, true);
     }
 
 

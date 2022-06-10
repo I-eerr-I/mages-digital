@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using CardsToolKit;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : AbstractPlayerController
 {
-    MageController _mage; // маг под управлением
+
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     // РУКА
-    Transform _handLocation;        // объект расположентя карт в руке
     bool _handIsHidden   = false;  // видимость карт руки
     float _handHiddenY   = -1.5f;   // локальная координата Y руки в спрятанном состоянии
     float _handUnhiddenY = 0.0f;    // локальная координата Y руки в не спрятанном состоянии
@@ -21,6 +22,7 @@ public class PlayerController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     // ОБЩЕЕ РАСПОЛОЖЕНИЕ КАРТ В РУКЕ
     Vector3 _cardMovingDestination       = new Vector3(0.0f, -5.5f, 7.5f); // глобальная позиция, куда карта перемещается после спауна
     float   _bonusCardMovingToHandTime   = 1.0f;  // время перемещения карты к руке
@@ -30,9 +32,6 @@ public class PlayerController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // КАРТЫ ЗАКЛИНАНИЙ
-    Transform _spellLocation;           // объект расположения карт в заклинании (в руке)
-    float _spellGroupMovingTime = 0.5f; // время передвижения заклинаний к руке
 
     // РАСПОЛОЖЕНИЕ КАРТ ЗАКЛИНАНИЙ В РУКЕ
     float _spellsRightMaxX      = 3.0f;     // локальное крайнее правое зачение X для заклинаний
@@ -57,38 +56,14 @@ public class PlayerController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
     // БОНУСНЫЕ КАРТЫ
-    Transform _bonusLocation;     // объект расположения бонусных карт
     float _bonusesStartX  = 4.5f; // локальная координата X в руке по-умолчанию для бонусных карт
     
-    
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    Order _chosenOrder = Order.WILDMAGIC; // выбранный порядок (для шальной магии1)
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    public MageController mage => _mage;
-    public Order chosenOrder   => _chosenOrder;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    void Awake()
-    {
-        _mage = gameObject.GetComponent<MageController>();
-        
-        _handLocation  = transform.GetChild(0);
-        _spellLocation = transform.GetChild(1);
-        _bonusLocation = transform.GetChild(2); 
-    }
 
 
     void Update()
@@ -100,47 +75,65 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    void Start()
+    {
+        _isBot = false;
+    }
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    // при нажатии кнопки готовности заклинания
-    IEnumerator OnExecute()
+    public override IEnumerator OnCardAddedToHand(CardController card)
     {
-        if (_mage.spellIsReady && !_mage.readyToExecute)
-        {
-            yield return LockSpell();
-        }
-        yield break;
-    }
+        SetCardHandParent(card);
 
-    // реакция на сброс заклинания
-    public IEnumerator OnSpellDrop()
-    {
-        if (_handIsHidden)
-            yield return HideHand(false);
-    }
-
-    // реакция на добавление карты к руке
-    public IEnumerator OnCardAddedToHand(CardController cardController)
-    {
+        StartCoroutine(card.PositionFrontUp());
 
         Vector3 position = GetHandPositionVector(_bonusesStartX);
 
-        if (cardController.isSpell)
-            cardController.transform.SetParent(_handLocation);
-        else
-            cardController.transform.SetParent(_bonusLocation);
-
-        StartCoroutine(cardController.PositionFrontUp());
-        if (!cardController.isSpell)
-            iTween.MoveTo(cardController.gameObject, iTween.Hash("position", position, "time", _bonusCardMovingToHandTime, "islocal", true));
+        if (!card.isSpell)
+            iTween.MoveTo(card.gameObject, iTween.Hash("position", position, "time", _bonusCardMovingToHandTime, "islocal", true));
         else
             yield return FitSpellCardsInHand();
         yield break;
     }
 
-    // реакция на добавление карты к заклинанию
-    public IEnumerator OnCardAddedToSpell(CardController addedCard, Order order)
+
+    protected override IEnumerator MoveSpellGroup(bool toHand)
+    {
+        Transform parent = (toHand) ? _spellLocation : GameManager.instance.spellGroupLocation;
+        
+        float step = _mage.nonNullSpell[0].cardSizeX;
+        float x = -(step * (_mage.nCardsInSpell-1)) / 2;
+        
+        Vector3 spellGroupPosition = GameManager.instance.spellGroupLocation.position;
+        
+        foreach (CardController cardInSpell in _mage.nonNullSpell)
+        {   
+            spellGroupPosition.x = x;
+            Vector3 position = (toHand) ? GetHandPositionVector(x) : spellGroupPosition;
+            
+            cardInSpell.transform.SetParent(parent);
+            
+            iTween.MoveTo(cardInSpell.gameObject, iTween.Hash("position", position, "time", _spellGroupMovingTime, "islocal", toHand));
+            x += step;
+        }
+        
+        yield return new WaitForSeconds(_spellGroupMovingTime);
+    }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public override IEnumerator OnSpellDrop()
+    {
+        if (_handIsHidden)
+            yield return HideHand(false);
+    }
+
+
+    public override IEnumerator OnCardAddedToSpell(CardController addedCard, Order order)
     {
         addedCard.transform.SetParent(GameManager.instance.spellGroupLocation);
 
@@ -153,13 +146,36 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void OnMageReset()
+    public override IEnumerator ChooseOrder()
     {
-        StartCoroutine(HideHand(false));
+        _chosenOrder = Order.WILDMAGIC;
+
+        // все котроллеры мест расположения карт заклинаний
+        List<SpellLocationController> controllers = GameManager.instance.spellLocationControllers;
+        
+        // запустить выбор расположения карты
+        _mage.SetAllDiscoverable(false);
+        foreach (SpellLocationController controller in controllers)
+            yield return controller.StartChoice();
+        _mage.SetAllDiscoverable(true);
+
+        // ожидать выбора игрока
+        yield return new WaitWhile(() => GameManager.instance.isChoosingState && controllers.TrueForAll(x => !x.isOrderChosen));
+        
+        // отключить выбор
+        _mage.SetAllDiscoverable(false);
+        foreach(SpellLocationController controller in controllers)
+            yield return controller.EndChoice();
+        yield return new WaitForSeconds(0.05f);
+        _mage.SetAllDiscoverable(true);
+
+        // сохранить выбор игрока
+        if (GameManager.instance.isChoosingState)
+            _chosenOrder = controllers.FindAll(x => x.isOrderChosen)[0].chosenOrder;
     }
 
-    // реакция на наведение на карту
-    public void OnSpellCardSelected(CardController cardController, bool isSelected)
+    
+    public override void OnSpellCardSelected(CardController cardController, bool isSelected)
     {
         if (cardController.isSpell && cardController.inHand)
         {
@@ -174,8 +190,24 @@ public class PlayerController : MonoBehaviour
     }
 
 
+    public override void OnMageReset()
+    {
+        StartCoroutine(HideHand(false));
+    }
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    // реакция на подтверждение карт в заклинании
+    IEnumerator OnExecute()
+    {
+        if (_mage.spellIsReady && !_mage.readyToExecute)
+        {
+            yield return LockSpell();
+        }
+        yield break;
+    }
 
     // выровнять карты заклинаний в руке
     IEnumerator FitSpellCardsInHand()
@@ -263,66 +295,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(_handHideTime);
     }
 
-    // передвинуть готовое заклинание к руке или в центр поля
-    IEnumerator MoveSpellGroup(bool toHand)
-    {
-        Transform parent = (toHand) ? _spellLocation : GameManager.instance.spellGroupLocation;
-        float step = _mage.nonNullSpell[0].cardSizeX;
-        float x = -(step * (_mage.nCardsInSpell-1)) / 2;
-        Vector3 spellGroupPosition = GameManager.instance.spellGroupLocation.position;
-        foreach (CardController cardInSpell in _mage.nonNullSpell)
-        {   
-            spellGroupPosition.x = x;
-            Vector3 position = (toHand) ? GetHandPositionVector(x) : spellGroupPosition;
-            cardInSpell.transform.SetParent(parent);
-            iTween.MoveTo(cardInSpell.gameObject, iTween.Hash("position", position, "time", _spellGroupMovingTime, "islocal", toHand));
-            x += step;
-        }
-        yield return new WaitForSeconds(_spellGroupMovingTime);
-        
-    }
-
-    // показать заклинание все для выполнения
-    public IEnumerator ShowSpellToAll()
-    {
-        yield return MoveSpellGroup(false);
-    }
-
-    // спрятать заклинание после выполнения
-    public IEnumerator HideSpellFromAll()
-    {
-        yield return MoveSpellGroup(true);
-    }
-
-    // выбрать порядок расположения для карты шальной магии
-    public IEnumerator ChooseOrder()
-    {
-        _chosenOrder = Order.WILDMAGIC;
-
-        // все котроллеры мест расположения карт заклинаний
-        List<SpellLocationController> controllers = GameManager.instance.spellLocationControllers;
-        
-        // запустить выбор расположения карты
-        _mage.SetAllDiscoverable(false);
-        foreach (SpellLocationController controller in controllers)
-            yield return controller.StartChoice();
-        _mage.SetAllDiscoverable(true);
-
-        // ожидать выбора игрока
-        yield return new WaitWhile(() => GameManager.instance.isChoosingState && controllers.TrueForAll(x => !x.isOrderChosen));
-        
-        // отключить выбор
-        _mage.SetAllDiscoverable(false);
-        foreach(SpellLocationController controller in controllers)
-            yield return controller.EndChoice();
-        yield return new WaitForSeconds(0.05f);
-        _mage.SetAllDiscoverable(true);
-
-        // сохранить выбор игрока
-        if (GameManager.instance.isChoosingState)
-            _chosenOrder = controllers.FindAll(x => x.isOrderChosen)[0].chosenOrder;
-    }
-
     
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
@@ -347,6 +319,5 @@ public class PlayerController : MonoBehaviour
     {
         return new Vector3(x, _handCardsY, _handCardsZ);
     }
-
 
 }

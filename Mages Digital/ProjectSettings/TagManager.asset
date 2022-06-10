@@ -44,11 +44,17 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Deck
+    uniqueID: 3632429313
+    locked: 0
   - name: Text
     uniqueID: 2889366853
     locked: 0
   - name: Mage
     uniqueID: 533677373
+    locked: 0
+  - name: Card
+    uniqueID: 1471587213
     locked: 0
   - name: Background
     uniqueID: 2730075383

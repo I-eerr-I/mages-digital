@@ -102,7 +102,7 @@ public class DeckController : MonoBehaviour
     }
 
     // выдать N карт магу из колоды
-    public IEnumerator PassCardsTo(MageController owner, int nCards)
+    public IEnumerator PassCardsTo(MageController owner, int nCards, bool autoHide = true)
     {
         // показать колоду
         yield return Hide(false);
@@ -126,7 +126,8 @@ public class DeckController : MonoBehaviour
         }
 
         // скрыть колоду
-        yield return Hide(true);
+        if (autoHide)
+            yield return Hide(true);
     }
 
     // заменить шальную магию в заклинании

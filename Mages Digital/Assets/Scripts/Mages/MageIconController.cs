@@ -2,6 +2,7 @@ using System;
 using Random = System.Random;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEditor;
 
@@ -20,9 +21,9 @@ public class MageIconController : MonoBehaviour
     [SerializeField] float _mageShowInfoWaitTime;
     [SerializeField] SpriteMask     _cracksMask;
     [SerializeField] SpriteRenderer _healthOutline;
-    [SerializeField] TextMesh       _healthText;
+    [SerializeField] TextMeshPro    _healthText;
     [SerializeField] SpriteRenderer _medalsOutline;
-    [SerializeField] TextMesh       _medalsText;
+    [SerializeField] TextMeshPro    _medalsText;
     [SerializeField] SpriteRenderer _iconOutline;
     [SerializeField] SpriteRenderer _icon;
 

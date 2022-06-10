@@ -43,8 +43,8 @@ public class MageController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    PlayerController   _owner;     // игрок, управляющий магом
-    MageIconController _mageIcon;  // иконка мага
+    AbstractPlayerController   _owner;     // игрок, управляющий магом
+    MageIconController         _mageIcon;  // иконка мага
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ public class MageController : MonoBehaviour
     public bool spellsAreExecuted => _spellsAreExecuted;
     public bool readyToExecute    => _readyToExecute;
 
-    public PlayerController     owner     => _owner;  
-    public MageIconController   mageIcon  => _mageIcon;
-    public MageController       leftMage  => _leftMage;
+    public AbstractPlayerController owner => _owner;  
+    public MageIconController    mageIcon => _mageIcon;
+    public MageController        leftMage => _leftMage;
     public MageController       rightMage => _rightMage;  
 
     public List<CardController> treasures  => _treasures;
@@ -80,6 +80,7 @@ public class MageController : MonoBehaviour
     public bool isDead          => _health <= 0;  // мертв ли маг
     public bool spellIsReady    => nCardsInSpell > 0;   // готово ли заклинание
     public bool isGameWinner    => _medals == 3;
+    public bool ownerIsBot      => _owner.isBot;
     
     public int  nCardsInSpell   => nonNullSpell.Count;  // количество карт в заклинании
     public int  spellInitiative => nonNullSpell.Sum(x => ((SpellCard) x.card).initiative); // сумарная инициатива спела
@@ -93,7 +94,7 @@ public class MageController : MonoBehaviour
 
     void Awake()
     {
-        _owner    = gameObject.GetComponent<PlayerController>();
+        _owner    = gameObject.GetComponent<AbstractPlayerController>();
         _mageIcon = gameObject.GetComponentInChildren<MageIconController>();
     }
 
@@ -150,7 +151,7 @@ public class MageController : MonoBehaviour
         _spell[spellCardIndex] = cardToAdd;
         cardToAdd.SetStateToInSpell();
 
-        if (ownerReaction)
+        if (ownerReaction && !ownerIsBot)
             yield return owner.OnCardAddedToSpell(cardToAdd, order);
 
         cardToAdd.spellOrder   = order;
@@ -220,7 +221,8 @@ public class MageController : MonoBehaviour
         List<CardController> spellCopy = new List<CardController>(_spell);
         _spell = new List<CardController>(3) {null, null, null};
         spellCopy.FindAll(card => card != null).ForEach(card => card.ToFold());
-        StartCoroutine(owner.OnSpellDrop());
+        if (!ownerIsBot)
+            StartCoroutine(owner.OnSpellDrop());
     }
 
     // подготовить мага к выполнению заклинания
@@ -374,8 +376,9 @@ public class MageController : MonoBehaviour
     public void ResetMage()
     {
         _health = _startHealth;
-        _owner.OnMageReset();
         _mageIcon.OnReset();
+        if (!ownerIsBot)
+            _owner.OnMageReset();
     }
 
 

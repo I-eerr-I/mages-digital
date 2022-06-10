@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
@@ -152,10 +153,15 @@ public class GameManager : MonoBehaviour
     // раздать нужно количество карт магам
     public IEnumerator CardDraw()
     {
-        foreach (MageController mage in aliveMages)
+        List<MageController> currentAliveMages = aliveMages.ToList();
+        int aliveCount = currentAliveMages.Count;
+        foreach (MageController mage in currentAliveMages.GetRange(0, aliveCount-1))
         {
-            yield return spellsDeck.PassCardsTo(mage, mage.nCardsToDraw);
+            yield return spellsDeck.PassCardsTo(mage, mage.nCardsToDraw, autoHide: false);
         }
+
+        MageController lastAliveMage = currentAliveMages[aliveCount - 1];
+        yield return spellsDeck.PassCardsTo(lastAliveMage, lastAliveMage.nCardsToDraw);
     }
 
     // этап создания заклинаний
