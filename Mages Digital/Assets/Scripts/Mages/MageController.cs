@@ -24,10 +24,7 @@ public class MageController : MonoBehaviour
     [SerializeField] private List<CardController> _wildMagics = new List<CardController>();
 
     [Header("Заклинание")]
-    [SerializeField] private List<CardController> _spell = new List<CardController>(3)
-    {
-        null, null, null
-    };
+    [SerializeField] private List<CardController> _spell = new List<CardController>(3) {null, null, null};
 
     [Header("Медали недобитого колдуна")]
     [SerializeField] private int _medals = 0; // количество медалей недобитого колдуна
@@ -38,7 +35,6 @@ public class MageController : MonoBehaviour
 
     private MageIconController _mageIcon;
 
-    
 
     public Mage mage   => _mage;
     public int  health => _health;
@@ -217,14 +213,33 @@ public class MageController : MonoBehaviour
         return spellCards;
     }
 
+    public List<CardController> GetBonusCards()
+    {
+        List<CardController> bonusCards = new List<CardController>();
+        bonusCards.AddRange(_treasures);
+        bonusCards.AddRange(_deads);
+        return bonusCards;
+    }
+
     public List<CardController> GetAllCards()
     {
         List<CardController> allCards = new List<CardController>();
         allCards.AddRange(GetSpellsInHand());
-        allCards.AddRange(_treasures);
-        allCards.AddRange(_deads);
+        allCards.AddRange(GetBonusCards());
         allCards.AddRange(nonNullSpell);
         return allCards;
+    }
+
+    public List<CardController> GetBonusInfo(int indexOffset = 0)
+    {
+        List<CardController> bonusInfo = new List<CardController>(3) {null, null, null};
+        List<CardController> bonusCards = GetBonusCards();
+        for (int i = 0; i < 3; i++)
+        {
+            if (i < bonusCards.Count)
+                bonusInfo[i] = bonusCards[(i + indexOffset) % bonusCards.Count];
+        }
+        return bonusInfo;
     }
 
     public void SetAllDiscoverable(bool discoverable)

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ad941c850774c144926063a021d6c95, type: 3}
   m_Name: Test Treasure Card 2
   m_EditorClassIdentifier: 
-  _front: {fileID: 21300000, guid: 9d91df9b321be7143a953545c14b88fe, type: 3}
+  _front: {fileID: 21300000, guid: cdffd5a95f1666c4d9e3c2fecb9fd95e, type: 3}
   _cardName: Test Treasure Card 2
   _description: 
   _cardType: 1

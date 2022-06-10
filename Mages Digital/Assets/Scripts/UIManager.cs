@@ -20,6 +20,12 @@ public class UIManager : MonoBehaviour
     public TMP_Text showingMageHealthText;
     public TMP_Text showingMageMedalsText;
 
+    [Header("Информация о бонусных картах")]
+    public GameObject showingBonusPanel;
+    public Image showingBonusLeftImage;
+    public Image showingBonusCenterImage;
+    public Image showingBonusRightImage;
+
     void Awake()
     {
         if (_instance == null) _instance = this;
@@ -41,6 +47,22 @@ public class UIManager : MonoBehaviour
             showingMage.sprite = mage.mage.front;
             showingMageHealthText.text = $"Здоровье: {mage.health}";
             showingMageMedalsText.text = $"Побед: {mage.medals}";
+        }
+    }
+
+    public void ShowBonusInfo(List<CardController> threeBonusCards, bool show = true)
+    {
+        showingBonusPanel.SetActive(show);
+        if (show)
+        {
+            showingBonusLeftImage.enabled   = threeBonusCards[0] != null;
+            showingBonusLeftImage.sprite    = threeBonusCards[0].card.front;
+
+            showingBonusCenterImage.enabled = threeBonusCards[1] != null;
+            showingBonusCenterImage.sprite  = threeBonusCards[1].card.front;
+
+            showingBonusRightImage.enabled  = threeBonusCards[2] != null;
+            showingBonusRightImage.sprite   = threeBonusCards[2].card.front;
         }
     }
 }

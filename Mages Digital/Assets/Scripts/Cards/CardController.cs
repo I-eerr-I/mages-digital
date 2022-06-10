@@ -51,11 +51,13 @@ public class CardController : MonoBehaviour
     private SpriteRenderer    _backSpriteRenderer;  // рендер задней части (рубашки) карты
     private OutlineController _outlineController;   // управление подсветкой карты
     
-    private bool _visible = true; // видимость карты
+    private bool _visible     = true; // видимость карты
+    private bool _isMouseOver = false;
+    private int _bonusInfoIndexOffset = 0;
 
     private Order _spellOrder = Order.WILDMAGIC; // порядок в заклинании (нужен для шальной магии)
 
-
+    
 
     public bool  discoverable  = true; // можно ли взаимодействовать с картой
 
@@ -114,8 +116,20 @@ public class CardController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.V))
             SetVisible(!_visible);
-    }
     // TEST
+
+        if (_isMouseOver && !isSpell)
+        {
+            float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(mouseScroll) > 0.0f)
+            {
+                int addToOffset = (mouseScroll > 0.0f) ? 1 : -1;
+                _bonusInfoIndexOffset += addToOffset;
+                print(_bonusInfoIndexOffset);
+            }
+            
+        }
+    }
 
     // перевернуть карту лицевой строной вверх
     public IEnumerator PositionFrontUp()
@@ -233,10 +247,18 @@ public class CardController : MonoBehaviour
     {
         if (discoverable)
         {
-            if (withOwner && isSpell)
+            _isMouseOver = true;
+            if (withOwner)
             {
-                SelectCard(true);
-                ShowCardInfo();
+                if (isSpell)
+                {
+                    SelectCard(true);
+                    ShowCardInfo();
+                }
+                else
+                {
+                    ShowBonusCardInfo();
+                }
             }
         }
     }
@@ -244,11 +266,16 @@ public class CardController : MonoBehaviour
     // триггер при выходе курсора из области карты
     public void OnMouseExitTrigger()
     {
-        HideCardInfo();
+        _isMouseOver = false;
+        if (isSpell)
+            HideCardInfo();
+        else
+            HideBonusCardInfo();
         if (discoverable)
         {
-            if (isSpell && withOwner)
-                SelectCard(false);
+            if (withOwner)
+                if (isSpell)
+                    SelectCard(false);
         }
     }
 
@@ -289,11 +316,24 @@ public class CardController : MonoBehaviour
             UIManager.instance.ShowCardInfo(this, true);
     }
 
+    public void ShowBonusCardInfo()
+    {
+        _mouseOverTime += Time.deltaTime;
+        if (_mouseOverTime >= _cardShowInfoWaitTime)
+            UIManager.instance.ShowBonusInfo(owner.GetBonusInfo(indexOffset: _bonusInfoIndexOffset));
+    }
+
     // спрятать информацию о карте
     public void HideCardInfo()
     {
         _mouseOverTime = 0.0f;
         UIManager.instance.ShowCardInfo(this, false);
+    }
+
+    public void HideBonusCardInfo()
+    {
+        _mouseOverTime = 0.0f;
+        UIManager.instance.ShowBonusInfo(null, false);
     }
 
     // выделить карту
