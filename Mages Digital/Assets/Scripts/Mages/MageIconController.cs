@@ -8,29 +8,51 @@ using UnityEditor;
 public class MageIconController : MonoBehaviour
 {
 
-    [SerializeField] private SpriteMask     _cracksMask;
-    [SerializeField] private SpriteRenderer _healthOutline;
-    [SerializeField] private TextMesh       _healthText;
-    [SerializeField] private SpriteRenderer _medalsOutline;
-    [SerializeField] private TextMesh       _medalsText;
-    [SerializeField] private SpriteRenderer _iconOutline;
-    [SerializeField] private SpriteRenderer _icon;
 
-    private MageController _mage;
-    private SerializedObject _halo;
-
-
-    private float _mouseOverTime = 0.0f;
-    private bool  _discoverable  = true;
-
-    private int _mouseDownClicked = 0;
-    private int _damageHitClicks  = 25;
-    private int _deathClicks      = 50;
-    private List<Action> _mouseDownActions = new List<Action>();
-    
     public Random random = new Random();
 
-    public float mageShowInfoWaitTime;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    [SerializeField] float _mageShowInfoWaitTime;
+    [SerializeField] SpriteMask     _cracksMask;
+    [SerializeField] SpriteRenderer _healthOutline;
+    [SerializeField] TextMesh       _healthText;
+    [SerializeField] SpriteRenderer _medalsOutline;
+    [SerializeField] TextMesh       _medalsText;
+    [SerializeField] SpriteRenderer _iconOutline;
+    [SerializeField] SpriteRenderer _icon;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    bool  _discoverable     = true;
+    float _mouseOverTime    = 0.0f;
+    int   _mouseDownClicked = 0;
+    int   _damageHitClicks  = 25;
+    int   _deathClicks      = 50;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    List<Action> _mouseDownActions = new List<Action>();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    MageController   _mage;
+    SerializedObject _halo;
+    
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
 
     [Header("Основной цвет")]
     public Color mainColor;
@@ -39,18 +61,21 @@ public class MageIconController : MonoBehaviour
     public Color iconHoverColor;
     
     [Header("Настройки Halo")]
-    public Color haloColor;
-    // public Color haloHoverColor;
+    public Color haloColor;    
     public float haloRange;
     public float haloHoverRange;
 
     [Header("Внешний вид после смерти")]
     public Color haloDeathColor;
-    // public Color haloDeathHoverColor;
     public Color mainDeathColor;
     public Color mainDeathHoverColor;
     public Color iconDeathColor;
     public Color iconDeathHoverColor;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     void Awake()
@@ -58,6 +83,33 @@ public class MageIconController : MonoBehaviour
         _mage       = gameObject.GetComponentInParent<MageController>();
         _halo       = new SerializedObject(gameObject.GetComponent("Halo"));
 
+        InitializeMouseDownActions();
+    }
+
+
+    void Start()
+    {
+        _cracksMask.enabled = false;
+    
+        if (_mage.mage != null)
+            _icon.sprite = _mage.mage.icon;
+
+        OnHoverExit();
+    }
+
+
+    void Update()
+    {
+        _healthText.text = _mage.health.ToString();
+        _medalsText.text = _mage.medals.ToString();
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    void InitializeMouseDownActions()
+    {
         _mouseDownActions.Add(() => 
         {
             Hashtable parameters = new Hashtable();
@@ -83,28 +135,9 @@ public class MageIconController : MonoBehaviour
         });
     }
 
-    void Start()
-    {
-        _cracksMask.enabled = false;
-    
-        if (_mage.mage != null)
-            _icon.sprite = _mage.mage.icon;
-        OnHoverExit();
-    }
 
-    void Update()
-    {
-        _healthText.text = _mage.health.ToString();
-        _medalsText.text = _mage.medals.ToString();
-    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    void Shake(Vector3 strength, float time = 0.5f, string what = "position")
-    {
-        if (what == "position")
-            iTween.ShakePosition(gameObject, strength, time);
-        else if (what == "rotation")
-            iTween.ShakeRotation(gameObject, strength, time);
-    }
 
     IEnumerator OnMouseDown()
     {
@@ -129,6 +162,7 @@ public class MageIconController : MonoBehaviour
         }
     }
 
+
     void OnMouseOver()
     {
         if (!_mage.isDead)
@@ -137,6 +171,7 @@ public class MageIconController : MonoBehaviour
             OnHoverDead();
         ShowMageInfo();
     }
+
 
     void OnMouseExit()
     {
@@ -151,12 +186,17 @@ public class MageIconController : MonoBehaviour
         HideMageInfo();
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     void OnHover()
     {
         SetIconSettings(iconHoverColor);
         SetOutlineSettings(mainHoverColor);
         SetHaloSettings(haloColor, haloHoverRange);
     }
+
 
     void OnHoverExit()
     {
@@ -165,12 +205,14 @@ public class MageIconController : MonoBehaviour
         SetHaloSettings(haloColor, haloRange);
     }
 
+
     void OnHoverDead()
     {
         SetIconSettings(iconDeathHoverColor);
         SetOutlineSettings(mainDeathHoverColor);
         SetHaloSettings(haloDeathColor, haloHoverRange);
     }
+
 
     void OnHoverExitDead()
     {
@@ -179,18 +221,24 @@ public class MageIconController : MonoBehaviour
         SetHaloSettings(haloDeathColor, haloRange);
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     public void ShowMageInfo()
     {
         _mouseOverTime += Time.deltaTime;
-        if (_mouseOverTime >= mageShowInfoWaitTime)
+        if (_mouseOverTime >= _mageShowInfoWaitTime)
             UIManager.instance.ShowMageInfo(_mage, true);
     }
+
 
     public void HideMageInfo()
     {
         _mouseOverTime = 0.0f;
         UIManager.instance.ShowMageInfo(_mage, false);
     }
+
 
     public void OnDeath()
     {
@@ -201,6 +249,7 @@ public class MageIconController : MonoBehaviour
         CracksOn();
     }
 
+
     public void OnReset()
     {
         SetIconSettings(Color.white);
@@ -209,6 +258,10 @@ public class MageIconController : MonoBehaviour
         CracksOff();
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     void CracksOn()
     {
         _cracksMask.enabled = true;
@@ -216,20 +269,24 @@ public class MageIconController : MonoBehaviour
         iTween.ValueTo(gameObject, iTween.Hash("from", 1.0f, "to", 0.5f, "time", 10.0f, "onupdate", "SetCrackCutoff"));
     }
 
+
     void CracksOff()
     {
         iTween.ValueTo(gameObject, iTween.Hash("from", _cracksMask.alphaCutoff, "to", 1.0f, "time", 0.5f, "onupdate", "SetCrackCutoff", "oncomplete", "DisableCraks"));
     }
+
 
     void DisableCraks()
     {
         _cracksMask.enabled = false;
     }
 
+
     void SetCrackCutoff(float cutoff)
     {
         _cracksMask.alphaCutoff = cutoff;
     }
+
 
     void SetHaloSettings(Color color, float range)
     {
@@ -238,11 +295,13 @@ public class MageIconController : MonoBehaviour
         _halo.ApplyModifiedProperties();
     }
 
+
     void SetHaloRange(float range)
     {
         _halo.FindProperty("m_Size").floatValue  = range;
         _halo.ApplyModifiedProperties();
     }
+
 
     void SetOutlineSettings(Color color)
     {
@@ -251,10 +310,12 @@ public class MageIconController : MonoBehaviour
         _iconOutline.color   = color;
     }
 
+
     void SetIconSettings(Color color)
     {
         _icon.color = color;
     }
+
 
     void UpdateSettings()
     {
@@ -268,6 +329,7 @@ public class MageIconController : MonoBehaviour
     {
         _discoverable = true;
     }
+
 
     public void SetUndiscoverable()
     {

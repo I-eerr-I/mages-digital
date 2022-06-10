@@ -7,44 +7,60 @@ using UnityEngine;
 public class MageController : MonoBehaviour
 {
 
-    private int _healthMax = 25;
-    [SerializeField] private int _startHealth = 20;
-    [SerializeField] private int _health      = 20;   // здоровье мага
-    [SerializeField] private Mage _mage;              // данные мага
-    [SerializeField] private PlayerController _owner; // игрок, управляющий магом
-    [SerializeField] private bool _spellsAreExecuted = false;
-    [SerializeField] private bool _readyToExecute    = false;
 
+    [Header("Маг")]
+    [SerializeField] Mage _mage;         // данные мага
+    
+    [Header("Статус")]
+    [SerializeField] int _health = 20;   // здоровье мага
+    [SerializeField] int _medals = 0;    // количество медалей недобитого колдуна
+    
     [Header("Рука")]
-    [SerializeField] private List<CardController> _treasures  = new List<CardController>(); // рука мага
-    [SerializeField] private List<CardController> _deads      = new List<CardController>();
-    [SerializeField] private List<CardController> _sources    = new List<CardController>();
-    [SerializeField] private List<CardController> _qualities  = new List<CardController>();
-    [SerializeField] private List<CardController> _deliveries = new List<CardController>();
-    [SerializeField] private List<CardController> _wildMagics = new List<CardController>();
+    [SerializeField] List<CardController> _treasures  = new List<CardController>(); // рука мага
+    [SerializeField] List<CardController> _deads      = new List<CardController>();
+    [SerializeField] List<CardController> _sources    = new List<CardController>();
+    [SerializeField] List<CardController> _qualities  = new List<CardController>();
+    [SerializeField] List<CardController> _deliveries = new List<CardController>();
+    [SerializeField] List<CardController> _wildMagics = new List<CardController>();
 
     [Header("Заклинание")]
-    [SerializeField] private List<CardController> _spell = new List<CardController>(3) {null, null, null};
-
-    [Header("Медали недобитого колдуна")]
-    [SerializeField] private int _medals = 0; // количество медалей недобитого колдуна
-
+    [SerializeField] List<CardController> _spell = new List<CardController>(3) {null, null, null};
+    
     [Header("Соседние маги")]
-    [SerializeField] private MageController _leftMage  = null; // левый соседний маг
-    [SerializeField] private MageController _rightMage = null; // правый соседний маг
-
-    private MageIconController _mageIcon;
+    [SerializeField] MageController _leftMage  = null; // левый соседний маг
+    [SerializeField] MageController _rightMage = null; // правый соседний маг
 
 
-    public Mage mage   => _mage;
-    public int  health => _health;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    int _startHealth        = 20;       // начальное здоровье мага
+    int _healthMax          = 25;       // здоровье мага
+    bool _spellsAreExecuted = false;    // походил ли маг
+    bool _readyToExecute    = false;    // подготовил ли маг заклинание
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    PlayerController   _owner;     // игрок, управляющий магом
+    MageIconController _mageIcon;  // иконка мага
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public Mage mage              => _mage;
+    public int  health            => _health;
+    public int  medals            => _medals;
     public bool spellsAreExecuted => _spellsAreExecuted;
-    public bool readyToExecute => _readyToExecute;
+    public bool readyToExecute    => _readyToExecute;
 
     public PlayerController     owner     => _owner;  
+    public MageIconController   mageIcon  => _mageIcon;
     public MageController       leftMage  => _leftMage;
     public MageController       rightMage => _rightMage;  
-    public MageIconController   mageIcon  => _mageIcon;
 
     public List<CardController> treasures  => _treasures;
     public List<CardController> deads      => _deads;
@@ -52,19 +68,28 @@ public class MageController : MonoBehaviour
     public List<CardController> qualities  => _qualities;
     public List<CardController> deliveries => _deliveries;
     public List<CardController> wildMagics => _wildMagics;
+
     public List<CardController> spell      => _spell;
     
 
-    public int medals => _medals;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public bool isDead        => _health <= 0;  // мертв ли маг
 
     public List<CardController> nonNullSpell => _spell.Where(card => card != null).ToList(); // карты заклинаний в спеле не равные null
-    public int  nCardsInSpell   => nonNullSpell.Count;  // количество карт в заклинании
+    
+    public bool isDead          => _health <= 0;  // мертв ли маг
     public bool spellIsReady    => nCardsInSpell > 0;   // готово ли заклинание
+    public bool isGameWinner    => _medals == 3;
+    
+    public int  nCardsInSpell   => nonNullSpell.Count;  // количество карт в заклинании
     public int  spellInitiative => nonNullSpell.Sum(x => ((SpellCard) x.card).initiative); // сумарная инициатива спела
     public int  nCardsToDraw    => 8 - GetSpellsInHand().Count; // количество карт для добора из колоды
-    public bool isGameWinner    => _medals == 3;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     void Awake()
     {
@@ -81,6 +106,10 @@ public class MageController : MonoBehaviour
         }
     }
     // TEST
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // добавить карту в руку мага
     public IEnumerator AddCard(CardController cardController)
@@ -99,7 +128,7 @@ public class MageController : MonoBehaviour
     // добавить карту в заклинание
     public IEnumerator AddToSpell(CardController cardToAdd, Order order, bool backToHand = true, bool ownerReaction = true)
     {
-        cardToAdd.discoverable = false;
+        cardToAdd.SetUndiscoverable();
 
         // индекс расположения карты в заклинании
         int spellCardIndex = GetSpellIndexOfOrder(order);
@@ -110,23 +139,23 @@ public class MageController : MonoBehaviour
         // вернуть старую карту в заклинании обратно в руку
         if (backToHandCard != null && backToHand)
         {
-            backToHandCard.discoverable = false;
+            backToHandCard.SetUndiscoverable();
             yield return AddCard(backToHandCard);
-            backToHandCard.discoverable = true;
+            backToHandCard.SetDiscoverable();
         }
 
         // удалить карту для заклинания из руки и добавить в заклинание
         List<CardController> hand = GetHandOfCardType(cardToAdd.card);
         hand.Remove(cardToAdd);
         _spell[spellCardIndex] = cardToAdd;
-        cardToAdd.StateToInSpell();
+        cardToAdd.SetStateToInSpell();
 
         if (ownerReaction)
             yield return owner.OnCardAddedToSpell(cardToAdd, order);
 
         cardToAdd.spellOrder   = order;
 
-        cardToAdd.discoverable = true;
+        cardToAdd.SetDiscoverable();
     }
 
     // добавить шальную магию к заклинанию
@@ -147,7 +176,7 @@ public class MageController : MonoBehaviour
         int spellCardIndex = GetSpellIndexOfOrder(order);
         _spell[spellCardIndex] = null;
         yield return AddCard(backToHandCard);
-        backToHandCard.StateToInHand();
+        backToHandCard.SetStateToInHand();
     }
 
     // выполнить заклинание
@@ -181,6 +210,11 @@ public class MageController : MonoBehaviour
             yield return owner.HideSpellFromAll();
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // сбросить подготовленное заклинание (отправить в сброс)
     public void DropSpell()
     {
         List<CardController> spellCopy = new List<CardController>(_spell);
@@ -189,16 +223,32 @@ public class MageController : MonoBehaviour
         StartCoroutine(owner.OnSpellDrop());
     }
 
+    // подготовить мага к выполнению заклинания
     public void ReadyToExecute()
     {
         _readyToExecute    = true;
         _spellsAreExecuted = false;
     }
 
+    // отменить готовность мага к выполнению заклинания
     public void UnreadyToExecute()
     {
         _readyToExecute    = false;
         _spellsAreExecuted = true;
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // вернуть список всех карт, пренадлежащих магу
+    public List<CardController> GetAllCards()
+    {
+        List<CardController> allCards = new List<CardController>();
+        allCards.AddRange(GetSpellsInHand());
+        allCards.AddRange(GetBonusCards());
+        allCards.AddRange(nonNullSpell);
+        return allCards;
     }
 
     // вернуть список, состоящий из всех карт заклинаний на руке мага
@@ -213,6 +263,7 @@ public class MageController : MonoBehaviour
         return spellCards;
     }
 
+    // вернуть список всех бонусных карт мага
     public List<CardController> GetBonusCards()
     {
         List<CardController> bonusCards = new List<CardController>();
@@ -221,15 +272,7 @@ public class MageController : MonoBehaviour
         return bonusCards;
     }
 
-    public List<CardController> GetAllCards()
-    {
-        List<CardController> allCards = new List<CardController>();
-        allCards.AddRange(GetSpellsInHand());
-        allCards.AddRange(GetBonusCards());
-        allCards.AddRange(nonNullSpell);
-        return allCards;
-    }
-
+    // вернуть список трех бонусных карт для вывода информации о них на экране
     public List<CardController> GetBonusInfo(int indexOffset = 0)
     {
         List<CardController> bonusInfo = new List<CardController>(3) {null, null, null};
@@ -237,14 +280,27 @@ public class MageController : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             if (i < bonusCards.Count)
-                bonusInfo[i] = bonusCards[(i + indexOffset) % bonusCards.Count];
+            {
+                int cardsIndex = i + indexOffset;
+                cardsIndex = (indexOffset < 0) ? bonusCards.Count -  cardsIndex : cardsIndex;
+
+                bonusInfo[(i + 1) % bonusInfo.Count] = bonusCards[cardsIndex % bonusCards.Count];
+            }
         }
         return bonusInfo;
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // установить все карты мага (не)доступными для взаимодействия с мышью
     public void SetAllDiscoverable(bool discoverable)
     {
-        GetAllCards().ForEach(card => card.discoverable = discoverable);
+        if (discoverable)
+            GetAllCards().ForEach(card => card.SetDiscoverable());
+        else
+            GetAllCards().ForEach(card => card.SetUndiscoverable());
     }
 
     // добавить карту в определенную часть руки
@@ -252,14 +308,14 @@ public class MageController : MonoBehaviour
     public void AddCardToHand(List<CardController> hand, CardController cardController)
     {
         hand?.Add(cardController);
-        cardController.StateToInHand();
+        cardController.SetStateToInHand();
         if (cardController.card != null && cardController.isSpell)
         {
             hand.Sort((c1, c2) => ((SpellCard)c1.card).sign.CompareTo(((SpellCard)c2.card).sign));
         }
     }
 
-
+    // удалить карту
     public void RemoveCard(CardController card)
     {
         List<CardController> hand = GetHandOfCardType(card.card);
@@ -277,6 +333,11 @@ public class MageController : MonoBehaviour
         }
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // получить урон
     public void TakeDamage(int damage)
     {
         if (!isDead) 
@@ -289,16 +350,19 @@ public class MageController : MonoBehaviour
         }
     }
 
+    // захилиться
     public void Heal(int heal)
     {
         _health = Mathf.Clamp(_health + heal, 0, _healthMax);
     }
 
-    public void TournamentWon()
+    // реакция на победу в турнире
+    public void OnTournamentWon()
     {
         _medals += 1;
     }
 
+    // реакция на смерть
     public void OnDeath()
     {
         GetAllCards().ForEach(card => card.ToFold(destroy: true));
@@ -306,12 +370,17 @@ public class MageController : MonoBehaviour
         _mageIcon.OnDeath();
     }
 
+    // выставить начальные для турнира параметры
     public void ResetMage()
     {
         _health = _startHealth;
         _owner.OnMageReset();
         _mageIcon.OnReset();
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // вернуть определенную руку по типу карты
     public List<CardController> GetHandOfCardType(Card card)
@@ -369,6 +438,7 @@ public class MageController : MonoBehaviour
         }
         return -1;
     }
+
 
     public static Order GetOrderOfSpellIndex(int index)
     {

@@ -5,6 +5,12 @@ using UnityEngine;
 
 public class ShowMagePanelController : MonoBehaviour
 {
+
+
+    [Header("Компоненты")]
+    public TMP_Text healthText;
+    public TMP_Text medalsText;
+
     [Header("Настройка цвета")]
     public Color healthTextColorFrom;
     public Color healthTextColorTo;
@@ -14,9 +20,10 @@ public class ShowMagePanelController : MonoBehaviour
     [Header("Настройка анимации")]
     public float colorChangeTime = 1.0f;
 
-    [Header("Компоненты")]
-    public TMP_Text healthText;
-    public TMP_Text medalsText;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     void OnEnable()
@@ -24,10 +31,15 @@ public class ShowMagePanelController : MonoBehaviour
         StartColorChange();
     }
 
+
     void OnDisable()
     {
         iTween.Stop(gameObject);
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     void StartColorChange()
     {
@@ -39,6 +51,7 @@ public class ShowMagePanelController : MonoBehaviour
         iTween.ValueTo(gameObject, parameters);
     }
 
+
     void ReversedColorChange()
     {
         Hashtable parameters = GetColorChangeParameters(healthTextColorTo, healthTextColorFrom, "OnHealthColorUpdate");
@@ -48,6 +61,25 @@ public class ShowMagePanelController : MonoBehaviour
         parameters.Add("oncomplete", "StartColorChange"); // FOR THE LAST COLOR CHANGE
         iTween.ValueTo(gameObject, parameters);
     }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    void OnHealthColorUpdate(Color color)
+    {
+        healthText.color = color;
+    }
+
+
+    void OnMedalsColorUpdate(Color color)
+    {
+        medalsText.color = color;
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     Hashtable GetColorChangeParameters(Color from, Color to, string onupdate)
     {
@@ -59,14 +91,5 @@ public class ShowMagePanelController : MonoBehaviour
         return parameters;
     }
 
-    void OnHealthColorUpdate(Color color)
-    {
-        healthText.color = color;
-    }
-
-    void OnMedalsColorUpdate(Color color)
-    {
-        medalsText.color = color;
-    }
 
 }

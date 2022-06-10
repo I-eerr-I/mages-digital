@@ -8,30 +8,43 @@ using UnityEngine;
 
 public class DeckController : MonoBehaviour
 {
-    
-    private Random random = new Random();
+
+
+    public Random random = new Random();
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     [Header("Спрятанное состояние колоды")]
-    [SerializeField] private float _hiddenY   = 20.0f;  // координата Y колоды в скрытом состоянии
-    [SerializeField] private float _unhiddenY = 0.5f;   // координата Y колоды в видимом состоянии
-    [SerializeField] private float _hideTime  = 0.25f;  // время для анимации скрытия колоды
+    [SerializeField] float _hiddenY   = 10.0f;  // координата Y колоды в скрытом состоянии
+    [SerializeField] float _unhiddenY = 1.5f;   // координата Y колоды в видимом состоянии
+    [SerializeField] float _hideTime  = 1.0f;  // время для анимации скрытия колоды
     
     [Header("Размер и вид 3D модели колоды")]
-    [SerializeField] private float  _cardThickness = 0.025f; // толщина одной карты
+    [SerializeField] float  _cardThickness = 0.025f; // толщина одной карты
 
     [Header("Колоды")]
-    [SerializeField] private CardType _cardsType = CardType.SPELL;    // тип карт в колоде
-    [SerializeField] private List<Card>  _deck   = new List<Card>();  // список карт колоды
-    [SerializeField] private List<Card>  _fold   = new List<Card>();  // сброс карт
-    
-    private bool  _hidden  = true;   // спрятана ли колода
+    [SerializeField] CardType _cardsType = CardType.SPELL;    // тип карт в колоде
+    [SerializeField] List<Card>  _deck   = new List<Card>();  // список карт колоды
+    [SerializeField] List<Card>  _fold   = new List<Card>();  // сброс карт
 
-    private MeshRenderer   _baseMeshRenderer;   // рендер основы колоды
-    private Light          _baseLight;          // свет от основы колоды
-    private SpriteRenderer _backSpriteRenderer; // рендер задней (верхней) части колоды (рубашка)
 
-    private Sprite _back; // рубашка карт колоды
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    Sprite _back;            // рубашка карт колоды
+    bool  _hidden  = true;   // спрятана ли колода
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    Light          _baseLight;          // свет от основы колоды
+    MeshRenderer   _baseMeshRenderer;   // рендер основы колоды
+    SpriteRenderer _backSpriteRenderer; // рендер задней (верхней) части колоды (рубашка)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     public float    hiddenY        => _hiddenY;   
@@ -39,8 +52,18 @@ public class DeckController : MonoBehaviour
     public float    hideTime       => _hideTime;
     public CardType cardsType      => _cardsType;         
 
-    public int      cardsAmount    => _deck.Count;               // количество карт в колоде
-    public int      allCardsAmount => _deck.Count + _fold.Count; // количество карт в колоде и сбросе
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public int      cardsAmount    => _deck.Count;                // количество карт в колоде
+    public int      allCardsAmount => _deck.Count + _fold.Count;  // количество карт в колоде и сбросе
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     void Awake()
     {
@@ -55,20 +78,28 @@ public class DeckController : MonoBehaviour
         UpdateDeckSize();
     }
 
+
     void Start()
     {
         Shuffle();
     }
 
-    // TEST
-    void Update()
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // показать\спрятать колоду
+    IEnumerator Hide(bool hide, float addY = 0.0f)
     {
-        if (Input.GetKeyDown(KeyCode.H))
+        if (hide != _hidden)
         {
-            Hide(!_hidden);
+            float y = (hide) ? _hiddenY : _unhiddenY;
+            iTween.MoveTo(gameObject, iTween.Hash("y", y + addY, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
+            _hidden = hide;
+            yield return new WaitForSeconds(_hideTime);
         }
+        yield break;
     }
-    // TEST
 
     // выдать N карт магу из колоды
     public IEnumerator PassCardsTo(MageController owner, int nCards)
@@ -159,28 +190,13 @@ public class DeckController : MonoBehaviour
         yield break;
     }
 
-    // добавить карту в сброс
-    public void AddCardToFold(CardController cardToFold)
-    {
-        _fold.Add(cardToFold.card);
-    }
 
-    // показать\спрятать колоду
-    public IEnumerator Hide(bool hide, float addY = 0.0f)
-    {
-        if (hide != _hidden)
-        {
-            float y = (hide) ? _hiddenY : _unhiddenY;
-            iTween.MoveTo(gameObject, iTween.Hash("y", y + addY, "time", _hideTime, "easetype", iTween.EaseType.easeOutSine));
-            _hidden = hide;
-            yield return new WaitForSeconds(_hideTime);
-        }
-        yield break;
-    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // вернуть последнюю верхнюю карту из колоды и удалить ее из колоды
     // если в колоде карт нет, то перемешать колоду со сбросом
-    public Card TakeLastCard()
+    Card TakeLastCard()
     {
         Card card = null;
         if (_deck.Count > 0)
@@ -198,7 +214,7 @@ public class DeckController : MonoBehaviour
     }
 
     // спаун карты на поле на месте колоды
-    public CardController SpawnCard(Card card)
+    CardController SpawnCard(Card card)
     {
         // создание и настройка объекта карты
         GameObject cardObject         = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
@@ -226,6 +242,16 @@ public class DeckController : MonoBehaviour
         Shuffle();
         UpdateDeckSize();
     }
+
+    // добавить карту в сброс
+    public void AddCardToFold(CardController cardToFold)
+    {
+        _fold.Add(cardToFold.card);
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     // удвоить карты в колоде
     void DoubleDeck()

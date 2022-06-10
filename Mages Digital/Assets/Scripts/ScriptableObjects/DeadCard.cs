@@ -5,9 +5,11 @@ using UnityEngine;
 public class DeadCard : Card
 {
     
+
     void Reset()
     {
         _cardType = CardType.DEAD;
     }
+
 
 }

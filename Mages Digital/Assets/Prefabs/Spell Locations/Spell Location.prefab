@@ -192,8 +192,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lightDefaultColor: {r: 1, g: 1, b: 1, a: 1}
   _color: {r: 0, g: 0, b: 0, a: 0}
-  _outlineFadeTime: 2
+  _outlineFadeInTime: 2
+  _outlineFadeOutTime: 1
   _lightFadeTime: 0.5
   _lightMaxRange: 5
   _outlineMaxWidth: 10
+  _choosingY: 2
+  _movingUpTime: 0.1
+  _movingDownTime: 0.05
+  _movingEaseType: 22
   order: 3

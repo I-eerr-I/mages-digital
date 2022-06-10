@@ -4,20 +4,34 @@ using UnityEngine;
 
 public class GameLoopManager : MonoBehaviour
 {
+
+
     private static GameLoopManager _instance;
     public  static GameLoopManager instance => _instance;
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    
     public GameManager gm => GameManager.instance;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     IEnumerator Start()
     {
-        
+        // TEST
         yield return new WaitForSeconds(2.0f);
         foreach (MageController mage in GameManager.instance.mages)
         {
             yield return GameManager.instance.treasuresDeck.PassCardsTo(mage, 3);
         }
+        // TEST
 
+        // UNCOMMENT
         // while (!gm.isGameEnd)
         // {
         //     while (!gm.isTournamentEnd)
@@ -25,6 +39,8 @@ public class GameLoopManager : MonoBehaviour
         //         yield return new WaitForSeconds(2.0f);
                 
         //         yield return gm.CardDraw();
+
+        //         print("SPELL CREATION");
                 
         //         yield return gm.SpellCreation();
 
@@ -35,4 +51,6 @@ public class GameLoopManager : MonoBehaviour
         //     yield return gm.TournamentEnd();            
         // }
     }
+
+    
 }

@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class OnMouseEventsCardTrigger : MonoBehaviour
 {
-    private CardController _cardController;
+
+    CardController _cardController;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     void Awake()
     {
@@ -12,19 +17,24 @@ public class OnMouseEventsCardTrigger : MonoBehaviour
     }
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     void OnMouseOver()
     {
         _cardController.OnMouseOverTrigger();
     }
+
 
     void OnMouseExit()
     {
         _cardController.OnMouseExitTrigger();
     }
 
+
     void OnMouseDown()
     {
         _cardController.OnMouseDownTrigger();
     }
+
 
 }

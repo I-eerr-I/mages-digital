@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class CardController : MonoBehaviour
 {
-    private Random random = new Random();
+    public Random random = new Random();
 
     // словарь для получения цвета подсветки карты в зависимости от порядка в заклинании
     public static Dictionary<Order, Color> SPELL_CARD_MAIN_COLOR = new Dictionary<Order, Color>()
@@ -26,63 +26,90 @@ public class CardController : MonoBehaviour
         { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
     };
 
-    [SerializeField] private Card _card;                 // данные карты
-    [SerializeField] private MageController _owner;      // маг владеющий картой
-    [SerializeField] private DeckController _sourceDeck; // колода, откуда была создана карта
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    [SerializeField] Card _card;                 // данные карты
+    [SerializeField] MageController _owner;      // маг владеющий картой
+    [SerializeField] DeckController _sourceDeck; // колода, откуда была создана карта
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     [Header("Анимация карты")]
-    [SerializeField] private float _cardFlippingTime          = 0.15f; // время переворота карты
-    [SerializeField] private float _cardShowInfoWaitTime      = 1.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
-    [SerializeField] private float _cardHighlightDeltaY       = 1.0f;  // насколько поднять карту вверх для выделения
-    [SerializeField] private float _cardHighlightTime         = 1.0f;  // время поднятия карты для выделения
-    [SerializeField] private float _cardHighlightLightDelta   = 2.0f;  // увеличение дальности света (яркости) при выделении
-    [SerializeField] private float _cardFlyOutY               = 10.0f; // глобальная координата Y при вылете карты за экран
-    [SerializeField] private float _cardFlyOutXMin            = -3.0f; // минимальное значение X при вылете карты за экран
-    [SerializeField] private float _cardFlyOutXMax            = 3.0f;  // максимальное значение X при вылете карты за экран
-    [SerializeField] private float _cardFlyOutTime            = 1.0f;  // время вылета карты за экран
+    [SerializeField] float _cardFlippingTime          = 0.15f; // время переворота карты
+    [SerializeField] float _cardShowInfoWaitTime      = 1.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
+    [SerializeField] float _cardHighlightDeltaY       = 1.0f;  // насколько поднять карту вверх для выделения
+    [SerializeField] float _cardHighlightTime         = 1.0f;  // время поднятия карты для выделения
+    [SerializeField] float _cardHighlightLightDelta   = 2.0f;  // увеличение дальности света (яркости) при выделении
+    [SerializeField] float _cardFlyOutY               = 10.0f; // глобальная координата Y при вылете карты за экран
+    [SerializeField] float _cardFlyOutXMin            = -3.0f; // минимальное значение X при вылете карты за экран
+    [SerializeField] float _cardFlyOutXMax            = 3.0f;  // максимальное значение X при вылете карты за экран
+    [SerializeField] float _cardFlyOutTime            = 1.0f;  // время вылета карты за экран
 
-    private float _mouseOverTime = 0.0f; // время, прошедшее с момента наведения на карту
 
-    private GameObject        _middle;              // середина карты
-    private Light             _middleLight;         // источник света карты
-    private MeshRenderer      _middleMeshRenderer;  // рендер середины карты
-    private BoxCollider       _middleBoxCollider;   // коллайдер середины карты
-    private SpriteRenderer    _frontSpriteRenderer; // рендер передней части карты
-    private SpriteRenderer    _backSpriteRenderer;  // рендер задней части (рубашки) карты
-    private OutlineController _outlineController;   // управление подсветкой карты
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    bool _visible             = true;               // видимость карты
+    bool _discoverable        = true;               // можно ли взаимодействовать с картой
+    bool _isMouseOver         = false;              // находится ли курсор на карте
+    float _mouseOverTime      = 0.0f;               // время, прошедшее с момента наведения на карту
+    int _bonusInfoIndexOffset = 0;                  // нужна для перебора карт сокровищ при наведении на них
+    Order _spellOrder         = Order.WILDMAGIC;    // порядок в заклинании (нужен для шальной магии)
+    CardState cardState       = CardState.NO_OWNER; // состояние карты
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    GameObject        _middle;              // середина карты
+    Light             _middleLight;         // источник света карты
+    MeshRenderer      _middleMeshRenderer;  // рендер середины карты
+    BoxCollider       _middleBoxCollider;   // коллайдер середины карты
+    SpriteRenderer    _frontSpriteRenderer; // рендер передней части карты
+    SpriteRenderer    _backSpriteRenderer;  // рендер задней части (рубашки) карты
+    OutlineController _outlineController;   // управление подсветкой карты
     
-    private bool _visible     = true; // видимость карты
-    private bool _isMouseOver = false;
-    private int _bonusInfoIndexOffset = 0;
 
-    private Order _spellOrder = Order.WILDMAGIC; // порядок в заклинании (нужен для шальной магии)
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    public Card           card       => _card;
+    public MageController owner      => _owner;
+    public DeckController sourceDeck => _sourceDeck;
     
-
-    public bool  discoverable  = true; // можно ли взаимодействовать с картой
-
-    public CardState cardState = CardState.NO_OWNER; // состояние карты
-
+    public bool  visible      => _visible;
+    public bool  discoverable => _discoverable;
     public Order spellOrder
     {
         get => _spellOrder;
         set => _spellOrder = value;
     }
 
-    public Card           card  => _card;
-    public MageController owner => _owner;
-    public DeckController sourceDeck => _sourceDeck;
     public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
     public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
-    public bool visible => _visible;
+
     
-    public bool withSourceDeck => _sourceDeck != null;
-    public bool inHand    => cardState == CardState.IN_HAND;  // находится ли карта в руке
-    public bool inSpell   => cardState == CardState.IN_SPELL; // находится ли карта в заклинании
-    public bool withOwner => cardState != CardState.NO_OWNER; // есть ли у карты владелец
-    public bool isSpell   => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
-    public float cardSizeX => _middle.transform.localScale.x;
-    public float cardSizeY => _middle.transform.localScale.y;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public bool  isSpell         => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
+    public bool  inHand          => cardState == CardState.IN_HAND;     // находится ли карта в руке
+    public bool  inSpell         => cardState == CardState.IN_SPELL;    // находится ли карта в заклинании
+    public bool  withOwner       => cardState != CardState.NO_OWNER;    // есть ли у карты владелец
+    public bool  withSourceDeck  => _sourceDeck != null;                // создана ли карта колодой
+    public float cardSizeY       => _middle.transform.localScale.y;     // длина карты
+    public float cardSizeX       => _middle.transform.localScale.x;     // ширина карты
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     void Awake()
@@ -97,27 +124,15 @@ public class CardController : MonoBehaviour
         _middleBoxCollider  = _middle.GetComponent<BoxCollider>();
     }
 
+
     void Start()
     {
         SetVisible(_visible);
     }
 
-    // TEST
-    bool isup = false;
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            if (isup)
-                StartCoroutine(PositionBackUp());
-            else
-                StartCoroutine(PositionFrontUp());
-            isup = !isup;
-        }
-        else if (Input.GetKeyDown(KeyCode.V))
-            SetVisible(!_visible);
-    // TEST
-
         if (_isMouseOver && !isSpell)
         {
             float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
@@ -125,10 +140,84 @@ public class CardController : MonoBehaviour
             {
                 int addToOffset = (mouseScroll > 0.0f) ? 1 : -1;
                 _bonusInfoIndexOffset += addToOffset;
-                print(_bonusInfoIndexOffset);
             }
             
         }
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // добавить карту в заклинание
+    void AddToSpell()
+    {
+        Order order = ((SpellCard) card).order;
+        if (order == Order.WILDMAGIC)
+            StartCoroutine(owner.AddWildMagicToSpell(this));
+        else
+            StartCoroutine(owner.AddToSpell(this, order));
+    }
+
+    // вернуть карту в руку из заклинания
+    void BackToHand()
+    {
+        StartCoroutine(owner.BackToHand(this, spellOrder));
+    }
+
+    // настроить карту
+    public void SetupCard(Card card, DeckController deck = null, Sprite back = null)
+    {
+        // данные карты
+        _card = card;
+        // колода карты
+        _sourceDeck = deck;
+        // передняя часть карты
+        _frontSpriteRenderer.sprite = card.front;
+        // задняя часть карты
+        if (back != null)
+            _backSpriteRenderer.sprite  = back;
+        // подсветка карты
+        Color cardColor;
+        if (card.cardType == CardType.SPELL)
+            cardColor = SPELL_CARD_MAIN_COLOR[((SpellCard) card).order];
+        else
+            cardColor = CARD_MAIN_COLOR[card.cardType];
+        _outlineController.SetColor(cardColor);
+    }
+
+    // отправить карту в сброс
+    public void ToFold(bool destroy = true)
+    {
+        if (withOwner)
+        {
+            owner.RemoveCard(this);
+            RemoveOwner();
+        }
+        if (_sourceDeck != null) 
+            _sourceDeck.AddCardToFold(this);
+        StartCoroutine(FlyOutAndDestroy(destroy: destroy));
+    }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // вылет карты за экран и уничтожение
+    IEnumerator FlyOutAndDestroy(bool destroy = true)
+    {
+        float x = (float) random.NextDouble() * (_cardFlyOutXMax - _cardFlyOutXMin) + _cardFlyOutXMin;
+        
+        Hashtable hashtable = new Hashtable();
+        hashtable.Add("y", _cardFlyOutY);
+        hashtable.Add("x", x);
+        hashtable.Add("time", _cardFlyOutTime);
+        if (destroy)
+            hashtable.Add("oncomplete", "DestoyObject");
+        
+        iTween.MoveTo(gameObject, hashtable);
+        
+        yield break;
     }
 
     // перевернуть карту лицевой строной вверх
@@ -153,34 +242,6 @@ public class CardController : MonoBehaviour
             rotation = new Vector3(-90.0f, 0.0f, 0.0f);
         iTween.RotateTo(gameObject, iTween.Hash("rotation", rotation, "time", _cardFlippingTime, "islocal", inHand));
         yield return new WaitForSeconds(0.15f);
-    }
-
-    // установить видимость карты
-    public void SetVisible(bool visible)
-    {
-        _visible = visible;
-        _frontSpriteRenderer.enabled = visible;
-        _backSpriteRenderer.enabled  = visible;
-        _middleMeshRenderer.enabled  = visible;
-        _middleBoxCollider.enabled   = visible;
-        _outlineController.enabled   = visible;
-    }
-
-    // вылет карты за экран и уничтожение
-    public IEnumerator FlyOutAndDestroy(bool destroy = true)
-    {
-        float x = (float) random.NextDouble() * (_cardFlyOutXMax - _cardFlyOutXMin) + _cardFlyOutXMin;
-        
-        Hashtable hashtable = new Hashtable();
-        hashtable.Add("y", _cardFlyOutY);
-        hashtable.Add("x", x);
-        hashtable.Add("time", _cardFlyOutTime);
-        if (destroy)
-            hashtable.Add("oncomplete", "DestoyObject");
-        
-        iTween.MoveTo(gameObject, hashtable);
-        
-        yield break;
     }
 
     // выделение карты (обычно в заклинании)
@@ -208,44 +269,14 @@ public class CardController : MonoBehaviour
         print("ЗАКОНЧИЛА");
     }
 
-    // настроить карту
-    public void SetupCard(Card card, DeckController deck = null, Sprite back = null)
-    {
-        // данные карты
-        _card = card;
-        // колода карты
-        _sourceDeck = deck;
-        // передняя часть карты
-        _frontSpriteRenderer.sprite = card.front;
-        // задняя часть карты
-        if (back != null)
-            _backSpriteRenderer.sprite  = back;
-        // подсветка карты
-        Color cardColor;
-        if (card.cardType == CardType.SPELL)
-            cardColor = SPELL_CARD_MAIN_COLOR[((SpellCard) card).order];
-        else
-            cardColor = CARD_MAIN_COLOR[card.cardType];
-        _outlineController.SetColor(cardColor);
-    }
 
-    // установить владельца карты
-    public void SetOwner(MageController owner)
-    {
-        _owner = owner;
-    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // удалить владельца карты
-    public void RemoveOwner()
-    {
-        _owner = null;
-        StateToNoOwner();
-    }
 
     // триггер при наведении курсора на карту
     public void OnMouseOverTrigger()
     {
-        if (discoverable)
+        if (_discoverable)
         {
             _isMouseOver = true;
             if (withOwner)
@@ -271,7 +302,7 @@ public class CardController : MonoBehaviour
             HideCardInfo();
         else
             HideBonusCardInfo();
-        if (discoverable)
+        if (_discoverable)
         {
             if (withOwner)
                 if (isSpell)
@@ -282,7 +313,7 @@ public class CardController : MonoBehaviour
     // триггер при клике на карту
     public void OnMouseDownTrigger()
     {
-        if (discoverable)
+        if (_discoverable)
         {
             if (GameManager.instance.isSpellCreationState)
             {
@@ -308,15 +339,20 @@ public class CardController : MonoBehaviour
         }
     }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     // показать информацию о карте
-    public void ShowCardInfo()
+    void ShowCardInfo()
     {
         _mouseOverTime += Time.deltaTime;
         if (_mouseOverTime >= _cardShowInfoWaitTime)
             UIManager.instance.ShowCardInfo(this, true);
     }
 
-    public void ShowBonusCardInfo()
+    // показать информацию о бонусных картах в руке
+    void ShowBonusCardInfo()
     {
         _mouseOverTime += Time.deltaTime;
         if (_mouseOverTime >= _cardShowInfoWaitTime)
@@ -324,32 +360,63 @@ public class CardController : MonoBehaviour
     }
 
     // спрятать информацию о карте
-    public void HideCardInfo()
+    void HideCardInfo()
     {
         _mouseOverTime = 0.0f;
         UIManager.instance.ShowCardInfo(this, false);
     }
 
-    public void HideBonusCardInfo()
+    // спрятать информацию о бонусных картах в руке
+    void HideBonusCardInfo()
     {
         _mouseOverTime = 0.0f;
         UIManager.instance.ShowBonusInfo(null, false);
     }
 
     // выделить карту
-    public void SelectCard(bool select)
+    void SelectCard(bool select)
     {
         owner.owner.OnSpellCardSelected(this, select);
     }
 
-    // добавить карту в заклинание
-    public void AddToSpell()
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // установить видимость карты
+    public void SetVisible(bool visible)
     {
-        Order order = ((SpellCard) card).order;
-        if (order == Order.WILDMAGIC)
-            StartCoroutine(owner.AddWildMagicToSpell(this));
-        else
-            StartCoroutine(owner.AddToSpell(this, order));
+        _visible = visible;
+        _frontSpriteRenderer.enabled = visible;
+        _backSpriteRenderer.enabled  = visible;
+        _middleMeshRenderer.enabled  = visible;
+        _middleBoxCollider.enabled   = visible;
+        _outlineController.enabled   = visible;
+    }
+
+    // установить карту доступной для нажатия и наведения мышью
+    public void SetDiscoverable()
+    {
+        _discoverable = true;
+    }
+
+    // установить карту недоступной для нажатия и наведения мышью
+    public void SetUndiscoverable()
+    {
+        _discoverable = false;
+    }
+
+    // установить владельца карты
+    public void SetOwner(MageController owner)
+    {
+        _owner = owner;
+    }
+
+    // удалить владельца карты
+    public void RemoveOwner()
+    {
+        _owner = null;
+        SetStateToNoOwner();
     }
 
     // получить SpellCard версию данных карты
@@ -360,41 +427,27 @@ public class CardController : MonoBehaviour
         return null;
     }
 
-    // вернуть карту в руку из заклинания
-    public void BackToHand()
-    {
-        StartCoroutine(owner.BackToHand(this, spellOrder));
-    }
 
-    public void ToFold(bool destroy = true)
-    {
-        if (withOwner)
-        {
-            owner.RemoveCard(this);
-            RemoveOwner();
-        }
-        if (_sourceDeck != null) 
-            _sourceDeck.AddCardToFold(this);
-        StartCoroutine(FlyOutAndDestroy(destroy: destroy));
-    }
-
-    public void StateToNoOwner()
+    public void SetStateToNoOwner()
     {
         cardState = CardState.NO_OWNER;
         _outlineController.SetProperties(true, false);
     }
 
-    public void StateToInSpell()
+
+    public void SetStateToInSpell()
     {
         cardState = CardState.IN_SPELL;
         _outlineController.SetProperties(true, false);
     }
 
-    public void StateToInHand()
+
+    public void SetStateToInHand()
     {
         cardState = CardState.IN_HAND;
         _outlineController.SetProperties(false, true);
     }
+
 
     public void DestoyObject()
     {

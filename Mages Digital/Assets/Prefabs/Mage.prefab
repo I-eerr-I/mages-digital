@@ -728,6 +728,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fab6d4750f442404a813123aec813f8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _mageShowInfoWaitTime: 1.5
   _cracksMask: {fileID: 6460204771724140125}
   _healthOutline: {fileID: 6739406053247740204}
   _healthText: {fileID: 6739406052862012544}
@@ -735,7 +736,6 @@ MonoBehaviour:
   _medalsText: {fileID: 8093491392241649186}
   _iconOutline: {fileID: 6739406054059122653}
   _icon: {fileID: 6739406052589731699}
-  mageShowInfoWaitTime: 0
   mainColor: {r: 0.98977304, g: 1, b: 0, a: 1}
   mainHoverColor: {r: 0, g: 0, b: 0, a: 0}
   iconColor: {r: 0, g: 0, b: 0, a: 0}

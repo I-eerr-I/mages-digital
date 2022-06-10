@@ -69,8 +69,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5662860762395734705}
-  - component: {fileID: 5662860762395734719}
   - component: {fileID: 5662860762395734718}
+  - component: {fileID: 5662860762395734719}
   m_Layer: 0
   m_Name: Player
   m_TagString: Mage
@@ -96,6 +96,37 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5662860762395734718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5662860762395734704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _startHealth: 20
+  _health: 20
+  _mage: {fileID: 0}
+  _owner: {fileID: 0}
+  _spellsAreExecuted: 0
+  _readyToExecute: 0
+  _treasures: []
+  _deads: []
+  _sources: []
+  _qualities: []
+  _deliveries: []
+  _wildMagics: []
+  _spell:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  _medals: 0
+  _leftMage: {fileID: 0}
+  _rightMage: {fileID: 0}
 --- !u!114 &5662860762395734719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,37 +167,6 @@ MonoBehaviour:
   _spellDownTime: 0.25
   _shakeAmount: {x: 1, y: 1, z: 1}
   _shakeTime: 0.25
---- !u!114 &5662860762395734718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5662860762395734704}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _startHealth: 20
-  _health: 20
-  _mage: {fileID: 0}
-  _owner: {fileID: 0}
-  _spellsAreExecuted: 0
-  _readyToExecute: 0
-  _treasures: []
-  _deads: []
-  _sources: []
-  _qualities: []
-  _deliveries: []
-  _wildMagics: []
-  _spell:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  _medals: 0
-  _leftMage: {fileID: 0}
-  _rightMage: {fileID: 0}
 --- !u!1 &5662860763371328430
 GameObject:
   m_ObjectHideFlags: 0
@@ -315,6 +315,10 @@ PrefabInstance:
     - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
       propertyPath: mainDeathHoverColor.g
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5840773144631532022, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 6739406054059122653, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
       propertyPath: m_Color.r
