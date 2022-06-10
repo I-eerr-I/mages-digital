@@ -29,7 +29,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameState _prevGameState;                      // предыдущее состояние игры
     [SerializeField] private GameState _gameState = GameState.ROUND_START;  // настоящее состояние игры
     
-
     [Header("Маги")]
     [SerializeField] private List<MageController> _mages = new List<MageController>(); // все маги в игре (вообще все, считая мертвых)
     
@@ -37,13 +36,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<MageController> _magesOrder = new List<MageController>(); // порядок хода (тут только живые маги)
 
     [Header("Префабы")]
-    [SerializeField] private GameObject _cardPrefab; // префаб карты
+    [SerializeField] private GameObject _cardPrefab;   // префаб карты
+    [SerializeField] private GameObject _medalPrefab;  // префаб медали недобитого колдуна
 
     [Header("Колоды")]
     [SerializeField] private DeckController _spellsDeck;     // колода заклинаний
     [SerializeField] private DeckController _treasuresDeck;  // колода сокровищ
     [SerializeField] private DeckController _deadsDeck;      // колода недобитых магов
-
 
     [Header("Расположения")]
     [SerializeField] private Transform _fieldCenter;         // центр поля
@@ -52,6 +51,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Transform _qualityLocation;     // место расположения наворота
     [SerializeField] private Transform _deliveryLocation;    // место расположения прихода
     [SerializeField] private Transform _spellGroupLocation;  // место расположения группы заклинаний
+
+    [Header("Анимация")]
+    [SerializeField] private Vector3 _medalStartPosition    = new Vector3(0.0f, 10.0f, 0.0f);
+    [SerializeField] private Vector3 _medalStartDestination = new Vector3(0.0f, 1.0f, 0.0f);
+    [SerializeField] private float   _medalStartMovingTime  = 2.5f;
+    [SerializeField] private float   _medalToMageMovingTime = 1.0f;
 
 
 
@@ -174,16 +179,19 @@ public class GameManager : MonoBehaviour
     {
         if (!areAllDead)
         {
-            MageController roundWinner = onlyOneAlive;
-            roundWinner.TournamentWon();
+            MageController tournamentWinner = onlyOneAlive;
+
+            yield return PassMedalToWinner(tournamentWinner);
+
+            tournamentWinner.TournamentWon();
             
-            if (roundWinner.isGameWinner)
+            if (tournamentWinner.isGameWinner)
                 SetNewState(GameState.GAME_END);
             else
                 SetNewState(GameState.ROUND_START);
             
             if (isGameEnd)
-                print($"Winner: {roundWinner.mage.mageName}");
+                print($"Winner: {tournamentWinner.mage.mageName}");
         }
         else
         {
@@ -196,8 +204,22 @@ public class GameManager : MonoBehaviour
         yield break;
     }
 
+    IEnumerator PassMedalToWinner(MageController winner)
+    {
+        GameObject medal = Instantiate(_medalPrefab, _fieldCenter);
+        medal.transform.position = _medalStartPosition;
+
+        iTween.MoveTo(medal, iTween.Hash("position", _medalStartDestination, "time", _medalStartMovingTime));
+        yield return new WaitForSeconds(_medalStartMovingTime);
+        
+        iTween.MoveTo(medal, iTween.Hash("position", winner.mageIcon.transform.position, "time", _medalToMageMovingTime, "easetype", iTween.EaseType.easeInExpo));
+        yield return new WaitForSeconds(_medalToMageMovingTime);
+        
+        Destroy(medal);
+    }
+
     // пересчитать очередь хода магов
-    public void ResetMagesOrder()
+    void ResetMagesOrder()
     {
         _magesOrder.Clear();
 
@@ -211,7 +233,7 @@ public class GameManager : MonoBehaviour
     }
 
     // вернуть магов с количеством карт заклинаний в спеле равным n
-    public List<MageController> GetSortedNCardsSpellsMages(List<MageController> mages, int n)
+    List<MageController> GetSortedNCardsSpellsMages(List<MageController> mages, int n)
     {
         List<MageController> nCardSpellsMages = mages.FindAll(mage => mage.nCardsInSpell == n);
         nCardSpellsMages.Sort((mage1, mage2) => mage1.spellInitiative.CompareTo(mage2.spellInitiative));

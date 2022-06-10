@@ -286,14 +286,14 @@ public class CardController : MonoBehaviour
     {
         _mouseOverTime += Time.deltaTime;
         if (_mouseOverTime >= _cardShowInfoWaitTime)
-            UIManager.instance.ShowCardInfo(card.front, true);
+            UIManager.instance.ShowCardInfo(this, true);
     }
 
     // спрятать информацию о карте
     public void HideCardInfo()
     {
         _mouseOverTime = 0.0f;
-        UIManager.instance.ShowCardInfo(card.front, false);
+        UIManager.instance.ShowCardInfo(this, false);
     }
 
     // выделить карту

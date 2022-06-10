@@ -7,6 +7,7 @@ using UnityEngine;
 public class MageController : MonoBehaviour
 {
 
+    private int _healthMax = 25;
     [SerializeField] private int _startHealth = 20;
     [SerializeField] private int _health      = 20;   // здоровье мага
     [SerializeField] private Mage _mage;              // данные мага
@@ -29,25 +30,25 @@ public class MageController : MonoBehaviour
     };
 
     [Header("Медали недобитого колдуна")]
-    [SerializeField] private int _deadMedals = 0; // количество медалей недобитого колдуна
+    [SerializeField] private int _medals = 0; // количество медалей недобитого колдуна
 
     [Header("Соседние маги")]
     [SerializeField] private MageController _leftMage  = null; // левый соседний маг
     [SerializeField] private MageController _rightMage = null; // правый соседний маг
 
-    [Header("Внешний вид")]
-    [SerializeField] private Color _mainColor;
+    private MageIconController _mageIcon;
 
-    private int _healthMax = 25;
+    
 
     public Mage mage   => _mage;
     public int  health => _health;
     public bool spellsAreExecuted => _spellsAreExecuted;
     public bool readyToExecute => _readyToExecute;
 
-    public PlayerController owner     => _owner;  
-    public MageController   leftMage  => _leftMage;
-    public MageController   rightMage => _rightMage;  
+    public PlayerController     owner     => _owner;  
+    public MageController       leftMage  => _leftMage;
+    public MageController       rightMage => _rightMage;  
+    public MageIconController   mageIcon  => _mageIcon;
 
     public List<CardController> treasures  => _treasures;
     public List<CardController> deads      => _deads;
@@ -58,9 +59,7 @@ public class MageController : MonoBehaviour
     public List<CardController> spell      => _spell;
     
 
-    public int deadMedals => _deadMedals;
-
-    public Color mainColor => _mainColor;
+    public int medals => _medals;
 
     public bool isDead        => _health <= 0;  // мертв ли маг
 
@@ -69,11 +68,12 @@ public class MageController : MonoBehaviour
     public bool spellIsReady    => nCardsInSpell > 0;   // готово ли заклинание
     public int  spellInitiative => nonNullSpell.Sum(x => ((SpellCard) x.card).initiative); // сумарная инициатива спела
     public int  nCardsToDraw    => 8 - GetSpellsInHand().Count; // количество карт для добора из колоды
-    public bool isGameWinner    => _deadMedals == 3;
+    public bool isGameWinner    => _medals == 3;
 
     void Awake()
     {
-        _owner = gameObject.GetComponent<PlayerController>();
+        _owner    = gameObject.GetComponent<PlayerController>();
+        _mageIcon = gameObject.GetComponentInChildren<MageIconController>();
     }
 
     // TEST
@@ -262,7 +262,6 @@ public class MageController : MonoBehaviour
         }
     }
 
-
     public void TakeDamage(int damage)
     {
         if (!isDead) 
@@ -271,8 +270,7 @@ public class MageController : MonoBehaviour
             return;
         if (isDead)
         {
-            GetAllCards().ForEach(card => card.ToFold(destroy: true));
-            StartCoroutine(GameManager.instance.deadsDeck.PassCardsTo(this, 1));
+            OnDeath();
         }
     }
 
@@ -283,13 +281,21 @@ public class MageController : MonoBehaviour
 
     public void TournamentWon()
     {
-        _deadMedals += 1;
+        _medals += 1;
+    }
+
+    public void OnDeath()
+    {
+        GetAllCards().ForEach(card => card.ToFold(destroy: true));
+        StartCoroutine(GameManager.instance.deadsDeck.PassCardsTo(this, 1));
+        _mageIcon.OnDeath();
     }
 
     public void ResetMage()
     {
         _health = _startHealth;
-        owner.OnMageReset();
+        _owner.OnMageReset();
+        _mageIcon.OnReset();
     }
 
     // вернуть определенную руку по типу карты

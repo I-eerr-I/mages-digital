@@ -148,9 +148,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _startHealth: 20
   _health: 20
   _mage: {fileID: 0}
   _owner: {fileID: 0}
+  _spellsAreExecuted: 0
+  _readyToExecute: 0
   _treasures: []
   _deads: []
   _sources: []
@@ -161,11 +164,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  _readyToExecute: 0
-  _deadMedals: 0
+  _medals: 0
   _leftMage: {fileID: 0}
   _rightMage: {fileID: 0}
-  _mainColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &5662860763371328430
 GameObject:
   m_ObjectHideFlags: 0
@@ -227,9 +228,105 @@ PrefabInstance:
       propertyPath: hoverColor.r
       value: 0.25490198
       objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathColor.b
+      value: 0.015686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathColor.g
+      value: 0.15294118
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathColor.b
+      value: 0.65041053
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathColor.g
+      value: 0.8396226
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathColor.r
+      value: 0.6455589
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathColor.b
+      value: 0.003921569
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathColor.g
+      value: 0.5019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathColor.r
+      value: 0.003921569
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mageShowInfoWaitTime
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.b
+      value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.g
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.r
+      value: 0.011764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathHoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathHoverColor.b
+      value: 0.7642453
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathHoverColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: iconDeathHoverColor.r
+      value: 0.759434
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathHoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainDeathHoverColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054059122653, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6739406054229600688, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
       propertyPath: m_Name
       value: Mage
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600694, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Size
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 6739406054229600694, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
       propertyPath: m_Color.rgba
