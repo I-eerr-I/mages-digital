@@ -401,12 +401,14 @@ public class CardController : MonoBehaviour
     public void SetDiscoverable()
     {
         _discoverable = true;
+        _outlineController.enabled = true;
     }
 
     // установить карту недоступной для нажатия и наведения мышью
     public void SetUndiscoverable()
     {
         _discoverable = false;
+        _outlineController.enabled = false;
     }
 
     // установить владельца карты

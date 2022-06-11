@@ -173,6 +173,11 @@ public class MageIconController : MonoBehaviour
                 _mage.TakeDamage(25);
             }
         }
+
+        // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (_mage.ownerIsBot)
+            _mage.TakeDamage(25);
+        // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
 

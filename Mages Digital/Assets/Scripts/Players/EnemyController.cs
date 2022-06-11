@@ -116,6 +116,24 @@ public class EnemyController : AbstractPlayerController
             _mage.nonNullSpell.ForEach(card => card.SetVisible(false));
     }
 
+
+    protected override IEnumerator MoveCard(CardController card, bool toHand = false)
+    {
+        if (toHand)
+        {
+            yield return OnCardAddedToHand(card);
+        }
+        else
+        {
+            SetCardHandParent(card);
+            card.SetVisible(true);
+            StartCoroutine(card.PositionFrontUp());
+            iTween.MoveTo(card.gameObject, iTween.Hash("position", GameManager.instance.spellGroupLocation.position, "time", _spellGroupMovingTime));
+            yield return new WaitForSeconds(_spellGroupMovingTime);
+        }
+    }
+
+
     
     IEnumerator OnSpellCreationState()
     {

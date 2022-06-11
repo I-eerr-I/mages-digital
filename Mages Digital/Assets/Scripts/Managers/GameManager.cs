@@ -72,13 +72,19 @@ public class GameManager : MonoBehaviour
     // состояния игры
     public enum GameState
     {
+        TOURNAMENT_START,
+        
         ROUND_START,
+        
         SPELL_CREATION,
+        CHOOSING,
         SPELL_EXECUTION,
+        
         ROUND_END,
+
         TOURNAMENT_END,
+
         GAME_END,
-        CHOOSING
     }
 
 
@@ -109,6 +115,8 @@ public class GameManager : MonoBehaviour
     
     public List<MageController> magesWhoExecutedSpell => _mages.FindAll(mage => mage.spellsAreExecuted);  // походившие маги
     public List<MageController> aliveMages => _mages.FindAll(mage => !mage.isDead);   // живые маги
+    public List<MageController> deadMages  => _mages.FindAll(mage => mage.isDead);    // мертвые маги
+    public List<MageController> magesWithDeads => _mages.FindAll(mage => mage.deads.Count > 0); // маги с картами дохлых колдунов
     public MageController     onlyOneAlive => aliveMages[0];   // первый выживший маг
 
     public bool areAllDead            => aliveMages.Count == 0;  // мертвы ли все маги
@@ -154,19 +162,28 @@ public class GameManager : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-    // раздать нужно количество карт магам
-    public IEnumerator CardDraw()
+    public IEnumerator TournamentStart()
     {
-        List<MageController> currentAliveMages = aliveMages.ToList();
-        int aliveCount = currentAliveMages.Count;
-        foreach (MageController mage in currentAliveMages.GetRange(0, aliveCount-1))
-        {
-            yield return spellsDeck.PassCardsTo(mage, mage.nCardsToDraw, autoHide: false);
-        }
+        SetNewState(GameState.TOURNAMENT_START);
 
-        MageController lastAliveMage = currentAliveMages[aliveCount - 1];
-        yield return spellsDeck.PassCardsTo(lastAliveMage, lastAliveMage.nCardsToDraw);
+        // выполняются карты дохлых колдунов
+        List<MageController> currentMagesWithDeads = magesWithDeads.ToList();
+        foreach (MageController mageWithDeads in currentMagesWithDeads)
+            yield return mageWithDeads.ExecuteDeads();
+        
+    }
+
+
+    public IEnumerator RoundStart()
+    {
+        SetNewState(GameState.ROUND_START);
+
+        // мертвые маги берут одну карту дохлого мага
+        yield return PassCardsToMages(deadMages.ToList(), deadsDeck, nCards: 1, autoNCardsToDraw: false);
+
+        // раздать карты
+        yield return PassCardsToMages(aliveMages.ToList(), spellsDeck, autoNCardsToDraw: true);
+
     }
 
     // этап создания заклинаний
@@ -238,7 +255,7 @@ public class GameManager : MonoBehaviour
             if (tournamentWinner.isGameWinner)
                 SetNewState(GameState.GAME_END);
             else
-                SetNewState(GameState.ROUND_START);
+                SetNewState(GameState.TOURNAMENT_START);
             
             if (isGameEnd)
                 print($"Winner: {tournamentWinner.mage.mageName}");
@@ -313,6 +330,24 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(_medalToMageMovingTime);
         
         Destroy(medal);
+    }
+
+    IEnumerator PassCardsToMages(List<MageController> mages, DeckController deck, int nCards = 0, bool autoNCardsToDraw = true)
+    {
+        int amount = mages.Count;
+        if (amount > 0)
+        {
+            int n = 0;
+            foreach (MageController mage in mages.GetRange(0, amount-1))
+            {
+                n = autoNCardsToDraw ? mage.nCardsToDraw : nCards;
+                yield return deck.PassCardsTo(mage, n, autoHide: false);
+            }
+
+            MageController lastMage = mages[amount - 1];
+            n = autoNCardsToDraw ? lastMage.nCardsToDraw : nCards;
+            yield return deck.PassCardsTo(lastMage, n);
+        }
     }
 
     // пересчитать очередь хода магов

@@ -100,7 +100,7 @@ public class PlayerController : AbstractPlayerController
     }
 
 
-    protected override IEnumerator MoveSpellGroup(bool toHand)
+    protected override IEnumerator MoveSpellGroup(bool toHand = false)
     {
         if (mage.nonNullSpell.Count > 0)
         {
@@ -122,6 +122,21 @@ public class PlayerController : AbstractPlayerController
                 x += step;
             }
             
+            yield return new WaitForSeconds(_spellGroupMovingTime);
+        }
+    }
+
+    protected override IEnumerator MoveCard(CardController card, bool toHand = false)
+    {
+
+        if (toHand)
+        {
+            yield return OnCardAddedToHand(card);
+        }
+        else
+        {
+            SetCardHandParent(card);            
+            iTween.MoveTo(card.gameObject, iTween.Hash("position", GameManager.instance.spellGroupLocation.position, "time", _spellGroupMovingTime));
             yield return new WaitForSeconds(_spellGroupMovingTime);
         }
     }
@@ -296,6 +311,7 @@ public class PlayerController : AbstractPlayerController
         float y = (hide) ? _handHiddenY : _handUnhiddenY;
         iTween.MoveTo(_handLocation.gameObject, iTween.Hash("y", y, "time", _handHideTime, "islocal", true));
         yield return new WaitForSeconds(_handHideTime);
+        StartCoroutine(FitSpellCardsInHand());
     }
 
     

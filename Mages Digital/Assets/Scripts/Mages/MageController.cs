@@ -205,7 +205,7 @@ public class MageController : MonoBehaviour
                yield return GameManager.instance.spellsDeck.ReplaceWildMagic(card);
 
             yield return card.ExecuteSpell();
-            
+
             yield return card.Highlight(false);
             if (isDead) break;
         }
@@ -217,6 +217,18 @@ public class MageController : MonoBehaviour
         
         if (!isDead)
             yield return owner.HideSpellFromAll();
+    }
+
+
+    public IEnumerator ExecuteDeads()
+    {
+        List<CardController> deadsCopy = new List<CardController>(_deads);
+        foreach (CardController deadCard in deadsCopy.FindAll(card => card != null))
+        {
+            yield return owner.ShowCardToAll(deadCard, highlight: true);
+            yield return deadCard.ExecuteSpell();
+            deadCard.ToFold();
+        }
     }
 
 
@@ -283,6 +295,9 @@ public class MageController : MonoBehaviour
     }
 
     // вернуть список трех бонусных карт для вывода информации о них на экране
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // BUG Не верная индексация
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public List<CardController> GetBonusInfo(int indexOffset = 0)
     {
         List<CardController> bonusInfo = new List<CardController>(3) {null, null, null};
@@ -291,10 +306,13 @@ public class MageController : MonoBehaviour
         {
             if (i < bonusCards.Count)
             {
-                int cardsIndex = i + indexOffset;
-                cardsIndex = (indexOffset < 0) ? bonusCards.Count -  cardsIndex : cardsIndex;
+                int cardsIndex = i - indexOffset;
+                cardsIndex = (-indexOffset < 0) ? bonusCards.Count -  cardsIndex : cardsIndex;
 
-                bonusInfo[(i + 1) % bonusInfo.Count] = bonusCards[cardsIndex % bonusCards.Count];
+                int infoIndex = i - indexOffset;
+                infoIndex = (-indexOffset < 0) ? bonusInfo.Count - infoIndex : infoIndex;
+
+                bonusInfo[infoIndex % bonusInfo.Count] = bonusCards[cardsIndex % bonusCards.Count];
             }
         }
         return bonusInfo;

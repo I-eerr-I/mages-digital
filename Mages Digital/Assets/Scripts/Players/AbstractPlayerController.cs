@@ -51,7 +51,9 @@ public abstract class AbstractPlayerController : MonoBehaviour
     public abstract IEnumerator OnCardAddedToHand(CardController cardController);
 
     // передвинуть готовое заклинание к руке или в центр поля
-    protected abstract IEnumerator MoveSpellGroup(bool toHand);
+    protected abstract IEnumerator MoveSpellGroup(bool toHand = false);
+
+    protected abstract IEnumerator MoveCard(CardController card, bool toHand = false);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,14 +111,25 @@ public abstract class AbstractPlayerController : MonoBehaviour
     // показать заклинание все для выполнения
     public IEnumerator ShowSpellToAll()
     {
-        yield return MoveSpellGroup(false);
+        yield return MoveSpellGroup(toHand: false);
     }
 
     // спрятать заклинание после выполнения
     public IEnumerator HideSpellFromAll()
     {
-        yield return MoveSpellGroup(true);
+        yield return MoveSpellGroup(toHand: true);
     }
 
+    public IEnumerator ShowCardToAll(CardController card, bool highlight = true)
+    {
+        yield return MoveCard(card, toHand: false);
+        if (highlight)
+            yield return card.Highlight(true);
+    }
+
+    public IEnumerator HideCardFromAll(CardController card)
+    {
+        yield return MoveCard(card, toHand: true);
+    }
 
 }

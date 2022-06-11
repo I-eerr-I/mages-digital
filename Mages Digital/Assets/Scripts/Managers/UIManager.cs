@@ -74,9 +74,9 @@ public class UIManager : MonoBehaviour
         showingBonusPanel.SetActive(show);
         if (show)
         {
-            SetupShowingBonusImage(threeBonusCards, showingBonusLeftImage,   0);
-            SetupShowingBonusImage(threeBonusCards, showingBonusCenterImage, 1);
-            SetupShowingBonusImage(threeBonusCards, showingBonusRightImage,  2);
+            SetupShowingBonusImage(threeBonusCards, showingBonusLeftImage,   2);
+            SetupShowingBonusImage(threeBonusCards, showingBonusCenterImage, 0);
+            SetupShowingBonusImage(threeBonusCards, showingBonusRightImage,  1);
         }
     }
 
