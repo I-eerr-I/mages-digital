@@ -102,25 +102,28 @@ public class PlayerController : AbstractPlayerController
 
     protected override IEnumerator MoveSpellGroup(bool toHand)
     {
-        Transform parent = (toHand) ? _spellLocation : GameManager.instance.spellGroupLocation;
-        
-        float step = _mage.nonNullSpell[0].cardSizeX;
-        float x = -(step * (_mage.nCardsInSpell-1)) / 2;
-        
-        Vector3 spellGroupPosition = GameManager.instance.spellGroupLocation.position;
-        
-        foreach (CardController cardInSpell in _mage.nonNullSpell)
-        {   
-            spellGroupPosition.x = x;
-            Vector3 position = (toHand) ? GetHandPositionVector(x) : spellGroupPosition;
+        if (mage.nonNullSpell.Count > 0)
+        {
+            Transform parent = (toHand) ? _spellLocation : GameManager.instance.spellGroupLocation;
             
-            cardInSpell.transform.SetParent(parent);
+            float step = _mage.nonNullSpell[0].cardSizeX;
+            float x = -(step * (_mage.nCardsInSpell-1)) / 2;
             
-            iTween.MoveTo(cardInSpell.gameObject, iTween.Hash("position", position, "time", _spellGroupMovingTime, "islocal", toHand));
-            x += step;
+            Vector3 spellGroupPosition = GameManager.instance.spellGroupLocation.position;
+            
+            foreach (CardController cardInSpell in _mage.nonNullSpell)
+            {   
+                spellGroupPosition.x = x;
+                Vector3 position = (toHand) ? GetHandPositionVector(x) : spellGroupPosition;
+                
+                cardInSpell.transform.SetParent(parent);
+                
+                iTween.MoveTo(cardInSpell.gameObject, iTween.Hash("position", position, "time", _spellGroupMovingTime, "islocal", toHand));
+                x += step;
+            }
+            
+            yield return new WaitForSeconds(_spellGroupMovingTime);
         }
-        
-        yield return new WaitForSeconds(_spellGroupMovingTime);
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

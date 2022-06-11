@@ -19,13 +19,25 @@ public class MageIconController : MonoBehaviour
 
 
     [SerializeField] float _mageShowInfoWaitTime;
+    
+    [Header("Трещины")]
     [SerializeField] SpriteMask     _cracksMask;
+    
+    [Header("Здоровье")]
     [SerializeField] SpriteRenderer _healthOutline;
     [SerializeField] TextMeshPro    _healthText;
+    
+    [Header("Медали")]
     [SerializeField] SpriteRenderer _medalsOutline;
     [SerializeField] TextMeshPro    _medalsText;
+    
+    [Header("Иконка")]
     [SerializeField] SpriteRenderer _iconOutline;
     [SerializeField] SpriteRenderer _icon;
+    
+    [Header("Инициатива")]
+    [SerializeField] GameObject  _initiativeObject;
+    [SerializeField] TextMeshPro _initiativeText;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +154,7 @@ public class MageIconController : MonoBehaviour
 
     IEnumerator OnMouseDown()
     {
-        if (_discoverable)
+        if (_discoverable && !_mage.ownerIsBot)
         {
             _mouseDownClicked++;
 
@@ -225,6 +237,18 @@ public class MageIconController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    public void ShowInitiative()
+    {
+        _initiativeObject.SetActive(true);
+        _initiativeText.text = _mage.spellInitiative.ToString();
+    }
+
+
+    public void HideInitiative()
+    {
+        _initiativeObject.SetActive(false);
+    }
 
     public void ShowMageInfo()
     {

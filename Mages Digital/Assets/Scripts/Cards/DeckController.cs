@@ -188,6 +188,10 @@ public class DeckController : MonoBehaviour
             yield return owner.AddToSpell(replaceCard, order, backToHand: false, ownerReaction: false); // добавить новую карту в заклинание
             yield return owner.owner.ShowSpellToAll();  // выровнять карты заклинаний
         }
+        else 
+        {
+            wildMagic.ToFold();  
+        }
         yield break;
     }
 
