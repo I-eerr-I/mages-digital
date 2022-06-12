@@ -144,7 +144,7 @@ PrefabInstance:
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _card
       value: 
-      objectReference: {fileID: 11400000, guid: 95a9d8e0dc6ad2443835799758720fef, type: 2}
+      objectReference: {fileID: 11400000, guid: 59bc58b2ede4ca14e9d00238839a8a50, type: 2}
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _owner
       value: 
@@ -332,17 +332,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
---- !u!114 &820632330 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
-  m_PrefabInstance: {fileID: 342721093}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7629362bcdc2e6549a7f91f27d3cea6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &938753027
 GameObject:
   m_ObjectHideFlags: 0
@@ -455,7 +444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32224b2414d57474c80adcd3edfbdf92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _health: 20
+  _health: 17
   _treasures: []
   _deads: []
   _sources: []
@@ -464,7 +453,7 @@ MonoBehaviour:
   _wildMagics: []
   _spell:
   - {fileID: 55701817}
-  - {fileID: 820632330}
+  - {fileID: 0}
   - {fileID: 0}
   _leftMage: {fileID: 1457512664}
   _rightMage: {fileID: 1767326444}
@@ -777,7 +766,7 @@ PrefabInstance:
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _card
       value: 
-      objectReference: {fileID: 11400000, guid: 3ae6fb6333b380f4bbe52652e9b743b1, type: 2}
+      objectReference: {fileID: 11400000, guid: 15ce127cbc84c9546967a1936218c06e, type: 2}
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _owner
       value: 
