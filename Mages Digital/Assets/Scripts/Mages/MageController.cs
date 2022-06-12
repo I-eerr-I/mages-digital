@@ -222,7 +222,7 @@ public class MageController : MonoBehaviour
         // выполнение спелов карт
         List<CardController> currentNonNullSpell = new List<CardController>(nonNullSpell);
         int nExecutedSpells = 0;
-        while (nCardsInSpell > nExecutedSpells)
+        while (nCardsInSpell > nExecutedSpells && !GameManager.instance.isAliveOnlyOne)
         {
             yield return OneSpellCardExecution(nonNullSpell[nExecutedSpells]);
             nExecutedSpells++;

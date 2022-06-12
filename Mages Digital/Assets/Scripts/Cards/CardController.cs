@@ -1,3 +1,4 @@
+using UnityRandom = UnityEngine.Random;
 using Random = System.Random;
 using System.Linq;
 using System.Collections;
@@ -31,6 +32,9 @@ public class CardController : MonoBehaviour
         { CardType.TREASURE, new Color(1.0f, 0.8427867f, 0.0f) },
         { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
     };
+
+    public const string POSITION_LEFT  = "left";  // Позиция слева
+    public const string POSITION_RIGHT = "right"; // Позиция справа
 
     #endregion
 
@@ -488,6 +492,15 @@ public class CardController : MonoBehaviour
 
     #region [ CARD SPELLS ADDITIONAL METHODS ]
 
+
+    public enum TargetType
+    {
+        RANDOM,
+        LOW_HP,
+        HIGH_HP
+    }
+
+
     public IEnumerator OnDiceRoll(List<int> rolls)
     {
         yield return effects.RollDice(rolls);
@@ -535,6 +548,94 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Метод возвращает цель, если цель мертва берет следующую цель или слева или справа
+    public MageController IsDeadTargetLeftOrRight(MageController target, string position)
+    {
+        while (target.isDead)// Пока цель мертва
+        {
+            if(position == POSITION_LEFT)
+            {
+                target = target.leftMage; // Берем следующего левого мага
+            }
+            else if(position == POSITION_RIGHT)
+            {
+                target = target.rightMage; // Берем следующего левого мага
+            }
+        }
+        return target;
+    }
+
+    // Урон магу и его соседям слева и справа
+    public IEnumerator DamageToTargetsNeighbors(int damage, int damageNeighbors , List<MageController> listTargets)
+    {
+        foreach(MageController target in  listTargets)
+        {
+            yield return DamageToTarget(damage, target);
+            
+            yield return DamageToTarget(damageNeighbors, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+            yield return DamageToTarget(damageNeighbors, IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
+        }
+    } 
+
+    public List<MageController> FindTargets(TargetType targetType)
+    {
+        switch (targetType)
+        {
+            case TargetType.HIGH_HP:
+                return HighHpTargets();
+            case TargetType.LOW_HP:
+                return LowHpTargets();
+            case TargetType.RANDOM:
+                return RandomEnemy();
+        }
+        return null;
+    }
+
+    // Метод возвращающий случайного врага(принимает владельца)
+    public List<MageController> RandomEnemy()
+    {
+        // Создаем список без владельца карты
+        List<MageController> magesWithoutOwner = AllEnemies();
+        // Рандомим индекс
+        int index = UnityRandom.Range(0, magesWithoutOwner.Count);
+        // Возвращаем мага из списка
+        List<MageController> targets = new List<MageController>() { magesWithoutOwner[index] };
+        return targets;
+    }
+
+
+    // Метод возвращает лист целей, Нахождение хилого мага из списка живых
+    public List<MageController> LowHpTargets()
+    {
+        List<MageController> magesWithOutOwner = AllEnemies();
+        magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
+        return listTargets;
+    }
+
+    // Метод возвращает лист целей, Нахождение живучего мага из списка живых
+    public List<MageController> HighHpTargets()
+    {
+        
+        List<MageController> magesWithOutOwner = AllEnemies();
+        magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого живучего мага
+        int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+
+        return listTargets;
+    }
+
+    //Метод возвращает лист целей, нахождение каждого врага
+    public List<MageController> AllEnemies()
+    {
+        List<MageController> magesWithOutOwner = gm.aliveMages.FindAll(mage => owner !=mage);
+
+        return magesWithOutOwner;
+    }
+
+    // Забрать карту определенного порядка  
     public IEnumerator StealCardFromSpell(Order order, List<MageController> listTargets)
     {
         List<MageController> targets = listTargets.FindAll(mage => mage.HasCardOfOrderInSpell(order));
@@ -574,23 +675,17 @@ public class CardController : MonoBehaviour
     }
 
     // Договор с Дьяволом
-    // Недописанная карта
-    // Нет отжатия прихода у жертвы и добавление к своему заклинания
     public IEnumerator DogovorSDuavolom()
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
         int resultDice = rolls.Sum();
-        
-        List<MageController> magesWithoutOwner = gm.aliveMages.FindAll(mage => owner !=mage);
-        magesWithoutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
-        int maxHp = magesWithoutOwner[0].health; // Сохранение его здоровья
-        var listTargets = magesWithoutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
-        
+                
         int damage = 0;
         if   (resultDice <= 4){damage = 1;}
         else                  {damage = 2;}
 
+        List<MageController> listTargets = FindTargets(TargetType.HIGH_HP);
         yield return DamageToTargets(damage, listTargets);
 
         if (resultDice > 9)
@@ -611,7 +706,6 @@ public class CardController : MonoBehaviour
 
         List<MageController> listTargets = new List<MageController>(); // Лист целей
         
-        resultDice = 10;
         int damage;
         if      (resultDice <= 4){damage = 1;}
         else if (resultDice <= 9){damage = 2;}
@@ -621,10 +715,57 @@ public class CardController : MonoBehaviour
             yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
         }
 
-        listTargets.Add(owner.leftMage);
-        listTargets.Add(owner.rightMage);
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
 
         yield return DamageToTargets(damage, listTargets);
+        
+        yield break;
+    }
+
+    // Экзорцизм
+    public IEnumerator Exorcism()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        var listTargets = new List<MageController>(); // Лист целей
+        var listTargetsDeads = new List<MageController>(); // Лист целей с жетоном недобитого колдуна
+        int damageDeads = 0; // Урон недобитым магам
+
+        foreach(MageController mage in AllEnemies())
+        {
+            if(mage.medals != 0)
+            {
+                listTargetsDeads.Add(mage); // сохранение магов с жетоном недобитого колдуна
+            }
+            else
+            {        
+                listTargets.Add(mage); // без жетона                 
+            }
+        }
+
+        int damage = 0;
+        if      (resultDice <= 4)
+        {
+            damage = 1;
+            yield return DamageToTarget(damage, owner);
+        }
+        else if (resultDice <= 9)
+        {
+            damage = 2;
+            damageDeads = 4;
+            yield return DamageToTargets(damage, listTargets);
+            yield return DamageToTargets(damageDeads, listTargetsDeads);
+        }
+        else
+        {
+            damage = 4;
+            damageDeads = 8;
+            yield return DamageToTargets(damage, listTargets);
+            yield return DamageToTargets(damageDeads, listTargetsDeads);
+        }
         
         yield break;
     }

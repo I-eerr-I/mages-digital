@@ -1516,10 +1516,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Dark Smoke
       objectReference: {fileID: 0}
-    - target: {fileID: 8976671347642659040, guid: b6998300401b72c4388dced255d339af, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8978625266803643064, guid: b6998300401b72c4388dced255d339af, type: 3}
       propertyPath: m_RootOrder
       value: 1
