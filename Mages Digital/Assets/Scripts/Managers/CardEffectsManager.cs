@@ -96,21 +96,17 @@ public class CardEffectsManager : MonoBehaviour
 
         for (int i = 0; i < nDice; i++)
         {
-            Hashtable parameters     = new Hashtable();
-            parameters.Add("time", shakeTime);
-
-            parameters.Add("amount", new Vector3(0.2f, 0.2f, 0.2f));
-            iTween.ShakePosition(dice[i], parameters);
-
             Hashtable completeParams = new Hashtable();
             completeParams.Add("die",  dice[i]);
             completeParams.Add("roll", rolls[i]);
 
+            Hashtable parameters     = new Hashtable();
+            parameters.Add("time", shakeTime);
+            parameters.Add("amount", new Vector3(360f, 360f, 360f));
             parameters.Add("oncomplete", "OnRollComplete");
             parameters.Add("oncompleteparams", completeParams);
             parameters.Add("oncompletetarget", gameObject);
             
-            parameters["amount"] = new Vector3(360f, 360f, 360f);
             iTween.ShakeRotation(dice[i], parameters);
             
             shakeTime += shakeTimeDelta;
@@ -127,7 +123,7 @@ public class CardEffectsManager : MonoBehaviour
         Hashtable hashtable = (Hashtable) parameters;
         GameObject die   = (GameObject) hashtable["die"];
         Vector3 rotation = DIE_TO_ROTATION[ (int) hashtable["roll"]];
-        iTween.RotateTo(die, iTween.Hash("rotation", rotation, "time", 0.05f));
+        iTween.RotateTo(die, iTween.Hash("rotation", rotation, "time", 0.5f));
     }
 
     public void OnRollFlyOut(object die)

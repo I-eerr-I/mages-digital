@@ -1164,7 +1164,7 @@ PrefabInstance:
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: 749bf1de5aee65b4d931d67b9d47e14e, type: 2}
+      objectReference: {fileID: 11400000, guid: f9d720151bd86a54bb21359dbabff649, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[1]
       value: 
@@ -1287,6 +1287,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54b6fab73685cb540a2d83a2e33e4d73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &492698012 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+  m_PrefabInstance: {fileID: 1312631965}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &500998457
@@ -1547,6 +1558,14 @@ PrefabInstance:
       propertyPath: _mage
       value: 
       objectReference: {fileID: 11400000, guid: d782b722ab8814f438a1a69afc6194a1, type: 2}
+    - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: _leftMage
+      value: 
+      objectReference: {fileID: 701707845}
+    - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: _rightMage
+      value: 
+      objectReference: {fileID: 492698012}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
 --- !u!1001 &642304207
@@ -3233,6 +3252,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 687523930}
   m_CullTransparentMesh: 1
+--- !u!114 &701707845 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5662860762395734718, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
+  m_PrefabInstance: {fileID: 5662860762691077414}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &710255896
 GameObject:
   m_ObjectHideFlags: 0
@@ -3295,6 +3325,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &739697835 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+  m_PrefabInstance: {fileID: 609551039}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &806915993 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 46433684289031673, guid: bc0d6036f94eab14086c99326a7b9ca1, type: 3}
@@ -4064,6 +4105,14 @@ PrefabInstance:
       propertyPath: _mage
       value: 
       objectReference: {fileID: 11400000, guid: 1e7ed355483ea3e43a49ad2606480f93, type: 2}
+    - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: _leftMage
+      value: 
+      objectReference: {fileID: 739697835}
+    - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: _rightMage
+      value: 
+      objectReference: {fileID: 701707845}
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _spell.Array.size
       value: 3
@@ -5410,6 +5459,14 @@ PrefabInstance:
       propertyPath: _mage
       value: 
       objectReference: {fileID: 11400000, guid: c6b71333772089a44a2272f7aff0c304, type: 2}
+    - target: {fileID: 5662860762395734718, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
+      propertyPath: _leftMage
+      value: 
+      objectReference: {fileID: 492698012}
+    - target: {fileID: 5662860762395734718, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
+      propertyPath: _rightMage
+      value: 
+      objectReference: {fileID: 739697835}
     - target: {fileID: 5662860762497378512, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
       propertyPath: m_Color.b
       value: 0

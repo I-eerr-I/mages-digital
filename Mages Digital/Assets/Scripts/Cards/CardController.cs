@@ -554,9 +554,7 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-
         int resultDice  = rolls.Sum();
-        print(resultDice); 
 
         int damage = 0;
         if      (resultDice <= 4){damage = 1;}
@@ -582,7 +580,6 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-
         int resultDice = rolls.Sum();
         
         List<MageController> magesWithoutOwner = gm.aliveMages.FindAll(mage => owner !=mage);
@@ -602,6 +599,33 @@ public class CardController : MonoBehaviour
             yield return StealCardFromSpell(Order.DELIVERY, listTargets);
         }
 
+        yield break;
+    }
+
+    // Кислотный слив
+    public IEnumerator KislotnuiSliv()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        List<MageController> listTargets = new List<MageController>(); // Лист целей
+        
+        resultDice = 10;
+        int damage;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else
+        {
+            damage = 4;
+            yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+
+        listTargets.Add(owner.leftMage);
+        listTargets.Add(owner.rightMage);
+
+        yield return DamageToTargets(damage, listTargets);
+        
         yield break;
     }
 
