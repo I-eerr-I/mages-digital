@@ -58,18 +58,21 @@ public class MagicManager : MonoBehaviour
         _arcane.SetActive(false);
     }
 
+
     public IEnumerator Dark(Vector3 start, Vector3 end, float duration, float moveTime = 0.1f)
     {
+        // print("SETTING UP NEW ")
         DarkSetup(start, end);
 
         _dark.SetActive(true);
 
         Shake(_darkEnd.gameObject, duration);
 
-        yield return new WaitForSeconds(duration);
+        yield return new WaitForSeconds(duration + 0.1f);
 
         _dark.SetActive(false);
     }
+
 
     void Shake(GameObject obj, float duration)
     {

@@ -42,7 +42,7 @@ public class MageIconController : MonoBehaviour
     [SerializeField] TextMeshPro _initiativeText;
 
     [Header("Реакция на атаку")]
-    [SerializeField] GameObject _lightningSmoke;
+    [SerializeField] Transform _attackReactions;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +66,10 @@ public class MageIconController : MonoBehaviour
 
     MageController   _mage;
     SerializedObject _halo;
+
+
+    GameObject _arcaneReaction;
+    GameObject _darkReaction;
     
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +104,11 @@ public class MageIconController : MonoBehaviour
     {
         _mage       = gameObject.GetComponentInParent<MageController>();
         _halo       = new SerializedObject(gameObject.GetComponent("Halo"));
+
+        
+        _arcaneReaction = _attackReactions.GetChild(0).gameObject;
+        _darkReaction   = _attackReactions.GetChild(1).gameObject;
+
 
         InitializeMouseDownActions();
     }
@@ -321,10 +330,13 @@ public class MageIconController : MonoBehaviour
         switch (sign)
         {
             case Sign.ARCANE:
-                return _lightningSmoke;
+                return _arcaneReaction;
+
+            case Sign.DARK:
+                return _darkReaction;
 
             default: 
-                return _lightningSmoke;
+                return _arcaneReaction;
         }
     }
 

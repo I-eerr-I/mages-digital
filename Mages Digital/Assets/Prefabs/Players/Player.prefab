@@ -108,12 +108,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: debc651afc500a64f9b704c3c03e929d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _startHealth: 20
-  _health: 20
   _mage: {fileID: 0}
-  _owner: {fileID: 0}
-  _spellsAreExecuted: 0
-  _readyToExecute: 0
+  _health: 20
+  _medals: 0
+  _bonusDice: 0
   _treasures: []
   _deads: []
   _sources: []
@@ -124,7 +122,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  _medals: 0
   _leftMage: {fileID: 0}
   _rightMage: {fileID: 0}
 --- !u!114 &5662860762395734719
@@ -139,34 +136,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11ff3713244337140b9034f33b7aa2d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _handLocation: {fileID: 0}
-  _handHiddenY: -1.5
-  _handUnhiddenY: 0
-  _handHideTime: 1
-  _spellLocation: {fileID: 0}
-  _spellGroupMovingTime: 0.5
-  _bonusLocation: {fileID: 0}
-  _handCardsZ: 5.5
-  _handCardsY: -2.75
-  _cardMovingDestination: {x: 0, y: -5.5, z: 7.5}
-  _bonusCardMovingToHandTime: 1
-  _cardMovingToSpellTime: 0.25
-  _cardAvgFittingTime: 0.15
-  _spellsRightMaxX: 3
-  _spellsSelectedZ: 5.25
-  _spellsSelectedY: -2.5
-  _spellsRotLeftMaxZ: 30
-  _spellsRotEllipseR: 0.25
-  _rotateSpells: 0
-  _bonusesStartX: 4.5
-  _spellUpY: 1.5
-  _spellDownY: 1
-  _rightLeftSpellX: 2
-  _spellUpTime: 1
-  _rightLeftSpellEndX: 1.25
-  _spellDownTime: 0.25
-  _shakeAmount: {x: 1, y: 1, z: 1}
-  _shakeTime: 0.25
 --- !u!1 &5662860763371328430
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,6 +348,10 @@ PrefabInstance:
     - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8559047812500148078, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Name
+      value: Arcane Smoke Reaction
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
