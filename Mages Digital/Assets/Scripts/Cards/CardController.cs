@@ -108,6 +108,7 @@ public class CardController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public GameManager gm => GameManager.instance;
+    public CardEffectsManager effects => CardEffectsManager.instance;
 
     public bool  isSpell         => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
     public bool  inHand          => cardState == CardState.IN_HAND;     // находится ли карта в руке
@@ -487,14 +488,21 @@ public class CardController : MonoBehaviour
 
     #region [ CARD SPELLS ADDITIONAL METHODS ]
 
-    public int RollDice(int numberDice)
+    public IEnumerator OnDiceRoll(List<int> rolls)
     {
-        int totalRoll = 0; // Счет выпавших кубиков
-        
-        for (int i = 0; i < numberDice;  i++)
-           totalRoll += random.Next(1, 7); // Бросок кубика
+        yield return effects.RollDice(rolls);
+    }
 
-        return totalRoll;
+    public List<int> RollDice(int numberDice)
+    {
+        List<int> rolls = new List<int>();
+        for (int i = 0; i < numberDice;  i++)
+        {
+            int result = random.Next(1, 7); // Бросок кубика
+            rolls.Add(result);
+        }
+
+        return rolls;
     }
 
     public int NumberDice(Sign sign)
@@ -515,7 +523,7 @@ public class CardController : MonoBehaviour
     public IEnumerator DamageToTarget(int damage, MageController target)
     {
         target.TakeDamage(damage, this);
-        yield return gm.lightningManager.Generate(transform.position, target.mageIcon.transform.position, 1.0f);
+        yield return effects.Attack(transform.position, target.mageIcon.transform.position, this);
     } 
 
     // Урон нескольким магам (Урон, Лист Целей)
@@ -525,6 +533,13 @@ public class CardController : MonoBehaviour
             yield return DamageToTarget(damage, target);
 
         yield break;
+    }
+
+    public IEnumerator StealCardFromSpell(Order order, List<MageController> listTargets)
+    {
+        List<MageController> targets = listTargets.FindAll(mage => mage.HasCardOfOrderInSpell(order));
+        foreach (MageController target in targets)
+            yield return target.PassSpellOfOrderTo(owner, order);
     }
 
     #endregion
@@ -537,7 +552,11 @@ public class CardController : MonoBehaviour
     // Драконий сундук
     public IEnumerator  DrakoniuSundyk()
     {
-        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
+        yield return OnDiceRoll(rolls);
+
+        int resultDice  = rolls.Sum();
+        print(resultDice); 
 
         int damage = 0;
         if      (resultDice <= 4){damage = 1;}
@@ -552,6 +571,36 @@ public class CardController : MonoBehaviour
         List<MageController> listTargets = gm.aliveMages.FindAll(mage => mage != owner && mage.treasures.Count == 0);
 
         yield return DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+
+    // Договор с Дьяволом
+    // Недописанная карта
+    // Нет отжатия прихода у жертвы и добавление к своему заклинания
+    public IEnumerator DogovorSDuavolom()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+
+        int resultDice = rolls.Sum();
+        
+        List<MageController> magesWithoutOwner = gm.aliveMages.FindAll(mage => owner !=mage);
+        magesWithoutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого Живучего мага
+        int maxHp = magesWithoutOwner[0].health; // Сохранение его здоровья
+        var listTargets = magesWithoutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        
+        int damage = 0;
+        if   (resultDice <= 4){damage = 1;}
+        else                  {damage = 2;}
+
+        yield return DamageToTargets(damage, listTargets);
+
+        if (resultDice > 9)
+        {
+            yield return Highlight(false);
+            yield return StealCardFromSpell(Order.DELIVERY, listTargets);
+        }
 
         yield break;
     }

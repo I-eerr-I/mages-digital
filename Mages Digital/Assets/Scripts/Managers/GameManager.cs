@@ -18,9 +18,9 @@ public class GameManager : MonoBehaviour
 
 
     [Header("Префабы")]
-    [SerializeField] GameObject _cardPrefab;   // префаб карты
-    [SerializeField] GameObject _medalPrefab;  // префаб медали недобитого колдуна
-    [SerializeField] GameObject _mageOrderIcon; 
+    [SerializeField] GameObject _cardPrefab;    // префаб карты
+    [SerializeField] GameObject _medalPrefab;   // префаб медали недобитого колдуна
+    [SerializeField] GameObject _mageOrderIcon; // иконка для отображения хода мага
 
     [Header("Колоды")]
     [SerializeField] DeckController _spellsDeck;     // колода заклинаний
@@ -34,10 +34,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] Transform _qualityLocation;     // место расположения наворота
     [SerializeField] Transform _deliveryLocation;    // место расположения прихода
     [SerializeField] Transform _spellGroupLocation;  // место расположения группы заклинаний
-    [SerializeField] Transform _magesOrderLocation; 
-
-    [Header("FX")]
-    [SerializeField] LightningManager _lightningManager;
+    [SerializeField] Transform _magesOrderLocation;  // место расположения порядка хода магов
+    
 
     [Header("Состояние игры")]
     [SerializeField] GameState _prevGameState;                      // предыдущее состояние игры
@@ -111,8 +109,6 @@ public class GameManager : MonoBehaviour
     public Transform       qualityLocation => _qualityLocation;
     public Transform      deliveryLocation => _deliveryLocation;
     public Transform    spellGroupLocation => _spellGroupLocation;
-    
-    public LightningManager lightningManager => _lightningManager;
     
     public List<Transform> spellLocations => _spellLocations;
     public List<SpellLocationController> spellLocationControllers => _spellLocationControllers;
@@ -223,7 +219,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _magesOrder.Count; i++)
         {
             MageController mage = _magesOrder[i];
-            if (!mage.isDead)
+            if (!mage.isDead && mage.nCardsInSpell > 0)
             {
                 _magesOrderIcons.ForEach(icon => icon.Highlight(false));
                 _magesOrderIcons[i].Highlight(true);

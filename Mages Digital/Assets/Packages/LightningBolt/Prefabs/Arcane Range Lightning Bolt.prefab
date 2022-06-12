@@ -72,7 +72,7 @@ GameObject:
   - component: {fileID: 12080208}
   - component: {fileID: 11413728}
   m_Layer: 0
-  m_Name: SimpleLightningBoltAnimatedPrefab
+  m_Name: Arcane Range Lightning Bolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

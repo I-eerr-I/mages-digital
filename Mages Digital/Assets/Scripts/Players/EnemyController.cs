@@ -72,6 +72,14 @@ public class EnemyController : AbstractPlayerController
     }
 
 
+    public override IEnumerator OnCardAddedToSpell(CardController addedCard, Order order)
+    {
+        addedCard.SetStateToInSpell();
+        addedCard.transform.SetParent(_spellLocation);
+        yield break;
+    }
+
+
     protected override IEnumerator MoveSpellGroup(bool toHand)
     {
 

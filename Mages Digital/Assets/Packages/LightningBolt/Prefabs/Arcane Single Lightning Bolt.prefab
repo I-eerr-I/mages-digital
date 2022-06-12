@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 12010332}
   - component: {fileID: 11427938}
   m_Layer: 0
-  m_Name: SimpleLightningBoltPrefab
+  m_Name: Arcane Single Lightning Bolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

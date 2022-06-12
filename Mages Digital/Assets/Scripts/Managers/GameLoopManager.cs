@@ -32,7 +32,9 @@ public class GameLoopManager : MonoBehaviour
         // TEST
 
         // yield return new WaitForSeconds(0.5f);
-        // yield return gm.lightningManager.Generate(new Vector3(0f,0f,0f), new Vector3(-6.219f, 1.0f, 0.07999f), 10.0f, 0.15f);
+        // yield return CardEffectsManager.instance.RollDice(new List<int>() {1, 2, 3, 4, 5, 6});
+
+
 
         // UNCOMMENT
         while (!gm.isGameEnd)

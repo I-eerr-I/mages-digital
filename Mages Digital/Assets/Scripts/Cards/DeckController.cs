@@ -104,6 +104,9 @@ public class DeckController : MonoBehaviour
     // выдать N карт магу из колоды
     public IEnumerator PassCardsTo(MageController owner, int nCards, bool autoHide = true)
     {
+        if (_deck.Count == 0)
+            ShuffleWithFold();
+
         // показать колоду
         yield return Hide(false);
 

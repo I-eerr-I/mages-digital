@@ -50,6 +50,9 @@ public abstract class AbstractPlayerController : MonoBehaviour
     // реакция на добавление карты к руке
     public abstract IEnumerator OnCardAddedToHand(CardController cardController);
 
+    // реакция на добавление карты к заклинанию
+    public abstract IEnumerator OnCardAddedToSpell(CardController addedCard, Order order);
+
     // передвинуть готовое заклинание к руке или в центр поля
     protected abstract IEnumerator MoveSpellGroup(bool toHand = false);
 
@@ -61,12 +64,6 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     // реакция на сброс заклинания
     public virtual IEnumerator OnSpellDrop()
-    {
-        yield break;
-    }
-    
-    // реакция на добавление карты к заклинанию
-    public virtual IEnumerator OnCardAddedToSpell(CardController addedCard, Order order)
     {
         yield break;
     }

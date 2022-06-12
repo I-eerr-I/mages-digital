@@ -160,7 +160,7 @@ public class MageController : MonoBehaviour
         _spell[spellCardIndex] = cardToAdd;
         cardToAdd.SetStateToInSpell();
 
-        if (ownerReaction && !ownerIsBot)
+        if (ownerReaction)
             yield return owner.OnCardAddedToSpell(cardToAdd, order);
 
         cardToAdd.spellOrder   = order;
@@ -189,6 +189,28 @@ public class MageController : MonoBehaviour
         backToHandCard.SetStateToInHand();
     }
 
+    public IEnumerator AppendToSpell(CardController card)
+    {
+        card.SetStateToInSpell();
+        _spell.Add(card);
+        yield return owner.ShowSpellToAll();
+    }
+
+    public IEnumerator PassSpellOfOrderTo(MageController mage, Order order)
+    {
+        List<CardController> cards = nonNullSpell.FindAll(card => card.GetSpellCard().order == order || card.spellOrder == order);
+        print(cards.Count);
+        foreach (CardController card in cards)
+        {
+            RemoveCard(card);
+            card.SetOwner(mage);
+            card.SetVisible(true);
+            yield return mage.AppendToSpell(card);
+            yield return card.PositionFrontUp();
+        }
+        yield break;
+    }
+
     // выполнить заклинание
     public IEnumerator ExecuteSpells()
     {
@@ -199,18 +221,14 @@ public class MageController : MonoBehaviour
         
         // выполнение спелов карт
         List<CardController> currentNonNullSpell = new List<CardController>(nonNullSpell);
-        foreach (CardController card in currentNonNullSpell)
+        int nExecutedSpells = 0;
+        while (nCardsInSpell > nExecutedSpells)
         {
-            yield return card.Highlight(true);
-
-            if (card.GetSpellCard().order == Order.WILDMAGIC)
-               yield return GameManager.instance.spellsDeck.ReplaceWildMagic(card);
-
-            yield return card.ExecuteSpell();
-
-            yield return card.Highlight(false);
+            yield return OneSpellCardExecution(nonNullSpell[nExecutedSpells]);
+            nExecutedSpells++;
             if (isDead) break;
         }
+        
 
         if (spellWildMagics.Count > 0)
             spellWildMagics.ForEach(wildMagic => Destroy(wildMagic.gameObject));
@@ -219,6 +237,18 @@ public class MageController : MonoBehaviour
         
         if (!isDead)
             yield return owner.HideSpellFromAll();
+    }
+
+    public IEnumerator OneSpellCardExecution(CardController card)
+    {
+        yield return card.Highlight(true);
+
+        if (card.GetSpellCard().order == Order.WILDMAGIC)
+        yield return GameManager.instance.spellsDeck.ReplaceWildMagic(card);
+
+        yield return card.ExecuteSpell();
+
+        yield return card.Highlight(false);
     }
 
 
@@ -348,6 +378,7 @@ public class MageController : MonoBehaviour
     // удалить карту
     public void RemoveCard(CardController card)
     {
+        card.RemoveOwner();
         List<CardController> hand = GetHandOfCardType(card.card);
         if (hand.Contains(card))
         {
@@ -407,6 +438,13 @@ public class MageController : MonoBehaviour
         if (!ownerIsBot)
             _owner.OnMageReset();
     }
+
+
+    public bool HasCardOfOrderInSpell(Order order)
+    {
+        return nonNullSpell.Count(card => card.GetSpellCard().order == order) > 0;
+    }
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
