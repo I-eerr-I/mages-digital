@@ -1,4 +1,5 @@
 using Random = System.Random;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
@@ -8,7 +9,9 @@ using UnityEngine;
 public class CardController : MonoBehaviour
 {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    #region [ STATIC AND OTHER VARIABLES ]
 
     public Random random = new Random();
 
@@ -29,9 +32,13 @@ public class CardController : MonoBehaviour
         { CardType.DEAD,     new Color(0.0f, 0.6603774f, 0.4931389f) }
     };
 
+    #endregion
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    #region [ PRIVATE VARIABLES ]
 
     [SerializeField] Card _card;                 // данные карты
     [SerializeField] MageController _owner;      // маг владеющий картой
@@ -75,9 +82,12 @@ public class CardController : MonoBehaviour
     SpriteRenderer    _backSpriteRenderer;  // рендер задней части (рубашки) карты
     OutlineController _outlineController;   // управление подсветкой карты
     
+    #endregion
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    #region [ PUBLIC VARIABLES ]
 
     public Card           card       => _card;
     public MageController owner      => _owner;
@@ -97,6 +107,7 @@ public class CardController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    public GameManager gm => GameManager.instance;
 
     public bool  isSpell         => (_card != null) && (_card.cardType == CardType.SPELL); // является карта картой заклинания
     public bool  inHand          => cardState == CardState.IN_HAND;     // находится ли карта в руке
@@ -106,11 +117,15 @@ public class CardController : MonoBehaviour
     public float cardSizeY       => _middle.transform.localScale.y;     // длина карты
     public float cardSizeX       => _middle.transform.localScale.x;     // ширина карты
 
+    #endregion
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    #region [ UNITY PIPELINE ]
 
     void Awake()
     {
@@ -145,9 +160,12 @@ public class CardController : MonoBehaviour
         }
     }
 
+    #endregion
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    #region [ CARD LOGIC ]
 
     // добавить карту в заклинание
     void AddToSpell()
@@ -264,16 +282,13 @@ public class CardController : MonoBehaviour
     // выполнение заклинания карты
     public IEnumerator ExecuteSpell()
     {
-        print($"Карта {card.cardName} выполяет спелл {card.spell}");
-        // yield return StartCoroutine(card.spell);
-        yield return new WaitForSeconds(1.0f);
-        print("ЗАКОНЧИЛА");
+        if (card.spell != "")
+            yield return StartCoroutine(card.spell);
     }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // WILDMAGIC BUG
 
     // триггер при наведении курсора на карту
     public void OnMouseOverTrigger()
@@ -317,7 +332,7 @@ public class CardController : MonoBehaviour
     {
         if (_discoverable)
         {
-            if (GameManager.instance.isSpellCreationState)
+            if (gm.isSpellCreationState)
             {
                 if (withOwner && !owner.ownerIsBot)
                 {
@@ -334,9 +349,9 @@ public class CardController : MonoBehaviour
                     }
                 }
             }
-            else if (GameManager.instance.isChoosingState)
+            else if (gm.isChoosingState)
             {
-                GameManager.instance.StopChoosing();
+                gm.StopChoosing();
             }
         }
     }
@@ -460,4 +475,92 @@ public class CardController : MonoBehaviour
         Destroy(gameObject);
     }
 
+    #endregion
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    #region [ SPELLS ]
+
+    #region [ CARD SPELLS ADDITIONAL METHODS ]
+
+    public int RollDice(int numberDice)
+    {
+        int totalRoll = 0; // Счет выпавших кубиков
+        
+        for (int i = 0; i < numberDice;  i++)
+           totalRoll += random.Next(1, 7); // Бросок кубика
+
+        return totalRoll;
+    }
+
+    public int NumberDice(Sign sign)
+    {
+        int numberDice = owner.bonusDice; // Кол-во кубиков
+
+        // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
+        List<CardController> currentSpell = owner.nonNullSpell.ToList();
+        foreach (CardController spellCard in currentSpell)
+        {
+            if(spellCard.GetSpellCard().sign == sign)
+                numberDice+= 1;
+        }
+        return numberDice;
+    }
+
+    // Урон магу (Урон, Цель)
+    public IEnumerator DamageToTarget(int damage, MageController target)
+    {
+        target.TakeDamage(damage, this);
+        yield return gm.lightningManager.Generate(transform.position, target.mageIcon.transform.position, 1.0f);
+    } 
+
+    // Урон нескольким магам (Урон, Лист Целей)
+    public IEnumerator DamageToTargets(int damage, List<MageController> listTargets)
+    {
+        foreach(MageController target in  listTargets)
+            yield return DamageToTarget(damage, target);
+
+        yield break;
+    }
+
+    #endregion
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    #region [ SPELLS ]
+
+    // Драконий сундук
+    public IEnumerator  DrakoniuSundyk()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else
+        {
+            damage = 3;
+            yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+
+        // Нахождение магов без сокровища
+        List<MageController> listTargets = gm.aliveMages.FindAll(mage => mage != owner && mage.treasures.Count == 0);
+
+        yield return DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+
+    #endregion
+
+    #endregion
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

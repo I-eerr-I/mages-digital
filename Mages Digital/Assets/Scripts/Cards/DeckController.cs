@@ -223,7 +223,7 @@ public class DeckController : MonoBehaviour
     {
         // создание и настройка объекта карты
         GameObject cardObject         = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
-        cardObject.name               = card.cardName;
+        cardObject.name               = card.spell;
         cardObject.transform.position = transform.position;
         
         // настройка контроллера карты

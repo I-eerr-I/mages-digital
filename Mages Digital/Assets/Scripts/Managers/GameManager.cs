@@ -36,11 +36,16 @@ public class GameManager : MonoBehaviour
     [SerializeField] Transform _spellGroupLocation;  // место расположения группы заклинаний
     [SerializeField] Transform _magesOrderLocation; 
 
+    [Header("FX")]
+    [SerializeField] LightningManager _lightningManager;
+
     [Header("Состояние игры")]
     [SerializeField] GameState _prevGameState;                      // предыдущее состояние игры
     [SerializeField] GameState _gameState = GameState.ROUND_START;  // настоящее состояние игры
     
     [Header("Маги")]
+    [SerializeField] Mage _playerMage;
+    [SerializeField] MageController _player;
     [SerializeField] List<MageController> _mages = new List<MageController>();      // все маги в игре (вообще все, считая мертвых)
     [SerializeField] List<MageController> _magesOrder = new List<MageController>(); // порядок хода (тут только живые маги)
 
@@ -91,6 +96,7 @@ public class GameManager : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    public MageController           player => _player;
     public List<MageController>      mages => _mages;              
     public List<MageController> magesOrder => _magesOrder;
     public DeckController       spellsDeck => _spellsDeck;
@@ -105,6 +111,8 @@ public class GameManager : MonoBehaviour
     public Transform       qualityLocation => _qualityLocation;
     public Transform      deliveryLocation => _deliveryLocation;
     public Transform    spellGroupLocation => _spellGroupLocation;
+    
+    public LightningManager lightningManager => _lightningManager;
     
     public List<Transform> spellLocations => _spellLocations;
     public List<SpellLocationController> spellLocationControllers => _spellLocationControllers;
@@ -155,7 +163,10 @@ public class GameManager : MonoBehaviour
         GameObject[] mageObjects = GameObject.FindGameObjectsWithTag("Mage");
         foreach (GameObject mageObject in mageObjects)
         {
-            _mages.Add(mageObject.GetComponent<MageController>());
+            MageController mage = mageObject.GetComponent<MageController>();
+            _mages.Add(mage);
+            if (mage.mage == _playerMage)
+                _player = mage;
         }
     }
 

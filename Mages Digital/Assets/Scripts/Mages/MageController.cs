@@ -12,8 +12,9 @@ public class MageController : MonoBehaviour
     [SerializeField] Mage _mage;         // данные мага
     
     [Header("Статус")]
-    [SerializeField] int _health = 20;   // здоровье мага
-    [SerializeField] int _medals = 0;    // количество медалей недобитого колдуна
+    [SerializeField] int _health    = 20;   // здоровье мага
+    [SerializeField] int _medals    = 0;    // количество медалей недобитого колдуна
+    [SerializeField] int _bonusDice = 0;    // бонусные кубики к броскам
     
     [Header("Рука")]
     [SerializeField] List<CardController> _treasures  = new List<CardController>(); // рука мага
@@ -54,6 +55,7 @@ public class MageController : MonoBehaviour
     public Mage mage              => _mage;
     public int  health            => _health;
     public int  medals            => _medals;
+    public int  bonusDice         => _bonusDice;
     public bool spellsAreExecuted => _spellsAreExecuted;
     public bool readyToExecute    => _readyToExecute;
 
@@ -366,15 +368,14 @@ public class MageController : MonoBehaviour
 
 
     // получить урон
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, CardController damageSource = null)
     {
-        if (!isDead) 
-            _health = Mathf.Clamp(_health - damage, 0, _healthMax);
-        else
-            return;
-        if (isDead)
+        if (!isDead)
         {
-            OnDeath();
+            _health = Mathf.Clamp(_health - damage, 0, _healthMax);
+            StartCoroutine(_mageIcon.OnTakeDamage(damageSource));
+            if (isDead)
+                OnDeath();
         }
     }
 
@@ -395,7 +396,7 @@ public class MageController : MonoBehaviour
     {
         GetAllCards().ForEach(card => card.ToFold(destroy: true));
         StartCoroutine(GameManager.instance.deadsDeck.PassCardsTo(this, 1));
-        _mageIcon.OnDeath();
+        _mageIcon.OnTakeDamage();
     }
 
     // выставить начальные для турнира параметры

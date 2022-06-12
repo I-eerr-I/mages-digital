@@ -1,7 +1,9 @@
 using System;
 using Random = System.Random;
+using UnityRandom = UnityEngine.Random;
 using System.Collections;
 using System.Collections.Generic;
+using CardsToolKit;
 using TMPro;
 using UnityEngine;
 using UnityEditor;
@@ -38,6 +40,9 @@ public class MageIconController : MonoBehaviour
     [Header("Инициатива")]
     [SerializeField] GameObject  _initiativeObject;
     [SerializeField] TextMeshPro _initiativeText;
+
+    [Header("Реакция на атаку")]
+    [SerializeField] GameObject _lightningSmoke;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -176,7 +181,7 @@ public class MageIconController : MonoBehaviour
 
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (_mage.ownerIsBot)
-            _mage.TakeDamage(25);
+            _mage.TakeDamage(5);
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
@@ -270,9 +275,21 @@ public class MageIconController : MonoBehaviour
     }
 
 
+    public IEnumerator OnTakeDamage(CardController damageSource = null)
+    {
+        iTween.ShakePosition(gameObject, new Vector3(UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f)), UnityRandom.Range(0.5f, 1.0f));
+        
+        if (damageSource != null)
+        {
+            GameObject fxObject = GetFXObject(damageSource);
+            fxObject.SetActive(false);
+            yield return new WaitForSeconds(0.15f);
+            fxObject.SetActive(true);
+        }
+    }
+
     public void OnDeath()
     {
-        iTween.ShakePosition(gameObject, new Vector3(1.0f,1.0f,1.0f), 1.0f);
         SetOutlineSettings(mainDeathColor);
         SetHaloSettings(haloDeathColor, haloRange);
         SetIconSettings(iconDeathColor);
@@ -290,6 +307,26 @@ public class MageIconController : MonoBehaviour
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    GameObject GetFXObject(CardController damageSource)
+    {
+        Card card = damageSource.card;
+
+        Sign sign = Sign.ARCANE;
+
+        if (card.cardType == CardType.SPELL)
+            sign = damageSource.GetSpellCard().sign;
+
+        switch (sign)
+        {
+            case Sign.ARCANE:
+                return _lightningSmoke;
+
+            default: 
+                return _lightningSmoke;
+        }
+    }
 
 
     void CracksOn()
