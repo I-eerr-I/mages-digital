@@ -353,7 +353,7 @@ public class TestCardController : MonoBehaviour
         return target;
     }
 
-    // Метод возвращает лист целей, Нахождение хилого мага из списка живых
+    // Метод возвращает лист целей, Нахождение хилого врага из списка живых
     public List<TestMageController> LowHpTargets(TestMageController owner)
     {
         List<TestMageController> magesWithOutOwner = AllEnemies(owner);
@@ -364,7 +364,7 @@ public class TestCardController : MonoBehaviour
         return listTargets;
     }
 
-    // Метод возвращает лист целей, Нахождение живучего мага из списка живых
+    // Метод возвращает лист целей, Нахождение живучего врага из списка живых
     public List<TestMageController> HighHpTargets(TestMageController owner)
     {
         
@@ -785,17 +785,17 @@ public class TestCardController : MonoBehaviour
     
     //Двуличный
     // Недописанная карта
-    // Нет выбора врага
+    // Нет выбора колдуна
     public IEnumerator  Dvylichniu()
     {
-        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+        // var target = owner.ChooseMage(); // Маг по выбору
 
-        // выдать сокровище выбранному врагу
+        // выдать сокровище выбранному магу
         // yield return TestGameManager.instance.treasuresDeck.PassCardsTo(target, 1); 
 
         // damage = target.treasures.Count * 2; // Урон = Кол-во сокровищ * 2
         
-        // DamageToTargets(damage, target);
+        // DamageToTarget(damage, target);
 
         yield break;
     }
@@ -1218,8 +1218,6 @@ public class TestCardController : MonoBehaviour
         yield break;
     }
 
-
-    
     // От Мордоеда
     // Недописанная карта
     // Скопировать решение у карты дохлый колдун
@@ -1230,6 +1228,246 @@ public class TestCardController : MonoBehaviour
     }
     // В этом раунде добавляй 1 кубик к своим могучим броскам.
 
+    // От Горячей штучки
+    public IEnumerator  OtGoruacheiShtychki()
+    {
+        damage = 3;
+        DamageToTargets(damage, HighHpTargets(owner));
+
+        yield break;
+    }
+
+    // От профессора Ахалая
+    // Недописанная карта
+    // Дописать шальную магию и проверку на наличие ее в заклинании
+    public IEnumerator  OtProfessoraAxalaya()
+    {
+        damage = 3;
+        DamageToTarget(damage, RandomEnemy(owner));
+
+        // if(owner.spell.Where(card => card == ShalnayaMagiya))
+        //     yield return TestGameManager.instance.treasuresDeck.PassCardsTo(owner, 1);
+
+        yield break;
+    }
+
+    // Жмураган
+    public IEnumerator Jmyragan()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+
+        if      (resultDice <= 4){damage = 2;}
+        else if (resultDice <= 9){damage = 3;}
+        else                     {damage = 6;}
+        
+
+        DamageToTargets(damage, HighHpTargets(owner));
+        yield break;
+    }
+
+    //От Шерочки с Машерочкой
+    // Недоделанная карта
+    // А хуй его знает что сюда писать
+    public IEnumerator OtSherochkiSMasherochkoi()
+    {
+        yield break;
+    }
+
+    // От Тай Тьфуна
+    // Недописанная карта
+    // Поменять список целей на список уже сходивших
+    public IEnumerator OtTauiTfyna()
+    {
+        damage = 3;
+
+        // DamageToTargets(damage, ShodivshieMagi);
+        yield break;
+    }
 
     
+    // Отсос Мозга
+    // Недописанная карта
+    // Нет выбора врага
+    // Нет отжатия сокровища у данного врага
+    public IEnumerator  OtSfinksenona()
+    {
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+ 
+        // TakeEnemyTreasures(owner, target);// Отжать сокровище у врага по своему выбору
+     
+        yield break;
+    }
+
+    // От бухого Уокера
+    // Недописанная карта
+    // Не учитывает знаки от сокровищ
+    public IEnumerator  OtByhogoYokera()
+    {
+        damage = 3;
+        // Словарь маг key бросок value
+        Dictionary<TestMageController, int> magesAndRolls = new Dictionary<TestMageController, int>();
+
+        int numberDice = 1;// кол-во кубиков
+        
+        foreach(TestMageController mage in TestGameManager.instance.aliveMages)
+        {
+            int resultDice = RollDice(numberDice);
+            if(mage == owner )
+            {
+                // Если цель владелец, +1 за каждый уникальный знак
+                resultDice = resultDice + BuffDamageSing(((SpellCard) card).sign);
+            }
+            magesAndRolls.Add(mage, resultDice);
+        }
+
+        var minValue = magesAndRolls.Values.Min();// Нахождение минимального броска
+
+        foreach (var mageRoll in magesAndRolls)
+        {
+            if( mageRoll.Value == minValue )
+            {
+                DamageToTarget(damage, mageRoll.Key);
+            }
+        }
+        yield break;
+    }
+    
+    // От Розового Бутончика
+    // Недописанная карта
+    // Не учитывает знаки от сокровищ
+    public IEnumerator  OtRozovogoBytonchika()
+    {
+        healHp = 1 * BuffDamageSing(((SpellCard) card).sign);
+        HealToTarget(healHp, owner);
+        
+        yield break;
+    }
+
+    // От Поганого Мерлина
+    public IEnumerator  OtPoganogoMerlina()
+    {
+        damage = 1 * TestGameManager.instance.aliveMages.Count();
+        DamageToTargets(damage, HighHpTargets(owner));
+        yield return TestGameManager.instance.deadsDeck.PassCardsTo(owner, 1);
+
+        yield break;
+    }
+
+    // От Брадострела
+    // Недописанная карта
+    // Нужен метод копии прихода
+    public IEnumerator  OtBradostrela()
+    {
+        // card.ExecuteSpell(owner.spell.deliveries);
+        yield break;
+    }
+
+    // От Пыща с Тыдыщем
+    // Полностью ненаписанная карта
+    public IEnumerator  OtPushaSTudushem()
+    {
+        // Игрок берет карту, если она заводила, добавляет к заклинанию, иначе сброс ( так 4 раза )
+        yield break;
+    }
+    
+    // От Феечки смерти
+    // Недописанная карта
+    // Нет выбора врага
+    public IEnumerator  OtFeechkiSmerti()
+    {
+        damage = 2;
+        // var target = owner.ChooseEnemyMage(); // Враг по выбору
+        //DamageToTarget(damage, target);
+        // while(target.isDead)
+        // {
+        //     //var target = owner.ChooseEnemyMage(); // Враг по выбору
+        //     //DamageToTarget(damage, target);
+        // }
+
+        yield break;
+    }
+    
+    // От д-ра Конея Дуболома
+    public IEnumerator  OtDraKorneyaDyboloma()
+    {
+        healHp = 3; // Сколько жизней нужно вылечить
+        HealToTarget(healHp, owner); // Лечение себя
+
+        Dictionary<TestMageController, int> magesAndRolls = new Dictionary<TestMageController, int>();
+
+        int numberDice = 1;// кол-во кубиков
+        int necessaryResult = 6; // Необходимый результат чтоб получить лечение
+        
+        // Каждый враг бросает кубик 
+        foreach(TestMageController mage in AllEnemies(owner))
+        {
+            int resultDice = RollDice(numberDice);
+            magesAndRolls.Add(mage, resultDice);
+        }
+
+        // Проходим по каждому врагу и смотрим на его бросок
+        foreach (var mageRoll in magesAndRolls)
+        {
+            if( mageRoll.Value == necessaryResult )// Если враг выкинул 6
+            {
+                HealToTarget(healHp, mageRoll.Key);// Лечение врага
+            }
+        }
+        
+        yield break;
+    }
+
+    // Фонтан Молодости
+    public IEnumerator FontanMolodosti()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        
+        if      (resultDice <= 4){healHp = 0;}
+        else if (resultDice <= 9){healHp = 2;}
+        else                     {healHp = 4;}
+
+        HealToTarget(healHp, owner); // Лечение владельца
+        yield break;
+    }
+    
+    // От Зачуханного Комбайна
+    // Полностью ненаписанная карта
+    public IEnumerator  OtZachyhannogoKombauna()
+    {
+        // Игрок берет карту, если ее знак есть в заклинании,
+        // добавляет к заклинанию,
+        // иначе сброс ( так 2 раза )
+        // 
+        yield break;
+    }
+
+    
+    // Вихрь бодрости
+    // Недоделанная карта
+    // Нет выбора какую карту сбросить овнеру
+    public IEnumerator VihrBodrosti()
+    {
+        int resultDice = RollDice(NumberDice(((SpellCard) card).sign)); // Бросок кубика
+        damage = 0; 
+
+        if      (resultDice <= 4)
+        {
+            // owner.card.ToFold(ChooseCardInSpell());
+        }
+        else if (resultDice <= 9)
+        {
+            damage = 2;
+            DamageToTargets(damage, AllEnemies(owner));
+            // owner.card.ToFold(ChooseCardInSpell(), 2);
+        }
+        else
+        {
+            damage = 2;
+            DamageToTargets(damage, AllEnemies(owner));
+            // owner.card.ToFold(ChooseCardInSpell(), 2);
+            yield return TestGameManager.instance.treasuresDeck.PassCardsTo(owner, 1);
+        }
+        
+        yield break;
+    }
 }
