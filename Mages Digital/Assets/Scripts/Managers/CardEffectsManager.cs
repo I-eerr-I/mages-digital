@@ -55,6 +55,18 @@ public class CardEffectsManager : MonoBehaviour
                 yield return _magic.Dark(from, to, duration);
                 break;
 
+            case Sign.PRIMAL:
+                yield return _magic.Primal(from, to, duration);
+                break;
+            
+            case Sign.ELEMENTAL:
+                yield return _magic.Elemental(from, to, duration);
+                break;
+
+            case Sign.ILLUSION:
+                yield return _magic.Illusion(from, to, duration);
+                break;
+
             default:
                 yield return _magic.Arcane(from, to, duration);
                 break;

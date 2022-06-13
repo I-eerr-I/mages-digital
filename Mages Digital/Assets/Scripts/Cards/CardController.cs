@@ -524,11 +524,8 @@ public class CardController : MonoBehaviour
 
         // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
         List<CardController> currentSpell = owner.nonNullSpell.ToList();
-        foreach (CardController spellCard in currentSpell)
-        {
-            if(spellCard.GetSpellCard().sign == sign)
-                numberDice+= 1;
-        }
+        numberDice = currentSpell.Count(spellCard => spellCard.GetSpellCard().sign == sign);
+        
         return numberDice;
     }
 
@@ -554,13 +551,9 @@ public class CardController : MonoBehaviour
         while (target.isDead)// Пока цель мертва
         {
             if(position == POSITION_LEFT)
-            {
                 target = target.leftMage; // Берем следующего левого мага
-            }
             else if(position == POSITION_RIGHT)
-            {
                 target = target.rightMage; // Берем следующего левого мага
-            }
         }
         return target;
     }
@@ -603,14 +596,13 @@ public class CardController : MonoBehaviour
         return targets;
     }
 
-
     // Метод возвращает лист целей, Нахождение хилого мага из списка живых
     public List<MageController> LowHpTargets()
     {
         List<MageController> magesWithOutOwner = AllEnemies();
         magesWithOutOwner.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
-        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        List<MageController> listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
 
         return listTargets;
     }
@@ -622,7 +614,7 @@ public class CardController : MonoBehaviour
         List<MageController> magesWithOutOwner = AllEnemies();
         magesWithOutOwner.Sort((mage1, mage2) => -mage1.health.CompareTo(mage2.health)); // Нахождение самого живучего мага
         int maxHp = magesWithOutOwner[0].health; // Сохранение его здоровья
-        var listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
+        List<MageController> listTargets = magesWithOutOwner.FindAll(mage => mage.health == maxHp); // Поиск магов с таким же здоровьем
 
         return listTargets;
     }
@@ -730,20 +722,17 @@ public class CardController : MonoBehaviour
         yield return OnDiceRoll(rolls);
         int resultDice = rolls.Sum();
 
-        var listTargets = new List<MageController>(); // Лист целей
-        var listTargetsDeads = new List<MageController>(); // Лист целей с жетоном недобитого колдуна
+        List<MageController> listTargets      = new List<MageController>(); // Лист целей
+        List<MageController> listTargetsDeads = new List<MageController>(); // Лист целей с жетоном недобитого колдуна
+        
         int damageDeads = 0; // Урон недобитым магам
 
         foreach(MageController mage in AllEnemies())
         {
             if(mage.medals != 0)
-            {
                 listTargetsDeads.Add(mage); // сохранение магов с жетоном недобитого колдуна
-            }
             else
-            {        
                 listTargets.Add(mage); // без жетона                 
-            }
         }
 
         int damage = 0;
@@ -767,6 +756,22 @@ public class CardController : MonoBehaviour
             yield return DamageToTargets(damageDeads, listTargetsDeads);
         }
         
+        yield break;
+    }
+
+    // Петушок
+    public IEnumerator Petyshok()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 1;}
+        else                     {damage = 7;}
+
+        yield return DamageToTargets(damage, FindTargets(TargetType.HIGH_HP));
         yield break;
     }
 

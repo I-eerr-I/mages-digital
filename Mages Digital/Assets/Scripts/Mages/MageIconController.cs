@@ -22,27 +22,13 @@ public class MageIconController : MonoBehaviour
 
     [SerializeField] float _mageShowInfoWaitTime;
     
-    [Header("Трещины")]
-    [SerializeField] SpriteMask     _cracksMask;
-    
-    [Header("Здоровье")]
-    [SerializeField] SpriteRenderer _healthOutline;
-    [SerializeField] TextMeshPro    _healthText;
-    
-    [Header("Медали")]
-    [SerializeField] SpriteRenderer _medalsOutline;
-    [SerializeField] TextMeshPro    _medalsText;
-    
-    [Header("Иконка")]
-    [SerializeField] SpriteRenderer _iconOutline;
-    [SerializeField] SpriteRenderer _icon;
-    
-    [Header("Инициатива")]
-    [SerializeField] GameObject  _initiativeObject;
-    [SerializeField] TextMeshPro _initiativeText;
-
-    [Header("Реакция на атаку")]
-    [SerializeField] Transform _attackReactions;
+    [Header("Объекты")]
+    [SerializeField] SpriteMask _cracksMask;
+    [SerializeField] GameObject _healthObject;
+    [SerializeField] GameObject _medalsObject;
+    [SerializeField] GameObject _iconObject;    
+    [SerializeField] GameObject _initiativeObject;
+    [SerializeField] Transform  _attackReactions;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,8 +54,23 @@ public class MageIconController : MonoBehaviour
     SerializedObject _halo;
 
 
-    GameObject _arcaneReaction;
-    GameObject _darkReaction;
+    ParticleSystem _arcaneReaction;
+    ParticleSystem _darkReaction;
+    ParticleSystem _primalReaction;
+    ParticleSystem _elementalReaction;
+    ParticleSystem _illusionReaction;
+
+    SpriteRenderer _healthOutline;
+    TextMeshPro    _healthText;
+
+    SpriteRenderer _medalsOutline;
+    TextMeshPro    _medalsText;
+
+    SpriteRenderer _iconOutline;
+    SpriteRenderer _icon;
+
+    TextMeshPro    _initiativeText;
+    ParticleSystem _initiativeParticles;
     
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,9 +106,24 @@ public class MageIconController : MonoBehaviour
         _mage       = gameObject.GetComponentInParent<MageController>();
         _halo       = new SerializedObject(gameObject.GetComponent("Halo"));
 
+
+        _healthOutline = _healthObject.GetComponentInChildren<SpriteRenderer>();
+        _healthText    = _healthObject.GetComponentInChildren<TextMeshPro>();
+
+        _medalsOutline = _medalsObject.GetComponentInChildren<SpriteRenderer>();
+        _medalsText    = _medalsObject.GetComponentInChildren<TextMeshPro>();
         
-        _arcaneReaction = _attackReactions.GetChild(0).gameObject;
-        _darkReaction   = _attackReactions.GetChild(1).gameObject;
+        _icon        = _iconObject.GetComponent<SpriteRenderer>();
+        _iconOutline = _iconObject.transform.GetChild(0).GetComponent<SpriteRenderer>();
+
+        _initiativeText      = _initiativeObject.GetComponentInChildren<TextMeshPro>();
+        _initiativeText.gameObject.SetActive(false);
+        _initiativeParticles = _initiativeObject.GetComponentInChildren<ParticleSystem>();
+
+        _arcaneReaction    = _attackReactions.GetChild(0).gameObject.GetComponent<ParticleSystem>();
+        _darkReaction      = _attackReactions.GetChild(1).gameObject.GetComponent<ParticleSystem>();
+        _elementalReaction = _attackReactions.GetChild(2).gameObject.GetComponent<ParticleSystem>();
+        _illusionReaction  = _attackReactions.GetChild(3).gameObject.GetComponent<ParticleSystem>();
 
 
         InitializeMouseDownActions();
@@ -259,14 +275,16 @@ public class MageIconController : MonoBehaviour
 
     public void ShowInitiative()
     {
-        _initiativeObject.SetActive(true);
+        _initiativeParticles.Play();
+
+        _initiativeText.gameObject.SetActive(true);
         _initiativeText.text = _mage.spellInitiative.ToString();
     }
 
 
     public void HideInitiative()
     {
-        _initiativeObject.SetActive(false);
+        _initiativeText.gameObject.SetActive(false);
     }
 
     public void ShowMageInfo()
@@ -286,14 +304,13 @@ public class MageIconController : MonoBehaviour
 
     public IEnumerator OnTakeDamage(CardController damageSource = null)
     {
-        iTween.ShakePosition(gameObject, new Vector3(UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f)), UnityRandom.Range(0.5f, 1.0f));
-        
         if (damageSource != null)
         {
-            GameObject fxObject = GetFXObject(damageSource);
-            fxObject.SetActive(false);
-            yield return new WaitForSeconds(0.15f);
-            fxObject.SetActive(true);
+            yield return React(damageSource);
+        }
+        else
+        {
+            Shake();
         }
     }
 
@@ -318,7 +335,7 @@ public class MageIconController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    GameObject GetFXObject(CardController damageSource)
+    IEnumerator React(CardController damageSource)
     {
         Card card = damageSource.card;
 
@@ -327,31 +344,109 @@ public class MageIconController : MonoBehaviour
         if (card.cardType == CardType.SPELL)
             sign = damageSource.GetSpellCard().sign;
 
+        ParticleSystem reaction = null;
+        Action iconReaction = null;
         switch (sign)
         {
             case Sign.ARCANE:
-                return _arcaneReaction;
+                reaction = _arcaneReaction;
+                iconReaction = () =>
+                {
+                    Shake();
+                    IconColorReaction(Color.black);
+                };
+                break;
 
             case Sign.DARK:
-                return _darkReaction;
-
-            default: 
-                return _arcaneReaction;
+                reaction = _darkReaction;
+                iconReaction = Shake;
+                break;
+            
+            case Sign.PRIMAL:
+                reaction = null;
+                iconReaction = () => 
+                {
+                    _cracksMask.enabled = true;
+                    Shake();
+                    SetCrackCutoff(1.0f);
+                    IconColorReaction(Color.green);
+                    CracksOff(5.0f);
+                };
+                break;
+            
+            case Sign.ELEMENTAL:
+                reaction = _elementalReaction;
+                iconReaction = () =>
+                {
+                    Shake();
+                    IconColorReaction(Color.black);
+                };
+                break;
+            
+            case Sign.ILLUSION:
+                reaction = _illusionReaction;
+                iconReaction = () =>
+                {
+                    ShakeScale();
+                    iTween.RotateTo(gameObject, iTween.Hash("z", 360*20, "time", 3.0f, "islocal", true, "easetype", iTween.EaseType.easeInCirc));
+                };
+                break;
         }
+
+        reaction?.Stop();
+        yield return new WaitForSeconds(GetReactionWaitTime(sign));
+        reaction?.Play();
+        iconReaction?.Invoke();
+        yield return new WaitForSeconds(0.15f);
     }
 
+    float GetReactionWaitTime(Sign sign)
+    {
+        switch (sign)
+        {
+            case Sign.ARCANE:    
+                return 0.01f;
+            case Sign.DARK:    
+                return 1.00f;
+            case Sign.PRIMAL:    
+                return 1.00f;
+            case Sign.ELEMENTAL:    
+                return 0.05f;
+            case Sign.ILLUSION:    
+                return 1.50f;
+        }
+        return 0.01f;
+    }
 
-    void CracksOn()
+    void IconColorReaction(Color color)
+    {
+        Color prevColor = _icon.color;
+        _icon.color = color;
+        SetUndiscoverable();
+        iTween.ValueTo(gameObject, iTween.Hash("from", _icon.color, "to", prevColor, "time", 5.0f, "onupdate", "SetIconColor", "oncomplete", "SetDiscoverable"));
+    }
+
+    void Shake()
+    {
+        iTween.ShakePosition(gameObject, new Vector3(UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f)), UnityRandom.Range(0.5f, 1.0f));
+    }
+
+    void ShakeScale()
+    {
+        iTween.ShakeScale(gameObject, new Vector3(UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f),UnityRandom.Range(0.1f, 0.5f)), UnityRandom.Range(0.5f, 1.0f));
+    }
+
+    void CracksOn(float duration = 10)
     {
         _cracksMask.enabled = true;
         SetCrackCutoff(1.0f);
-        iTween.ValueTo(gameObject, iTween.Hash("from", 1.0f, "to", 0.5f, "time", 10.0f, "onupdate", "SetCrackCutoff"));
+        iTween.ValueTo(gameObject, iTween.Hash("from", 1.0f, "to", 0.5f, "time", duration, "onupdate", "SetCrackCutoff"));
     }
 
 
-    void CracksOff()
+    void CracksOff(float duration = 0.5f)
     {
-        iTween.ValueTo(gameObject, iTween.Hash("from", _cracksMask.alphaCutoff, "to", 1.0f, "time", 0.5f, "onupdate", "SetCrackCutoff", "oncomplete", "DisableCraks"));
+        iTween.ValueTo(gameObject, iTween.Hash("from", _cracksMask.alphaCutoff, "to", 1.0f, "time", duration, "onupdate", "SetCrackCutoff", "oncomplete", "DisableCraks"));
     }
 
 
@@ -364,6 +459,11 @@ public class MageIconController : MonoBehaviour
     void SetCrackCutoff(float cutoff)
     {
         _cracksMask.alphaCutoff = cutoff;
+    }
+
+    void SetIconColor(Color color)
+    {
+        _icon.color = color;
     }
 
 

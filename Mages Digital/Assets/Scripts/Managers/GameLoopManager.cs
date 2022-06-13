@@ -32,7 +32,7 @@ public class GameLoopManager : MonoBehaviour
         // TEST
 
         // yield return new WaitForSeconds(0.5f);
-        // yield return CardEffectsManager.instance.RollDice(new List<int>() {1, 2, 3, 4, 5, 6});
+        // yield return CardEffectsManager.instance.magic.Primal(new Vector3(0.0f, 1.0f, 0.0f), new Vector3(-6.22f, 1.0f, 0.08f), 2.0f);
 
 
 

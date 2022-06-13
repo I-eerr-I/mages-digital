@@ -17,9 +17,20 @@ public class MagicManager : MonoBehaviour
 
 
     GameObject _dark;
-    Transform  _darkStart;
-    Transform  _darkEnd;
+    ParticleSystem  _darkParticles;
+    GameObject _darkLight;
 
+    
+    GameObject _primal;
+    ParticleSystem _primalParticles;
+    Light _primalLight;
+
+
+    GameObject _elemental;
+    ParticleSystem _elementalParticles;
+
+    GameObject _illusion;
+    ParticleSystem _illusionParticles;
 
     
     void Awake()
@@ -36,9 +47,22 @@ public class MagicManager : MonoBehaviour
 
 
         _dark = transform.GetChild(1).gameObject;
-        Transform darkObject = _dark.transform.GetChild(0);
-        _darkStart = darkObject.GetChild(0);
-        _darkEnd   = darkObject.GetChild(1);
+        _darkParticles = _dark.transform.GetChild(0).gameObject.GetComponent<ParticleSystem>();
+        _darkParticles.Stop();
+        _darkLight     = _darkParticles.transform.GetChild(0).gameObject;
+
+        _primal = transform.GetChild(2).gameObject;
+        _primalParticles = _primal.GetComponentInChildren<ParticleSystem>();
+        _primalParticles.Stop();
+        _primalLight     = _primalParticles.gameObject.GetComponentInChildren<Light>();
+
+        _elemental = transform.GetChild(3).gameObject;
+        _elementalParticles = _elemental.GetComponentInChildren<ParticleSystem>();
+        _elementalParticles.Stop();
+
+        _illusion = transform.GetChild(4).gameObject;
+        _illusionParticles = _illusion.GetComponentInChildren<ParticleSystem>();
+        _illusionParticles.Stop();
     }
 
 
@@ -59,19 +83,82 @@ public class MagicManager : MonoBehaviour
     }
 
 
-    public IEnumerator Dark(Vector3 start, Vector3 end, float duration, float moveTime = 0.1f)
+    public IEnumerator Dark(Vector3 start, Vector3 end, float duration, float moveTime = 1f)
     {
-        // print("SETTING UP NEW ")
-        DarkSetup(start, end);
+        _darkParticles.Stop();
 
-        _dark.SetActive(true);
+        yield return new WaitUntil(() => _darkParticles.isStopped);
 
-        Shake(_darkEnd.gameObject, duration);
+        SetParticlesDuration(_darkParticles, duration);
 
-        yield return new WaitForSeconds(duration + 0.1f);
+        _dark.transform.position = start;
 
-        _dark.SetActive(false);
+        _darkLight.SetActive(true);
+
+        _darkParticles.Play();
+        iTween.MoveTo(_dark, iTween.Hash("position", end, "time", moveTime, "easetype", iTween.EaseType.easeInCubic));
+
+        yield return new WaitForSeconds(duration + 0.5f);
+
+        _darkLight.SetActive(false);
+
     }
+
+
+    public IEnumerator Primal(Vector3 start, Vector3 end, float duration, float moveTime = 1f)
+    {
+        _primalParticles.Stop();
+
+        yield return new WaitUntil(() => _primalParticles.isStopped);
+
+        SetParticlesDuration(_primalParticles, duration);
+        
+        _primal.transform.position = start;
+
+        _primalLight.enabled = true;
+        
+        _primalParticles.Play();
+        iTween.MoveTo(_primal, iTween.Hash("position", end, "time", moveTime, "easetype", iTween.EaseType.easeInCubic));
+
+        yield return new WaitForSeconds(duration + 1.0f);
+
+        _primalLight.enabled = false;
+    }
+
+    public IEnumerator Elemental(Vector3 start, Vector3 end, float duration, float moveTime = 1f)
+    {
+        _elementalParticles.Stop();
+
+        yield return new WaitUntil(() => _elementalParticles.isStopped);
+
+        SetParticlesDuration(_elementalParticles, duration);
+        
+        start.y += 0.5f;
+        _elemental.transform.position = start;
+        
+        
+        _elementalParticles.Play();
+        iTween.MoveTo(_elemental, iTween.Hash("position", end, "time", moveTime, "easetype", iTween.EaseType.easeOutElastic));
+
+        yield return new WaitForSeconds(duration + 1.0f);
+    }
+
+    public IEnumerator Illusion(Vector3 start, Vector3 end, float duration, float moveTime = 1f)
+    {
+        _illusionParticles.Stop();
+        yield return new WaitUntil(() => _illusionParticles.isStopped);
+
+        SetParticlesDuration(_illusionParticles, duration);
+
+        start.y += 0.5f;
+        _illusion.transform.position = start;
+
+        _illusionParticles.Play();
+        iTween.MoveTo(_illusion, iTween.Hash("position", end, "time", moveTime, "easetype", iTween.EaseType.linear));
+
+        yield return new WaitForSeconds(duration + 1.5f);
+    }
+
 
 
     void Shake(GameObject obj, float duration)
@@ -92,10 +179,10 @@ public class MagicManager : MonoBehaviour
         yield return new WaitForSeconds(moveTime);
     }
 
-    void DarkSetup(Vector3 start, Vector3 end)
+    void SetParticlesDuration(ParticleSystem particles, float duration)
     {
-        _darkStart.position = start;
-        _darkEnd.position   = end;
+        var main = particles.main;
+        main.duration = duration;
     }
 
 }
