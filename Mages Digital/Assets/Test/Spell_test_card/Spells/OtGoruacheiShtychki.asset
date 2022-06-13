@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: OtGoruacheiShtychki
   m_EditorClassIdentifier: 
   _front: {fileID: 0}
-  _cardName: 
-  _description: 
+  _cardName: "\u041E\u0442 \u0413\u043E\u0440\u044F\u0447\u0435\u0439 \u0428\u0442\u0443\u0447\u043A\u0438"
+  _description: "\u041D\u0430\u043D\u0435\u0441\u0438 3 \u0443\u0440\u043E\u043D\u0430
+    \u0441\u0430\u043C\u043E\u043C\u0443 \u0436\u0438\u0432\u0443\u0447\u0435\u043C\u0443
+    \u0432\u0440\u0430\u0433\u0443."
   _cardType: 0
-  _spell: 
+  _spell: OtGoruacheiShtychki
   _initiative: 0
   _order: 0
-  _sign: 0
+  _sign: 2
