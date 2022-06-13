@@ -1,3 +1,4 @@
+using Random = System.Random;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ public class GameManager : MonoBehaviour
     // синглтон объект
     private static GameManager _instance;
     public  static GameManager  instance => _instance;
+
+
+    public Random random = new Random();
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +188,8 @@ public class GameManager : MonoBehaviour
     public IEnumerator RoundStart()
     {
         SetNewState(GameState.ROUND_START);
+
+        _mages.ForEach(mage => mage.OnRoundStart());
 
         // мертвые маги берут одну карту дохлого мага
         yield return PassCardsToMages(deadMages.ToList(), deadsDeck, nCards: 1, autoNCardsToDraw: false);
@@ -370,12 +376,27 @@ public class GameManager : MonoBehaviour
         _magesOrder.AddRange(oneCardSpellsMages);
         _magesOrder.AddRange(twoCardSpellsMages);
         _magesOrder.AddRange(threeCardSpellsMages);
+
+        int currentNMages = _magesOrder.Count;
+        for (int i = 0; i < currentNMages; i++)
+        {
+            MageController mage = _magesOrder[i];
+
+
+            if (mage.nonNullSpell.Count(card => card.ownerGoesFirst) > 0)
+            {
+                mage.OnChangeOrder();
+                _magesOrder.RemoveAt(i);
+                _magesOrder.Insert(0, mage);
+            }
+        }
+
     }
 
     // вернуть магов с количеством карт заклинаний в спеле равным n
     List<MageController> GetSortedNCardsSpellsMages(List<MageController> mages, int n)
     {
-        List<MageController> nCardSpellsMages = mages.FindAll(mage => mage.nCardsInSpell == n);
+        List<MageController> nCardSpellsMages = mages.FindAll(mage => mage.nCardsInSpell == n).OrderBy(mage => random.Next()).ToList();
         nCardSpellsMages.Sort((mage1, mage2) => -mage1.spellInitiative.CompareTo(mage2.spellInitiative));
         return nCardSpellsMages;
     }

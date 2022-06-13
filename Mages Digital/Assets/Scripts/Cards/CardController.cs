@@ -38,7 +38,6 @@ public class CardController : MonoBehaviour
 
     #endregion
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,6 +66,7 @@ public class CardController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    bool _ownerGoesFirst      = false;
     bool _discoverable        = true;               // можно ли взаимодействовать с картой
     bool _isMouseOver         = false;              // находится ли курсор на карте
     float _mouseOverTime      = 0.0f;               // время, прошедшее с момента наведения на карту
@@ -97,8 +97,9 @@ public class CardController : MonoBehaviour
     public MageController owner      => _owner;
     public DeckController sourceDeck => _sourceDeck;
     
-    public bool  visible      => _visible;
-    public bool  discoverable => _discoverable;
+    public bool ownerGoesFirst => _ownerGoesFirst;
+    public bool  visible       => _visible;
+    public bool  discoverable  => _discoverable;
     public Order spellOrder
     {
         get => _spellOrder;
@@ -148,6 +149,9 @@ public class CardController : MonoBehaviour
     void Start()
     {
         SetVisible(_visible);
+
+        if (isSpell)
+            _ownerGoesFirst = GetSpellCard().spell == "Neterpeliviu";
     }
 
 
@@ -501,9 +505,39 @@ public class CardController : MonoBehaviour
     }
 
 
-    public IEnumerator OnDiceRoll(List<int> rolls)
+    public IEnumerator OnDiceRoll(List<int> rolls, bool showBonus = true)
     {
+        if (owner.bonusDice > 0 && showBonus)
+            owner.mageIcon.ShowInfoText($"+{owner.bonusDice}");
+
         yield return effects.RollDice(rolls);
+        if (showBonus)
+            owner.mageIcon.HideInfoText();
+    }
+
+    public IEnumerator OnRandomEnemy(MageController enemy)
+    {
+        yield return HighlightEnemies(5);
+
+        enemy.mageIcon.Highlight(true);
+        yield return new WaitForSeconds(0.5f);
+        enemy.mageIcon.Highlight(false);
+    }
+
+    public IEnumerator HighlightEnemies(int nTimes)
+    {
+        for (int i = 0; i < nTimes; i++)
+        {
+            List<MageController> mages = gm.aliveMages.OrderBy(mage => random.Next()).ToList();
+            foreach (MageController mage in mages)
+            {
+                if (mage == owner)
+                    continue;
+                mage.mageIcon.Highlight(true);
+                yield return new WaitForSeconds(0.1f);
+                mage.mageIcon.Highlight(false);
+            }   
+        }
     }
 
     public List<int> RollDice(int numberDice)
@@ -520,11 +554,13 @@ public class CardController : MonoBehaviour
 
     public int NumberDice(Sign sign)
     {
-        int numberDice = owner.bonusDice; // Кол-во кубиков
+        int numberDice = 0; // Кол-во кубиков
 
         // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
         List<CardController> currentSpell = owner.nonNullSpell.ToList();
         numberDice = currentSpell.Count(spellCard => spellCard.GetSpellCard().sign == sign);
+
+        numberDice += owner.bonusDice;
         
         return numberDice;
     }
@@ -535,6 +571,13 @@ public class CardController : MonoBehaviour
         target.TakeDamage(damage, this);
         yield return effects.Attack(transform.position, target.mageIcon.transform.position, this);
     } 
+
+    // Лечение мага (Жизни, Цель)
+    public IEnumerator HealToTarget(int healHp, MageController target)
+    {
+        target.Heal(healHp);
+        yield break;
+    }
 
     // Урон нескольким магам (Урон, Лист Целей)
     public IEnumerator DamageToTargets(int damage, List<MageController> listTargets)
@@ -625,6 +668,19 @@ public class CardController : MonoBehaviour
         List<MageController> magesWithOutOwner = gm.aliveMages.FindAll(mage => owner !=mage);
 
         return magesWithOutOwner;
+    }
+
+    // Увеличение урона от кол-ва одинаковых знаков (некоторые карты)
+    public int BuffDamageSign(Sign sign)
+    {
+        int buffDamage = 0; // Стартовое увеличение урона
+        // Цикл нахождения кол-ва одинаковых знаков карты заклинания => Увеличение урона
+        foreach (CardController spellCard in owner.nonNullSpell)
+        {
+            if(spellCard.GetSpellCard().sign == sign)
+                buffDamage+= 1;
+        }
+        return buffDamage;
     }
 
     // Забрать карту определенного порядка  
@@ -772,6 +828,506 @@ public class CardController : MonoBehaviour
         else                     {damage = 7;}
 
         yield return DamageToTargets(damage, FindTargets(TargetType.HIGH_HP));
+        yield break;
+    }
+
+    // Шарах Молнии
+    public IEnumerator SharahMolnuu()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        List<MageController> listTargets = new List<MageController>(); // Лист целей
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else                     {damage = 4;}
+
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
+
+        if (IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT).leftMage != owner)
+            listTargets.Add(owner.leftMage.leftMage);
+
+        yield return DamageToTargets(damage, listTargets);
+        yield break;
+    }
+
+    // Химерический Хохот
+    public IEnumerator HimericheskiuXoxot()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 3;}
+        else                     {damage = 4;}
+        
+        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT)); //Правый маг
+        yield break;
+    }
+
+    // Ядерный синтез
+    public IEnumerator YaderniuSintez()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        List<MageController> targets = FindTargets(TargetType.HIGH_HP);
+
+        int damageNeighbors = 0; // Урон соседям
+        
+        int damage = 0;
+        if      (resultDice <= 4)
+        {
+            damage = 1;
+            yield return DamageToTargets(damage, targets);
+        }
+        else if (resultDice <= 9)
+        {
+            damage = 3;
+            damageNeighbors = 1;
+            DamageToTargetsNeighbors(damage, damageNeighbors, targets);// Урон магу и его соседям справа и слева
+        }
+        else
+        {
+            damage = 5;
+            damageNeighbors = 1;
+            DamageToTargetsNeighbors(damage, damageNeighbors, targets);// Урон магу и его соседям справа и слева
+        }
+        
+        yield break;
+    }
+
+
+
+    // Кулак природы
+    public IEnumerator KylakPrirodi()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else                     {damage = 4;}
+
+        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT)); //Левый маг
+        yield break;
+    }
+
+    // Шалтай Разболтай
+    public IEnumerator  ShaltaiRazboltaui()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 3;}
+        else
+        {
+            damage = 5;
+            yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+
+        yield return DamageToTargets(damage, FindTargets(TargetType.LOW_HP));
+
+        yield break;
+    }
+
+    // Удар милосердия
+    public IEnumerator  YdarMiloserdiya()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 2;}
+        else if (resultDice <= 9){damage = 3;}
+        else                     {damage = 3;}
+
+        yield return DamageToTargets(damage, FindTargets(TargetType.LOW_HP));
+
+        yield break;
+    }
+
+    // Змеиный жор
+    public IEnumerator  ZmeinuiJor()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        List<MageController> listTargets = new List<MageController>(); // Лист целей
+        
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 2;}
+        else                     {damage = 2 * BuffDamageSign(GetSpellCard().sign);}// Увеличение урона на кол-во знаков травы(для этой карты)
+
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage,  POSITION_LEFT));
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+
+        yield return DamageToTargets(damage, listTargets);
+
+        yield break;
+    }
+
+    // Нетерпеливый
+    // Начинать ход первым
+    // Проверка во время определения очередности хода игроков
+    public IEnumerator  Neterpeliviu()
+    {
+        yield return DamageToTargets(1, AllEnemies());
+
+        yield break;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Котострофический
+    public IEnumerator  Kotostroficheskiu()
+    {
+        // Словарь маг key бросок value
+        Dictionary<MageController, int> magesAndRolls = new Dictionary<MageController, int>();
+
+        int numberDice = 1; // кол-во кубиков
+        
+        foreach (MageController mage in gm.aliveMages)
+        {
+            
+            mage.mageIcon.Highlight(true);
+
+            List<int> rolls = RollDice(numberDice); // Бросок кубика 
+            
+            yield return OnDiceRoll(rolls, showBonus: false);
+            int resultDice = rolls.Sum();
+
+            string resultDiceText = resultDice.ToString();
+
+            if( mage == owner )
+            {
+                resultDice += 2;// Если цель владелец, +2 к результату
+                resultDiceText += " +2";
+            }
+
+            mage.mageIcon.ShowInfoText(resultDiceText);
+
+            magesAndRolls.Add(mage, resultDice); 
+
+            mage.mageIcon.Highlight(false);
+        }
+
+        var maxValue = magesAndRolls.Values.Max();// Нахождение максимального броска
+
+        foreach (var mageRoll in magesAndRolls)
+        {
+            MageController mage = mageRoll.Key;
+            if( mageRoll.Value == maxValue )
+            {
+                mage.mageIcon.Highlight(true);
+                
+                // Если маг выкинул максимальное число, получает сокровище
+                yield return gm.treasuresDeck.PassCardsTo(mage, 1);
+
+                mage.mageIcon.Highlight(false);
+            }
+            else
+            {
+                // Остальные получают урон = броску
+                yield return DamageToTarget(mageRoll.Value, mageRoll.Key);
+            }
+
+            mage.mageIcon.HideInfoText();
+        }
+        yield break;
+    }
+
+    //Мозголомный
+    public IEnumerator  Mozgolomniu()
+    {
+        // Урон
+        int damage = 3;
+        
+        // Выбираем случайного врага
+        MageController randomEnemy = FindTargets(TargetType.RANDOM)[0];
+        yield return OnRandomEnemy(randomEnemy);
+        
+        // Наносим урон
+        yield return DamageToTarget(damage, randomEnemy);
+        
+        // Берем сокровище для себя и случайного врага
+        yield return gm.treasuresDeck.PassCardsTo(owner, 1);
+        yield return gm.treasuresDeck.PassCardsTo(randomEnemy, 1);
+        
+        yield break;
+    }
+
+
+
+
+
+    //Шипастый
+    public IEnumerator Shipastui()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        int damage = 0;
+        int healHp = 0;
+        if      (resultDice <= 4){damage = 1; healHp = 0;}
+        else if (resultDice <= 9){damage = 1; healHp = 1;}
+        else                     {damage = 3; healHp = 3;}
+
+        yield return HealToTarget(healHp, owner);
+        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+        
+        yield break;
+    }
+
+    // Загнивающий
+    // Убрать из списка сходивших магов
+    // Нужна функция сбрасывания Quality у таргетов
+    public IEnumerator Zagnivaushui()
+    {
+        // Убрать с листа сходивших магов 
+        List<MageController> targets = FindTargets(TargetType.HIGH_HP).FindAll(mage => !mage.spellsAreExecuted);
+        
+        targets.ForEach(mage => mage.DropSpellOfOrder(Order.QUALITY));
+        
+        yield break;
+    }
+
+    //Каменючный
+    public IEnumerator Kamenuchnui()
+    {
+        MageController target = owner.leftMage; // Берем левого врага у владельца
+
+        int damage = 1;
+
+        while (target != owner)// Пока цель не владелец
+        {
+            if (!target.isDead)// Если враг не умер
+            {
+                yield return DamageToTarget(damage, target);
+                damage++;
+            }
+            target = target.leftMage; // Берем следующего левого мага
+        }
+        yield break;
+    }
+
+    //От старого Жгуна
+    public IEnumerator  OtStarogoJgyna()
+    {
+        List<int> rolls = RollDice(1); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        if(resultDice <= 3)
+        {
+            yield return DamageToTarget(resultDice, owner); // Урон владельцу сколько выпало
+        }
+        else
+        {
+            yield return HealToTarget(resultDice, owner); // Лечение владельцу, сколько выпало
+        }
+
+        yield break;
+    }
+
+    // От Короля Оберона
+    public IEnumerator  OtKoroluaOberona()
+    {
+        yield return HealToTarget(2, owner);
+        
+        yield break;
+    }
+
+
+
+
+    // Кубический
+    public IEnumerator  Kybicheskui()
+    {
+        // Словарь маг key бросок value
+        Dictionary<MageController, int> magesAndRolls = new Dictionary<MageController, int>();
+
+        int numberDice = 1; // кол-во кубиков
+
+        owner.mageIcon.Highlight(true);
+
+        List<int> rolls       = RollDice(numberDice); // Бросок кубика 
+        yield return OnDiceRoll(rolls, showBonus: false);
+        int firstResultOwner  = rolls.Sum();          // Результат первого кубика владельца
+
+        owner.mageIcon.ShowInfoText($"{firstResultOwner}");
+
+        rolls = RollDice(numberDice);
+        yield return OnDiceRoll(rolls, showBonus: false);
+        int secondResultOwner = rolls.Sum(); // Результат второго кубика владельца
+
+        owner.mageIcon.ShowInfoText($"{firstResultOwner} + {secondResultOwner}");
+
+        owner.mageIcon.Highlight(false);
+
+        foreach (MageController mage in AllEnemies())
+        {
+            mage.mageIcon.Highlight(true);
+            
+            rolls = RollDice(numberDice);
+            yield return OnDiceRoll(rolls, showBonus: false);
+            int resultDice = rolls.Sum();
+            magesAndRolls.Add(mage, resultDice); // Каждый маг кидает кубик
+
+            mage.mageIcon.ShowInfoText(resultDice.ToString());
+
+            mage.mageIcon.Highlight(false);
+        }
+
+        foreach (var mageRoll in magesAndRolls)
+        {
+            MageController mage = mageRoll.Key;
+            int mageDice = mageRoll.Value;
+
+
+            // Если совпало с 1 кубиком, получает урон = броску
+            if( mageDice == firstResultOwner || mageDice == secondResultOwner)
+            {
+                yield return DamageToTarget(mageDice, mage); 
+            }
+
+            mage.mageIcon.HideInfoText();
+        }
+
+        owner.mageIcon.HideInfoText();
+
+        yield break;
+    }
+
+
+
+
+
+    // Отборный
+    public IEnumerator  Otbornui()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9)
+        {
+            damage = 2;
+            yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+        else
+        {
+            damage = 5;
+            yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        }
+
+        yield return DamageToTargets(damage, FindTargets(TargetType.HIGH_HP));
+
+        yield break;
+    }
+
+    // Качковый
+    // Недописанная карта
+    // Нет добавления случайно карты к своему заклинанию
+    public IEnumerator  Kachkovui()
+    {
+        int healHp = 2;
+        yield return HealToTarget(healHp, owner);
+
+        List<MageController> allMages = gm.aliveMages.ToList();
+        allMages.Sort((mage1, mage2) => mage1.health.CompareTo(mage2.health)); // Нахождение самого хилого мага
+
+        int minHp = allMages[0].health; // Сохранение его здоровья
+
+        if(owner.health == minHp)
+        {
+            // Добавить случайную карту к своему заклинанию
+            List<CardController> spellsInHand = owner.GetSpellsInHand();
+            int randomCardIndex = random.Next(spellsInHand.Count);
+            CardController card = spellsInHand[randomCardIndex];
+            yield return owner.AppendToSpell(card);
+        }
+        
+        yield break;
+    }
+
+
+
+
+    // От Сера Кладомота
+    public IEnumerator  OtSeraKladomota()
+    {
+        int numberDice = 1; // кол-во кубиков
+        int necessaryResult = 6; // Необходимый результат чтоб получить сокровище
+
+        yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
+        
+        foreach(MageController mage in AllEnemies())
+        {
+            mage.mageIcon.Highlight(true);
+
+            List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+            yield return OnDiceRoll(rolls, showBonus: false);
+            int resultDice = rolls.Sum();
+
+
+            if (resultDice == necessaryResult)
+                yield return gm.treasuresDeck.PassCardsTo(mage, 1);
+
+            mage.mageIcon.Highlight(false);
+        }
+
+        yield break;
+    }
+
+
+
+
+
+    // От Мордоеда
+    // Недописанная карта
+    // Скопировать решение у карты дохлый колдун
+    public IEnumerator  OtMordoeda()
+    {
+        owner.bonusDice += 1;
+
+        owner.mageIcon.ShowInfoText($"+1");
+
+        yield return new WaitForSeconds(1.5f);
+
+        owner.mageIcon.HideInfoText();
+
         yield break;
     }
 

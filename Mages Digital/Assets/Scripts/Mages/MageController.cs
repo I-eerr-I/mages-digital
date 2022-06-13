@@ -14,7 +14,9 @@ public class MageController : MonoBehaviour
     [Header("Статус")]
     [SerializeField] int _health    = 20;   // здоровье мага
     [SerializeField] int _medals    = 0;    // количество медалей недобитого колдуна
-    [SerializeField] int _bonusDice = 0;    // бонусные кубики к броскам
+
+    [Header("Действия заклинаний")]
+    [SerializeField] int  _bonusDice = 0;    // бонусные кубики к броскам
     
     [Header("Рука")]
     [SerializeField] List<CardController> _treasures  = new List<CardController>(); // рука мага
@@ -55,7 +57,6 @@ public class MageController : MonoBehaviour
     public Mage mage              => _mage;
     public int  health            => _health;
     public int  medals            => _medals;
-    public int  bonusDice         => _bonusDice;
     public bool spellsAreExecuted => _spellsAreExecuted;
     public bool readyToExecute    => _readyToExecute;
 
@@ -72,7 +73,12 @@ public class MageController : MonoBehaviour
     public List<CardController> wildMagics => _wildMagics;
 
     public List<CardController> spell      => _spell;
-    
+
+    public int  bonusDice 
+    {
+        get => _bonusDice;
+        set => _bonusDice = value;
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -277,6 +283,27 @@ public class MageController : MonoBehaviour
             StartCoroutine(owner.OnSpellDrop());
     }
 
+    public void DropSpellOfOrder(Order order)
+    {
+        List<CardController> spellCopy = new List<CardController>(_spell);
+        for (int i = 0; i < spellCopy.Count; i++)
+        {
+            CardController card = spellCopy[i];
+            if (card != null)
+            {
+                if (card.GetSpellCard()?.order == order || card.spellOrder == order)
+                {
+                    spellCopy[i] = null;
+                    card.SetVisible(true);
+                    card.ToFold();
+                    if (!ownerIsBot)
+                        StartCoroutine(owner.HideSpellFromAll());
+                }
+            }
+        }
+        _spell = spellCopy;
+    }
+
     // подготовить мага к выполнению заклинания
     public void ReadyToExecute()
     {
@@ -414,6 +441,7 @@ public class MageController : MonoBehaviour
     public void Heal(int heal)
     {
         _health = Mathf.Clamp(_health + heal, 0, _healthMax);
+        StartCoroutine(_mageIcon.OnHeal());
     }
 
     // реакция на победу в турнире
@@ -430,13 +458,23 @@ public class MageController : MonoBehaviour
         _mageIcon.OnTakeDamage();
     }
 
+    public void OnRoundStart()
+    {
+        _bonusDice = 0;
+    }
+
     // выставить начальные для турнира параметры
     public void ResetMage()
     {
-        _health = _startHealth;
+        _health    = _startHealth;
         _mageIcon.OnReset();
         if (!ownerIsBot)
             _owner.OnMageReset();
+    }
+
+    public void OnChangeOrder()
+    {
+        StartCoroutine(_mageIcon.OnChangeOrder());
     }
 
 

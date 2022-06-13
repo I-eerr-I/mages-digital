@@ -28,13 +28,16 @@ public class MageIconController : MonoBehaviour
     [SerializeField] GameObject _medalsObject;
     [SerializeField] GameObject _iconObject;    
     [SerializeField] GameObject _initiativeObject;
+    [SerializeField] GameObject _infoObject;
     [SerializeField] Transform  _attackReactions;
+    [SerializeField] Transform  _otherReactions;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     bool  _discoverable     = true;
+    bool  _highlighted      = false;
     float _mouseOverTime    = 0.0f;
     int   _mouseDownClicked = 0;
     int   _damageHitClicks  = 25;
@@ -60,6 +63,9 @@ public class MageIconController : MonoBehaviour
     ParticleSystem _elementalReaction;
     ParticleSystem _illusionReaction;
 
+    ParticleSystem _runicReaction;
+    ParticleSystem _healReaction;
+
     SpriteRenderer _healthOutline;
     TextMeshPro    _healthText;
 
@@ -71,6 +77,8 @@ public class MageIconController : MonoBehaviour
 
     TextMeshPro    _initiativeText;
     ParticleSystem _initiativeParticles;
+
+    TextMeshPro _infoText;
     
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,11 +128,17 @@ public class MageIconController : MonoBehaviour
         _initiativeText.gameObject.SetActive(false);
         _initiativeParticles = _initiativeObject.GetComponentInChildren<ParticleSystem>();
 
+        _infoText = _infoObject.GetComponentInChildren<TextMeshPro>();
+        _infoText.gameObject.SetActive(false);
+
         _arcaneReaction    = _attackReactions.GetChild(0).gameObject.GetComponent<ParticleSystem>();
         _darkReaction      = _attackReactions.GetChild(1).gameObject.GetComponent<ParticleSystem>();
         _elementalReaction = _attackReactions.GetChild(2).gameObject.GetComponent<ParticleSystem>();
         _illusionReaction  = _attackReactions.GetChild(3).gameObject.GetComponent<ParticleSystem>();
 
+
+        _runicReaction = _otherReactions.GetChild(0).gameObject.GetComponent<ParticleSystem>();
+        _healReaction  = _otherReactions.GetChild(1).gameObject.GetComponent<ParticleSystem>();
 
         InitializeMouseDownActions();
     }
@@ -184,7 +198,7 @@ public class MageIconController : MonoBehaviour
 
     IEnumerator OnMouseDown()
     {
-        if (_discoverable && !_mage.ownerIsBot)
+        if (_discoverable && !_highlighted && !_mage.ownerIsBot)
         {
             _mouseDownClicked++;
 
@@ -213,10 +227,13 @@ public class MageIconController : MonoBehaviour
 
     void OnMouseOver()
     {
-        if (!_mage.isDead)
-            OnHover();
-        else
-            OnHoverDead();
+        if (!_highlighted)
+        {
+            if (!_mage.isDead)
+                OnHover();
+            else
+                OnHoverDead();
+        }
         ShowMageInfo();
     }
 
@@ -227,10 +244,13 @@ public class MageIconController : MonoBehaviour
             _mouseDownClicked = 0;
         else
             _mouseDownClicked = _damageHitClicks + 1;
-        if (!_mage.isDead)
-            OnHoverExit();
-        else
-            OnHoverExitDead();
+        if (!_highlighted)
+        {
+            if (!_mage.isDead)
+                OnHoverExit();
+            else
+                OnHoverExitDead();
+        }
         HideMageInfo();
     }
 
@@ -277,14 +297,30 @@ public class MageIconController : MonoBehaviour
     {
         _initiativeParticles.Play();
 
-        _initiativeText.gameObject.SetActive(true);
-        _initiativeText.text = _mage.spellInitiative.ToString();
+        ShowInitiativeText(_mage.spellInitiative.ToString());
     }
-
 
     public void HideInitiative()
     {
         _initiativeText.gameObject.SetActive(false);
+    }
+
+    public void ShowInitiativeText(string text)
+    {
+        _initiativeText.gameObject.SetActive(true);
+        _initiativeText.text = text;
+    }
+
+    public void ShowInfoText(string text)
+    {
+        _infoText.gameObject.SetActive(true);
+        _infoText.text = text;
+    }
+
+    public void HideInfoText()
+    {
+        _infoText.text = "";
+        _infoText.gameObject.SetActive(false);
     }
 
     public void ShowMageInfo()
@@ -301,6 +337,25 @@ public class MageIconController : MonoBehaviour
         UIManager.instance.ShowMageInfo(_mage, false);
     }
 
+    public void Highlight(bool highlight)
+    {
+        _highlighted = highlight;
+        if (highlight)
+        {
+            SetUndiscoverable();
+            SetIconSettings(iconHoverColor);
+            SetOutlineSettings(Color.white);
+            SetHaloSettings(Color.white, haloHoverRange);
+        }
+        else
+        {
+            SetDiscoverable();
+            SetIconSettings(iconColor);
+            SetOutlineSettings(mainColor);
+            SetHaloSettings(haloColor, haloRange);
+        }
+    }
+
 
     public IEnumerator OnTakeDamage(CardController damageSource = null)
     {
@@ -312,6 +367,20 @@ public class MageIconController : MonoBehaviour
         {
             Shake();
         }
+    }
+
+    public IEnumerator OnHeal()
+    {
+        _healReaction.Stop();
+        _healReaction.Play();
+        yield break;
+    }
+
+    public IEnumerator OnChangeOrder()
+    {
+        _runicReaction.Stop();
+        _runicReaction.Play();
+        yield break;
     }
 
     public void OnDeath()
@@ -379,7 +448,7 @@ public class MageIconController : MonoBehaviour
                 iconReaction = () =>
                 {
                     Shake();
-                    IconColorReaction(Color.black);
+                    IconColorReaction(Color.red);
                 };
                 break;
             

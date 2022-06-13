@@ -84,7 +84,7 @@ public class CardEffectsManager : MonoBehaviour
         float moveDownTime   = 1.5f;
         float shakeTime      = 1.0f;
         float shakeTimeDelta = 0.2f;
-        float waitTime       = 3.5f;
+        float waitTime       = 2.5f;
 
 
         float x = -(deltaX * (nDice-1)) / 2;
