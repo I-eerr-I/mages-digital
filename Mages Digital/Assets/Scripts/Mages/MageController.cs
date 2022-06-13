@@ -17,6 +17,7 @@ public class MageController : MonoBehaviour
 
     [Header("Действия заклинаний")]
     [SerializeField] int  _bonusDice = 0;    // бонусные кубики к броскам
+    [SerializeField] bool _isWildMagicInSpell = false;
     
     [Header("Рука")]
     [SerializeField] List<CardController> _treasures  = new List<CardController>(); // рука мага
@@ -79,6 +80,7 @@ public class MageController : MonoBehaviour
         get => _bonusDice;
         set => _bonusDice = value;
     }
+    public bool isWildMagicInSpell => _isWildMagicInSpell;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -224,6 +226,17 @@ public class MageController : MonoBehaviour
 
         // замена шальной магии
         List<CardController> spellWildMagics = nonNullSpell.Where(card => card.GetSpellCard().order == Order.WILDMAGIC).ToList();
+        foreach (CardController wildMagic in spellWildMagics)
+        {
+            yield return wildMagic.Highlight(true);
+            yield return GameManager.instance.spellsDeck.ReplaceWildMagic(wildMagic);
+            yield return wildMagic.Highlight(false);
+
+            _isWildMagicInSpell = true;
+        }
+
+        if (spellWildMagics.Count > 0)
+            spellWildMagics.ForEach(wildMagic => Destroy(wildMagic.gameObject));
         
         // выполнение спелов карт
         List<CardController> currentNonNullSpell = new List<CardController>(nonNullSpell);
@@ -235,25 +248,18 @@ public class MageController : MonoBehaviour
             if (isDead) break;
         }
         
-
-        if (spellWildMagics.Count > 0)
-            spellWildMagics.ForEach(wildMagic => Destroy(wildMagic.gameObject));
-        
         UnreadyToExecute();
         
         if (!isDead)
             yield return owner.HideSpellFromAll();
+        
+        _isWildMagicInSpell = false;
     }
 
     public IEnumerator OneSpellCardExecution(CardController card)
     {
         yield return card.Highlight(true);
-
-        if (card.GetSpellCard().order == Order.WILDMAGIC)
-        yield return GameManager.instance.spellsDeck.ReplaceWildMagic(card);
-
         yield return card.ExecuteSpell();
-
         yield return card.Highlight(false);
     }
 
@@ -351,6 +357,17 @@ public class MageController : MonoBehaviour
         bonusCards.AddRange(_treasures);
         bonusCards.AddRange(_deads);
         return bonusCards;
+    }
+
+    public List<CardController> GetCardsOfOrderInSpell(Order order)
+    {
+        List<CardController> cards = new List<CardController>();
+        foreach (CardController card in nonNullSpell)
+        {
+            if (card.GetSpellCard()?.order == order || card.spellOrder == order)
+                cards.Add(card);
+        }
+        return cards;
     }
 
     // вернуть список трех бонусных карт для вывода информации о них на экране
@@ -461,6 +478,7 @@ public class MageController : MonoBehaviour
     public void OnRoundStart()
     {
         _bonusDice = 0;
+        _isWildMagicInSpell = false;
     }
 
     // выставить начальные для турнира параметры
