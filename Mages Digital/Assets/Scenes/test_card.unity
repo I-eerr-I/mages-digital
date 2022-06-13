@@ -444,7 +444,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32224b2414d57474c80adcd3edfbdf92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _health: 17
+  _health: 20
   _treasures: []
   _deads: []
   _sources: []
@@ -766,7 +766,7 @@ PrefabInstance:
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _card
       value: 
-      objectReference: {fileID: 11400000, guid: 15ce127cbc84c9546967a1936218c06e, type: 2}
+      objectReference: {fileID: 11400000, guid: 974e8bde80a0ba94cadc579c9b5b08be, type: 2}
     - target: {fileID: -7851389152889966788, guid: aab55754ff6d9be4baa0c944e62c9155, type: 3}
       propertyPath: _owner
       value: 
