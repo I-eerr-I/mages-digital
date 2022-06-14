@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IBonusCardController : ICardController
+public class BonusCardController : CardController
 {
     
     int _bonusInfoIndexOffset = 0;                  // нужна для перебора карт сокровищ при наведении на них

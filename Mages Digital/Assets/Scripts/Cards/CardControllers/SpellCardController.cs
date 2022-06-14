@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using CardsToolKit;
 
-public class ISpellCardController : ICardController
+public class SpellCardController : CardController
 {
 
     // словарь для получения цвета подсветки карты в зависимости от порядка в заклинании
@@ -20,7 +20,6 @@ public class ISpellCardController : ICardController
     public const string POSITION_RIGHT = "right"; // Позиция справа
 
     bool _ownerGoesFirst      = false;
-    bool _discoverable        = true;               // можно ли взаимодействовать с картой
 
     Order _spellOrder         = Order.WILDMAGIC;    // порядок в заклинании (нужен для шальной магии)
 
@@ -62,16 +61,16 @@ public class ISpellCardController : ICardController
 
     void AddToSpell()
     {
-        // if (order == Order.WILDMAGIC)
-            // StartCoroutine(owner.AddWildMagicToSpell(this)); UNCOMMENT
-        // else
-            // StartCoroutine(owner.AddToSpell(this, order)); UNCOMMENT
+        if (order == Order.WILDMAGIC)
+            StartCoroutine(owner.AddWildMagicToSpell(this));
+        else
+            StartCoroutine(owner.AddToSpell(this, order));
     }
 
     // вернуть карту в руку из заклинания
     void BackToHand()
     {
-        // StartCoroutine(owner.SpellCardBackToHand(this, spellOrder)); UNCOMMENT
+        StartCoroutine(owner.SpellCardBackToHand(this, spellOrder));
     }
 
     public override void OnMouseOverAction()
@@ -105,15 +104,15 @@ public class ISpellCardController : ICardController
     protected override void ShowCardInfo()
     {
         _mouseOverTime += Time.deltaTime;
-        // if (_mouseOverTime >= _cardShowInfoWaitTime)
-            // UIManager.instance.ShowCardInfo(this, true); UNCOMMENT
+        if (_mouseOverTime >= _cardShowInfoWaitTime)
+            UIManager.instance.ShowCardInfo(this, true);
     }
 
     // спрятать информацию о карте
     protected override void HideCardInfo()
     {
         _mouseOverTime = 0.0f;
-        // UIManager.instance.ShowCardInfo(this, false); UNCOMMENT
+        UIManager.instance.ShowCardInfo(this, false);
     }
 
 
@@ -710,9 +709,9 @@ public class ISpellCardController : ICardController
         if(owner.health == minHp)
         {
             // Добавить случайную карту к своему заклинанию
-            List<CardController> spellsInHand = owner.GetSpellsInHand();
+            List<SpellCardController> spellsInHand = new List<SpellCardController>(owner.GetSpellsInHand());
             int randomCardIndex = random.Next(spellsInHand.Count);
-            CardController card = spellsInHand[randomCardIndex];
+            SpellCardController card = spellsInHand[randomCardIndex];
             yield return owner.AppendToSpell(card);
         }
         
@@ -839,7 +838,7 @@ public class ISpellCardController : ICardController
     // От Брадострела
     public IEnumerator  OtBradostrela()
     {
-        List<CardController> deliveries = owner.GetCardsOfOrderInSpell(Order.DELIVERY);
+        List<SpellCardController> deliveries = owner.GetCardsOfOrderInSpell(Order.DELIVERY);
         
         foreach (CardController card in deliveries)
         {

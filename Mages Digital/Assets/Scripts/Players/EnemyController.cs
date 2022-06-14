@@ -159,7 +159,7 @@ public class EnemyController : AbstractPlayerController
     {
         _state = EnemyState.CREATING_SPELL;
 
-        List<CardController> randomSpell = new List<CardController>();
+        List<SpellCardController> randomSpell = new List<SpellCardController>();
         List<Order> spellOrders = new List<Order>();
 
         if (_mage.nSpellsInHand > 0)
@@ -170,12 +170,12 @@ public class EnemyController : AbstractPlayerController
             // взять по случайной карте каждого типа, не считая дикую магию
             foreach (Order order in new List<Order> { Order.SOURCE, Order.QUALITY, Order.DELIVERY })
             {
-                List<CardController> hand = _mage.GetSpellHandOfOrder(order);
+                List<SpellCardController> hand = _mage.GetSpellHandOfOrder(order);
                 
                 if (hand.Count > 0)
                 {
                     int randomCardIndex = random.Next(hand.Count);
-                    CardController randomSpellCard = hand[randomCardIndex];
+                    SpellCardController randomSpellCard = hand[randomCardIndex];
                     randomSpell.Add(randomSpellCard);
                     spellOrders.Add(randomSpellCard.GetSpellCard().order);
                 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using CardsToolKit;
 using UnityEngine;
 
-public abstract class ICardController : MonoBehaviour
+public abstract class CardController : MonoBehaviour
 {
     public Random random = new Random();
 
@@ -61,6 +61,8 @@ public abstract class ICardController : MonoBehaviour
     public CardEffectsManager effects => CardEffectsManager.instance;
 
     public CardType cardType     => _card.cardType;
+
+    public bool  isSpell         => this is SpellCardController;
     public bool  inHand          => cardState == CardState.IN_HAND;     // находится ли карта в руке
     public bool  inSpell         => cardState == CardState.IN_SPELL;    // находится ли карта в заклинании
     public bool  withOwner       => cardState != CardState.NO_OWNER;    // есть ли у карты владелец
@@ -93,14 +95,27 @@ public abstract class ICardController : MonoBehaviour
     {
         if (withOwner)
         {
-            // owner.RemoveCard(this); UNCOMMENT
+            owner.RemoveCard(this);
             RemoveOwner();
         }
         if (_sourceDeck != null) 
-            // _sourceDeck.AddCardToFold(this); UNCOMMENT
+            _sourceDeck.AddCardToFold(this);
         StartCoroutine(FlyOutAndDestroy(destroy: destroy));
     }
 
+    public SpellCardController GetSpellCard()
+    {
+        if (this is SpellCardController)
+            return (SpellCardController) this;
+        return null;
+    }
+
+    public BonusCardController GetBonusCard()
+    {
+        if (this is BonusCardController)
+            return (BonusCardController) this;
+        return null;
+    }
 
     // вылет карты за экран и уничтожение
     protected IEnumerator FlyOutAndDestroy(bool destroy = true)
@@ -342,7 +357,7 @@ public abstract class ICardController : MonoBehaviour
         int numberDice = 0; // Кол-во кубиков
 
         // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
-        List<CardController> currentSpell = owner.nonNullSpell.ToList();
+        List<SpellCardController> currentSpell = owner.nonNullSpell.ToList();
         numberDice = currentSpell.Count(spellCard => spellCard.GetSpellCard().sign == sign);
 
         numberDice += owner.bonusDice;

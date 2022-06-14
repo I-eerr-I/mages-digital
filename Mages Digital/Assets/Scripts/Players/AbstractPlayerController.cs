@@ -72,7 +72,7 @@ public abstract class AbstractPlayerController : MonoBehaviour
     // вернуть объект, к которому присоеденить карту в руке
     protected void SetCardHandParent(CardController card)
     {
-        if (card.isSpell)
+        if (card is SpellCardController)
             card.transform.SetParent(_handLocation);
         else
             card.transform.SetParent(_bonusLocation);

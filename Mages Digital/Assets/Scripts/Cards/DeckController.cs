@@ -134,14 +134,14 @@ public class DeckController : MonoBehaviour
     }
 
     // заменить шальную магию в заклинании
-    public IEnumerator ReplaceWildMagic(CardController wildMagic)
+    public IEnumerator ReplaceWildMagic(SpellCardController wildMagic)
     {
         // показать колоду со свдигом вверх
         yield return Hide(false, GameManager.instance.spellGroupLocation.position.y);
 
-        Order order                = wildMagic.spellOrder;
-        MageController owner       = wildMagic.owner;
-        CardController replaceCard = null;
+        Order order                     = wildMagic.spellOrder;
+        MageController owner            = wildMagic.owner;
+        SpellCardController replaceCard = null;
 
         List<CardController> cardsToFold = new List<CardController>();
         
@@ -163,7 +163,7 @@ public class DeckController : MonoBehaviour
             
             SpellCard spellCard = (SpellCard) card;
             if (spellCard.order == order)           // если карта на замену найдена
-                replaceCard = cardController;       // сохранить ее
+                replaceCard = (SpellCardController) cardController;       // сохранить ее
             else                                    // иначе
                 cardsToFold.Add(cardController);    // добавить в список карт для сброса
         }
@@ -225,7 +225,11 @@ public class DeckController : MonoBehaviour
     CardController SpawnCard(Card card)
     {
         // создание и настройка объекта карты
-        GameObject cardObject         = Instantiate(GameManager.instance.cardPrefab, GameManager.instance.fieldCenter);
+        GameObject cardObject;
+        if (cardsType == CardType.SPELL)
+            cardObject = Instantiate(GameManager.instance.spellCardPrefab, GameManager.instance.fieldCenter);
+        else
+            cardObject = Instantiate(GameManager.instance.bonusCardPrefab, GameManager.instance.fieldCenter);
         cardObject.name               = card.spell;
         cardObject.transform.position = transform.position;
         

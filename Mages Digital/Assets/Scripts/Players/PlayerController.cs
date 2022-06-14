@@ -93,7 +93,7 @@ public class PlayerController : AbstractPlayerController
 
         Vector3 position = GetHandPositionVector(_bonusesStartX);
 
-        if (!card.isSpell)
+        if (!(card is SpellCardController))
             iTween.MoveTo(card.gameObject, iTween.Hash("position", position, "time", _bonusCardMovingToHandTime, "islocal", true));
         else
             yield return FitSpellCardsInHand();
@@ -231,7 +231,7 @@ public class PlayerController : AbstractPlayerController
     // выровнять карты заклинаний в руке
     IEnumerator FitSpellCardsInHand()
     {
-        List<CardController> spellCards = _mage.GetSpellsInHand();
+        List<SpellCardController> spellCards = _mage.GetSpellsInHand();
         float step    = (_spellsRightMaxX * 2.0f) / (spellCards.Count + 1);
         float rotStep = (_spellsRotLeftMaxZ * 2.0f) / (spellCards.Count + 1);
         float x      = -_spellsRightMaxX + step;
@@ -239,7 +239,7 @@ public class PlayerController : AbstractPlayerController
         float rotZ   = _spellsRotLeftMaxZ - rotStep;
         for (int i = 0; i < spellCards.Count; i++)
         {
-            CardController card = spellCards[i];
+            SpellCardController card = spellCards[i];
 
             card.transform.SetSiblingIndex(i);
             card.frontSpriteRenderer.sortingOrder = i;
@@ -264,7 +264,7 @@ public class PlayerController : AbstractPlayerController
     // анимация готовности карт заклинания
     IEnumerator LockSpell()
     {
-        foreach (CardController spellCard in _mage.nonNullSpell)
+        foreach (SpellCardController spellCard in _mage.nonNullSpell)
         {
             Hashtable hashtable = new Hashtable();
             hashtable.Add("time", _spellUpTime);
@@ -279,7 +279,7 @@ public class PlayerController : AbstractPlayerController
 
         yield return new WaitForSeconds(_spellUpTime);
 
-        foreach (CardController spellCard in _mage.nonNullSpell)
+        foreach (SpellCardController spellCard in _mage.nonNullSpell)
         {
             Hashtable hashtable = new Hashtable();
             hashtable.Add("time", _spellDownTime);

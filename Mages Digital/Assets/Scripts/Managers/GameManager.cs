@@ -22,7 +22,8 @@ public class GameManager : MonoBehaviour
 
 
     [Header("Префабы")]
-    [SerializeField] GameObject _cardPrefab;    // префаб карты
+    [SerializeField] GameObject _spellCardPrefab;    // префаб карты
+    [SerializeField] GameObject _bonusCardPrefab;
     [SerializeField] GameObject _medalPrefab;   // префаб медали недобитого колдуна
     [SerializeField] GameObject _mageOrderIcon; // иконка для отображения хода мага
 
@@ -106,7 +107,8 @@ public class GameManager : MonoBehaviour
     public DeckController    treasuresDeck => _treasuresDeck;
     public GameState             gameState => _gameState;
     public GameState         prevGameState => _prevGameState;
-    public GameObject           cardPrefab => _cardPrefab;
+    public GameObject      spellCardPrefab => _spellCardPrefab;
+    public GameObject      bonusCardPrefab => _bonusCardPrefab;
     public Transform           fieldCenter => _fieldCenter;
     public Transform         spellLocation => _spellLocation;
     public Transform        sourceLocation => _sourceLocation;
