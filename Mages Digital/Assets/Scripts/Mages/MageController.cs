@@ -206,6 +206,7 @@ public class MageController : MonoBehaviour
     public IEnumerator AppendToSpell(CardController card)
     {
         card.SetStateToInSpell();
+        RemoveCard(card, removeOwner: false);
         _spell.Add(card);
         yield return owner.ShowSpellToAll();
     }
@@ -292,9 +293,9 @@ public class MageController : MonoBehaviour
 
     public IEnumerator ChooseAndDropTreasure(bool hasChoiceNotToDrop = false)
     {
+        chosenCard = null;
         if (treasures.Count > 0)
         {
-            chosenCard = null;
             yield return _owner.ChooseTreasure(hasChoiceNotToDrop);
             if (chosenCard != null)
                 DropCard(chosenCard);
@@ -304,9 +305,9 @@ public class MageController : MonoBehaviour
 
     public IEnumerator ChooseTreasureFromMage(MageController mage, string actionText)
     {
+        chosenCard = null;
         if (mage.treasures.Count > 0)
         {
-            chosenCard = null;
             yield return _owner.ChooseTreasureFromMage(mage, actionText);
         }
         yield break;
@@ -322,10 +323,29 @@ public class MageController : MonoBehaviour
             yield return _owner.ChooseCardFromSpell(cards);
     }
 
+    public IEnumerator ChooseCardFromHand()
+    {
+        chosenCard = null;
+        if (nSpellsInHand > 0)
+            yield return _owner.ChooseCardFromHand();
+    }
+
     public IEnumerator ChooseEnemy()
     {
         chosenMage = null;
-        yield return _owner.ChooseEnemy();
+        yield return _owner.ChooseTarget(GameManager.instance.aliveMages.FindAll(mage => mage != this));
+    }
+
+    public IEnumerator ChooseEnemyFromList(List<MageController> mages)
+    {
+        chosenMage = null;
+        yield return _owner.ChooseTarget(mages);
+    }
+
+    public void ClearAllChoices()
+    {
+        chosenCard = null;
+        chosenMage = null;
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -488,9 +508,9 @@ public class MageController : MonoBehaviour
     }
 
     // удалить карту
-    public void RemoveCard(CardController card)
+    public void RemoveCard(CardController card, bool removeOwner = true)
     {
-        card.RemoveOwner();
+        if (removeOwner) card.RemoveOwner();
         List<CardController> hand = GetHandOfCardType(card.card);
         if (hand.Contains(card))
         {
@@ -505,6 +525,7 @@ public class MageController : MonoBehaviour
                 _spell.RemoveAt(index);
         }
     }
+
 
     public void DropCard(CardController card)
     {

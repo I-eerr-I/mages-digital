@@ -66,7 +66,9 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     public abstract IEnumerator ChooseCardFromSpell(List<CardController> spellCards);
 
-    public abstract IEnumerator ChooseEnemy();
+    public abstract IEnumerator ChooseCardFromHand();
+
+    public abstract IEnumerator ChooseTarget(List<MageController> mages);
 
     // реакция на наведение на карту
     public abstract void OnSpellCardSelected(CardController cardController, bool isSelected);

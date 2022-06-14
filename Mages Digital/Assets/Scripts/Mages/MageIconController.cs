@@ -161,6 +161,9 @@ public class MageIconController : MonoBehaviour
     {
         _healthText.text = _mage.health.ToString();
         _medalsText.text = _mage.medals.ToString();
+
+        if (_mage.isDead)
+            _cracksMask.enabled = true;
     }
 
 
@@ -462,7 +465,8 @@ public class MageIconController : MonoBehaviour
                     Shake();
                     SetCrackCutoff(1.0f);
                     IconColorReaction(Color.green);
-                    CracksOff(5.0f);
+                    if (!_mage.isDead)
+                        CracksOff(5.0f);
                 };
                 break;
             

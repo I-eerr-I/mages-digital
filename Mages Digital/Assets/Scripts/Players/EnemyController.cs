@@ -177,14 +177,19 @@ public class EnemyController : AbstractPlayerController
         yield break;
     }
 
-    public override IEnumerator ChooseEnemy()
+    public override IEnumerator ChooseCardFromHand()
     {
-        List<MageController> enemies = GameManager.instance.aliveMages.FindAll(mage => mage != _mage);
-        
+        int index = random.Next(_mage.nSpellsInHand);
+        _mage.chosenCard = _mage.GetSpellsInHand()[index];
+        yield break;
+    }
+
+    public override IEnumerator ChooseTarget(List<MageController> mages)
+    {
         yield return CardEffectsManager.instance.HighlightEnemiesOfMage(_mage, 5);
 
-        int index = random.Next(enemies.Count);
-        MageController enemy = enemies[index];
+        int index = random.Next(mages.Count);
+        MageController enemy = mages[index];
         yield return enemy.mageIcon.HighlightForSomeTime(1.0f);
 
         _mage.chosenMage = enemy;

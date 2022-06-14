@@ -67,6 +67,8 @@ public class PlayerController : AbstractPlayerController
     // ВЫБОР
     float _choosingFieldYDelta = 20.0f;
     float _choosingFieldMovingTime = 1.0f;
+    float _handChoosingY = 10.0f;
+    float _handChoosingZ = 1.5f;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,6 +76,9 @@ public class PlayerController : AbstractPlayerController
 
 
     public bool readyToExecute => _mage.readyToExecute;
+    
+    public Transform fieldCenter => GameManager.instance.fieldCenter;
+    public Transform outOfField  => GameManager.instance.outOfField;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -251,13 +256,11 @@ public class PlayerController : AbstractPlayerController
     {
         GameManager.instance.SetChoosingState();
 
-        Transform fieldCenter = GameManager.instance.fieldCenter;
         Vector3 oldFieldPosition = fieldCenter.position;
         
         Vector3 newFieldPosition = oldFieldPosition;
         newFieldPosition.y += _choosingFieldYDelta;
 
-        Transform outOfField  = GameManager.instance.outOfField;
         Transform myParent = transform.parent;
 
         List<Transform> cardParents = new List<Transform>();
@@ -287,7 +290,43 @@ public class PlayerController : AbstractPlayerController
 
     }
 
-    public override IEnumerator ChooseEnemy()
+    public override IEnumerator ChooseCardFromHand()
+    {
+        GameManager.instance.SetChoosingState();
+
+        Vector3 oldFieldPosition = fieldCenter.position;
+        
+        Vector3 newFieldPosition = oldFieldPosition;
+        newFieldPosition.y += _choosingFieldYDelta;
+
+        Transform myParent = transform.parent;
+
+        Transform handParent = _handLocation.parent;
+        _handLocation.SetParent(outOfField);
+        transform.SetParent(fieldCenter);
+
+
+        Vector3 oldHandPosition = _handLocation.position;
+        iTween.MoveTo(_handLocation.gameObject, iTween.Hash("position", new Vector3(0.0f, _handChoosingY, _handChoosingZ), "time", _choosingFieldMovingTime));
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", newFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime);
+
+        List<CardController> hand = _mage.GetSpellsInHand();
+        hand.ForEach(card => card.OnChoosingCardState());
+        yield return new WaitWhile(() => _mage.chosenCard == null);
+        hand.ForEach(card => card.OnChoosingCardStateEnd());
+
+        _handLocation.SetParent(handParent);
+
+        iTween.MoveTo(_handLocation.gameObject, iTween.Hash("position", oldHandPosition, "time", _choosingFieldMovingTime));
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime + 0.5f);
+        transform.SetParent(myParent);
+
+        GameManager.instance.StopChoosing();
+    }
+
+    public override IEnumerator ChooseTarget(List<MageController> mages)
     {
         GameManager.instance.SetChoosingState();
 
@@ -299,11 +338,9 @@ public class PlayerController : AbstractPlayerController
 
         Transform outOfField  = GameManager.instance.outOfField;
         Transform myParent = transform.parent;
-
-        List<MageController> enemies = GameManager.instance.aliveMages.FindAll(mage => mage != _mage);
         
         List<Transform> enemyParents = new List<Transform>();
-        foreach (MageController enemy in enemies)
+        foreach (MageController enemy in mages)
         {
             enemyParents.Add(enemy.transform.parent);
             enemy.transform.SetParent(outOfField);
@@ -314,16 +351,16 @@ public class PlayerController : AbstractPlayerController
         yield return new WaitForSeconds(_choosingFieldMovingTime);
 
         
-        enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyState());
+        mages.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyState());
         yield return new WaitWhile(() => _mage.chosenMage == null);
-        enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyStateEnd());
+        mages.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyStateEnd());
 
 
         iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", _choosingFieldMovingTime));
         yield return new WaitForSeconds(_choosingFieldMovingTime);
 
-        for (int i = 0; i < enemies.Count; i++)
-            enemies[i].transform.SetParent(enemyParents[i]);
+        for (int i = 0; i < mages.Count; i++)
+            mages[i].transform.SetParent(enemyParents[i]);
 
         transform.SetParent(myParent);
 
@@ -364,6 +401,7 @@ public class PlayerController : AbstractPlayerController
         }
         yield break;
     }
+
 
     // выровнять карты заклинаний в руке
     IEnumerator FitSpellCardsInHand()
@@ -451,6 +489,8 @@ public class PlayerController : AbstractPlayerController
     IEnumerator HideHand(bool hide)
     {
         _handIsHidden = hide;
+        if (hide)
+            _mage.GetSpellsInHand().ForEach(card => card.SelectCard(false));
         float y = (hide) ? _handHiddenY : _handUnhiddenY;
         iTween.MoveTo(_handLocation.gameObject, iTween.Hash("y", y, "time", _handHideTime, "islocal", true));
         yield return new WaitForSeconds(_handHideTime);

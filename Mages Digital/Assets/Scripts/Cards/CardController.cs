@@ -409,7 +409,7 @@ public class CardController : MonoBehaviour
     }
 
     // выделить карту
-    void SelectCard(bool select)
+    public void SelectCard(bool select)
     {
         owner.owner.OnSpellCardSelected(this, select);
     }
@@ -560,6 +560,7 @@ public class CardController : MonoBehaviour
     {
         target.TakeDamage(damage, this);
         yield return effects.Attack(transform.position, target.mageIcon.transform.position, this);
+        yield return new WaitForSeconds(1.0f);
     } 
 
     // Лечение мага (Жизни, Цель)
@@ -917,6 +918,7 @@ public class CardController : MonoBehaviour
                 damage = 3;
             else
                 damage = 6;
+            
         }
 
         yield return DamageToTarget(damage, target); //Левый маг
@@ -1009,6 +1011,7 @@ public class CardController : MonoBehaviour
 
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
+        
 
         int damage = 0;
         if      (resultDice <= 4){damage = 1;}
@@ -1019,6 +1022,7 @@ public class CardController : MonoBehaviour
             yield return owner.ChooseTreasureFromMage(target, "Забрать");
             if (owner.chosenCard != null)
                 yield return target.PassTreasureTo(owner, owner.chosenCard); // Отжать сокровище у врага по своему выбору
+            
         }
 
         yield return DamageToTarget(damage, target);
@@ -1053,6 +1057,7 @@ public class CardController : MonoBehaviour
         {
             yield return owner.ChooseEnemy();
             MageController target = owner.chosenMage; // Враг по выбору
+            
             if (resultDice <= 9)
             {
                 damage = 3;
@@ -1076,6 +1081,7 @@ public class CardController : MonoBehaviour
 
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
+        
 
         int selfDamage = 0;
         int damage = 0;
@@ -1109,6 +1115,7 @@ public class CardController : MonoBehaviour
     {
         yield return owner.ChooseCardFromSpellOfOrders(new List<Order>() {Order.SOURCE, Order.DELIVERY});
         yield return owner.OneSpellCardExecution(owner.chosenCard);
+        
         yield break;
     }
 
@@ -1117,6 +1124,7 @@ public class CardController : MonoBehaviour
     {
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
+        
 
         yield return gm.treasuresDeck.PassCardsTo(target, 1); 
 
@@ -1221,6 +1229,7 @@ public class CardController : MonoBehaviour
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
         
+        
         resultDice = 10;
         int damage = 0;
         if(resultDice <= 4)
@@ -1242,6 +1251,7 @@ public class CardController : MonoBehaviour
             yield return owner.ChooseTreasureFromMage(target, "Выбрать сокровище врага");
             if (owner.chosenCard != null)
                 target.DropCard(owner.chosenCard);
+            
         }
 
         yield break;
@@ -1388,7 +1398,38 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Рубин в башке
+    public IEnumerator  RubinVBashke()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage; // Враг по выбору
+        
 
+        int damage = 1;
+        
+        yield return DamageToTarget(damage, target);
+        resultDice = 10;
+        if (resultDice <= 9)
+        {
+            // Случайная карта с руки к заклинанию   
+            List<CardController> hand = owner.GetSpellsInHand();
+            int index = random.Next(hand.Count);
+            yield return owner.AppendToSpell(hand[index]);
+        }
+        else                     
+        {
+            yield return owner.ChooseCardFromHand();
+            if (owner.chosenCard != null)
+                yield return owner.AppendToSpell(owner.chosenCard);
+            
+        }
+
+        yield break;
+    }
 
 
 
@@ -1442,8 +1483,51 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Мошоночный 
+    public IEnumerator Moshonochnui()
+    {
+        int damage = 3;
+        
+        MageController leftMage  = IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT);
+        MageController rightMage = IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT); 
+        
+        yield return leftMage.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
+        if (leftMage.chosenCard == null)
+            yield return DamageToTarget(damage, leftMage);
 
+        yield return rightMage.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
+        if (rightMage.chosenCard == null)
+            yield return DamageToTarget(damage, rightMage);
 
+        yield break;
+    }
+
+    // От Бена Вуду
+    public IEnumerator  OtBenaVydy()
+    {             
+        int numberDice = 1; // кол-во кубиков
+
+        foreach(MageController mage in AllEnemies())
+        {
+            mage.mageIcon.Highlight(true);
+
+            List<int> rolls = RollDice(numberDice);
+            yield return OnDiceRoll(rolls, showBonus: false);
+            int resultDice = rolls.Sum();
+
+            mage.mageIcon.ShowInfoText(resultDice.ToString());
+
+            yield return DamageToTarget(resultDice, mage);
+
+            mage.mageIcon.HideInfoText();
+            mage.mageIcon.Highlight(false);
+        }
+        
+        yield return owner.ChooseAndDropTreasure();
+        
+
+        yield break;
+    } 
 
     // От Сера Кладомота
     public IEnumerator  OtSeraKladomota()
@@ -1471,12 +1555,31 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // От Магмуда Поджигая
+    public IEnumerator  OtMagmydaPodjigatelua()
+    {
+        int damageSolo = 3; // Урон одному врагу
+        int damageAll  = 1; // Урон всем
 
+        yield return owner.ChooseEnemy();
+        MageController leftTarget = IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT);
+        MageController target     = owner.chosenMage;
 
-
+        if(target == leftTarget)
+        {
+            // Нанести урон левому врагу
+            yield return DamageToTarget(damageSolo, leftTarget);
+        }
+        else
+        {
+            // Нанести урон всем врагам
+            yield return DamageToTargets(damageAll, AllEnemies());
+        }
+ 
+        yield break;
+    }
 
     // От Мордоеда
-    // Недописанная карта
     // Скопировать решение у карты дохлый колдун
     public IEnumerator  OtMordoeda()
     {
@@ -1531,6 +1634,18 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // От Сфинксенона
+    public IEnumerator  OtSfinksenona()
+    {
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage;
+ 
+        yield return owner.ChooseTreasureFromMage(target, "Отжать");
+        CardController treasure = owner.chosenCard;
+        yield return target.PassTreasureTo(owner, treasure);
+     
+        yield break;
+    }
 
 
 
@@ -1562,6 +1677,7 @@ public class CardController : MonoBehaviour
     // От Брадострела
     public IEnumerator  OtBradostrela()
     {
+        print($"OWNER: {owner}");
         List<CardController> deliveries = owner.GetCardsOfOrderInSpell(Order.DELIVERY);
         
         foreach (CardController card in deliveries)
@@ -1574,6 +1690,24 @@ public class CardController : MonoBehaviour
 
 
 
+    // От Феечки смерти
+    // Недописанная карта
+    public IEnumerator  OtFeechkiSmerti()
+    {
+        int damage = 2;
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage;
+        
+        yield return DamageToTarget(damage, target);
+        while(target.isDead)
+        {
+            yield return owner.ChooseEnemy();
+            target = owner.chosenMage;
+            yield return DamageToTarget(damage, target);
+        }
+
+        yield break;
+    }
 
     // От д-ра Конея Дуболома
     public IEnumerator  OtDraKorneyaDyboloma()
@@ -1628,8 +1762,34 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Вихрь бодрости
+    public IEnumerator VihrBodrosti()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign));
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum(); // Бросок кубика
+        
+        yield return owner.ChooseCardFromHand();
+        if (owner.chosenCard != null)
+            owner.DropCard(owner.chosenCard);
 
+        int damage = 0; 
+        if (resultDice > 4)
+        {
+            yield return owner.ChooseCardFromHand();
+            if (owner.chosenCard != null)
+                owner.DropCard(owner.chosenCard);
 
+            damage = 2;
+            yield return DamageToTargets(damage, AllEnemies());
+            if (resultDice > 9)
+            {
+                yield return gm.treasuresDeck.PassCardsTo(owner, 1);
+            }
+        }
+        
+        yield break;
+    }
 
     // Самовыпил
     public IEnumerator Samovipil()
