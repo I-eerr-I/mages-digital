@@ -4137,6 +4137,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 1e7ed355483ea3e43a49ad2606480f93, type: 2}
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: _health
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _medals
       value: 1
       objectReference: {fileID: 0}

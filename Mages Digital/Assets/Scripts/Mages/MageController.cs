@@ -90,7 +90,6 @@ public class MageController : MonoBehaviour
     public bool isDead          => _health <= 0;  // мертв ли маг
     public bool spellIsReady    => nCardsInSpell > 0;   // готово ли заклинание
     public bool isGameWinner    => _medals == 3;
-    public bool ownerIsBot      => _owner.isBot;
     
     public int  nCardsInSpell   => nonNullSpell.Count;  // количество карт в заклинании
     public int  spellInitiative => nonNullSpell.Sum(x => ((SpellCard) x.card).initiative); // сумарная инициатива спела
@@ -114,7 +113,7 @@ public class MageController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.K))
         {
-            if (!ownerIsBot)
+            if (_owner is PlayerController)
                 TakeDamage(_healthMax);
         }
     }
@@ -188,7 +187,7 @@ public class MageController : MonoBehaviour
     }
 
     // вернуть карту обратно в руку
-    public IEnumerator BackToHand(CardController backToHandCard, Order order)
+    public IEnumerator SpellCardBackToHand(CardController backToHandCard, Order order)
     {
 
         int spellCardIndex = GetSpellIndexOfOrder(order);
@@ -285,8 +284,7 @@ public class MageController : MonoBehaviour
         List<CardController> spellCopy = new List<CardController>(_spell);
         _spell = new List<CardController>(3) {null, null, null};
         spellCopy.FindAll(card => card != null).ForEach(card => card.ToFold());
-        if (!ownerIsBot)
-            StartCoroutine(owner.OnSpellDrop());
+        StartCoroutine(owner.OnSpellDrop());
     }
 
     public void DropSpellOfOrder(Order order)
@@ -302,8 +300,7 @@ public class MageController : MonoBehaviour
                     spellCopy[i] = null;
                     card.SetVisible(true);
                     card.ToFold();
-                    if (!ownerIsBot)
-                        StartCoroutine(owner.HideSpellFromAll());
+                    StartCoroutine(owner.HideSpellFromAll());
                 }
             }
         }
@@ -486,8 +483,7 @@ public class MageController : MonoBehaviour
     {
         _health    = _startHealth;
         _mageIcon.OnReset();
-        if (!ownerIsBot)
-            _owner.OnMageReset();
+        _owner.OnMageReset();
     }
 
     public void OnChangeOrder()

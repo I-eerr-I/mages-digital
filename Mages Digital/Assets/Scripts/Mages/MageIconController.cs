@@ -198,7 +198,7 @@ public class MageIconController : MonoBehaviour
 
     IEnumerator OnMouseDown()
     {
-        if (_discoverable && !_highlighted && !_mage.ownerIsBot)
+        if (_discoverable && !_highlighted && _mage.owner is PlayerController)
         {
             _mouseDownClicked++;
 
@@ -219,7 +219,7 @@ public class MageIconController : MonoBehaviour
         }
 
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (_mage.ownerIsBot)
+        if (_mage.owner is EnemyController)
             _mage.TakeDamage(5);
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }

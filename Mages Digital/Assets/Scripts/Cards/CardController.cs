@@ -4,7 +4,6 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
-using UnityEngine.UI;
 using UnityEngine;
 
 public class CardController : MonoBehaviour
@@ -95,11 +94,8 @@ public class CardController : MonoBehaviour
 
     public Card           card       => _card;
     public MageController owner      => _owner;
-    public DeckController sourceDeck => _sourceDeck;
-    
     public bool ownerGoesFirst => _ownerGoesFirst;
-    public bool  visible       => _visible;
-    public bool  discoverable  => _discoverable;
+
     public Order spellOrder
     {
         get => _spellOrder;
@@ -107,7 +103,6 @@ public class CardController : MonoBehaviour
     }
 
     public SpriteRenderer frontSpriteRenderer => _frontSpriteRenderer;
-    public SpriteRenderer backSpriteRenderer  => _backSpriteRenderer;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +115,6 @@ public class CardController : MonoBehaviour
     public bool  inSpell         => cardState == CardState.IN_SPELL;    // находится ли карта в заклинании
     public bool  withOwner       => cardState != CardState.NO_OWNER;    // есть ли у карты владелец
     public bool  withSourceDeck  => _sourceDeck != null;                // создана ли карта колодой
-    public float cardSizeY       => _middle.transform.localScale.y;     // длина карты
     public float cardSizeX       => _middle.transform.localScale.x;     // ширина карты
 
     #endregion
@@ -180,7 +174,7 @@ public class CardController : MonoBehaviour
     void AddToSpell()
     {
         Order order = ((SpellCard) card).order;
-        if (order == Order.WILDMAGIC && !owner.ownerIsBot)
+        if (order == Order.WILDMAGIC)
             StartCoroutine(owner.AddWildMagicToSpell(this));
         else
             StartCoroutine(owner.AddToSpell(this, order));
@@ -189,7 +183,7 @@ public class CardController : MonoBehaviour
     // вернуть карту в руку из заклинания
     void BackToHand()
     {
-        StartCoroutine(owner.BackToHand(this, spellOrder));
+        StartCoroutine(owner.SpellCardBackToHand(this, spellOrder));
     }
 
     // настроить карту
@@ -343,7 +337,7 @@ public class CardController : MonoBehaviour
         {
             if (gm.isSpellCreationState)
             {
-                if (withOwner && !owner.ownerIsBot)
+                if (withOwner)
                 {
                     if (isSpell)
                     {
@@ -402,8 +396,7 @@ public class CardController : MonoBehaviour
     // выделить карту
     void SelectCard(bool select)
     {
-        if (!owner.ownerIsBot)
-            owner.owner.OnSpellCardSelected(this, select);
+        owner.owner.OnSpellCardSelected(this, select);
     }
 
 
@@ -474,7 +467,7 @@ public class CardController : MonoBehaviour
     public void SetStateToInHand()
     {
         cardState = CardState.IN_HAND;
-        if (!owner.ownerIsBot)
+        if (_owner is PlayerController)
             _outlineController.SetProperties(false, true);
     }
 

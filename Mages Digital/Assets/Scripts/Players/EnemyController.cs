@@ -29,13 +29,6 @@ public class EnemyController : AbstractPlayerController
     public EnemyState  state => _state;
     public GameManager    gm => GameManager.instance;
 
-
-
-    void Start()
-    {
-        _isBot = true;
-    }
-
     
     void Update()
     {
@@ -124,7 +117,6 @@ public class EnemyController : AbstractPlayerController
             _mage.nonNullSpell.ForEach(card => card.SetVisible(false));
     }
 
-
     protected override IEnumerator MoveCard(CardController card, bool toHand = false)
     {
         if (toHand)
@@ -139,6 +131,26 @@ public class EnemyController : AbstractPlayerController
             iTween.MoveTo(card.gameObject, iTween.Hash("position", GameManager.instance.spellGroupLocation.position, "time", _spellGroupMovingTime));
             yield return new WaitForSeconds(_spellGroupMovingTime);
         }
+    }
+
+    public override IEnumerator OnSpellDrop()
+    {
+        yield break;
+    }
+
+    public override IEnumerator ChooseOrder()
+    {
+        yield break;
+    }
+
+    public override void OnSpellCardSelected(CardController cardController, bool isSelected)
+    {
+
+    }
+
+    public override void OnMageReset()
+    {
+
     }
 
 

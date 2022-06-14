@@ -17,8 +17,6 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     protected float _spellGroupMovingTime  = 0.5f;
 
-    protected bool _isBot;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,8 +24,6 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     public Order chosenOrder   => _chosenOrder;
     public MageController mage => _mage;
-    public bool  isBot         => _isBot;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,36 +54,17 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     protected abstract IEnumerator MoveCard(CardController card, bool toHand = false);
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
     // реакция на сброс заклинания
-    public virtual IEnumerator OnSpellDrop()
-    {
-        yield break;
-    }
+    public abstract IEnumerator OnSpellDrop();
 
     // выбрать порядок расположения для карты шальной магии
-    public virtual IEnumerator ChooseOrder()
-    {
-        yield break;
-    }
+    public abstract IEnumerator ChooseOrder();
 
     // реакция на наведение на карту
-    public virtual void OnSpellCardSelected(CardController cardController, bool isSelected)
-    {
-        
-    }
+    public abstract void OnSpellCardSelected(CardController cardController, bool isSelected);
 
     // реакция на сброс параметров мага
-    public virtual void OnMageReset()
-    {
-
-    }
-
-
-
+    public abstract void OnMageReset();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
