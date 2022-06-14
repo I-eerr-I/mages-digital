@@ -1,3 +1,5 @@
+using Random = System.Random;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using CardsToolKit;
@@ -5,6 +7,8 @@ using UnityEngine;
 
 public class CardEffectsManager : MonoBehaviour
 {
+
+    public Random random = new Random();
 
     private static CardEffectsManager _instance;
     public  static CardEffectsManager  instance => _instance;    
@@ -37,6 +41,19 @@ public class CardEffectsManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    public IEnumerator HighlightEnemiesOfMage(MageController mage, int nTimes)
+    {
+        for (int i = 0; i < nTimes; i++)
+        {
+            List<MageController> mages = GameManager.instance.aliveMages.OrderBy(mage => random.Next()).ToList();
+            foreach (MageController enemy in mages)
+            {
+                if (enemy == mage)
+                    continue;
+                yield return enemy.mageIcon.HighlightForSomeTime(0.1f);
+            }   
+        }
+    }
 
     public IEnumerator Attack(Vector3 from, Vector3 to, CardController attackSource, float duration = 1.0f)
     {

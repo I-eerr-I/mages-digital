@@ -60,6 +60,12 @@ public abstract class AbstractPlayerController : MonoBehaviour
     // выбрать порядок расположения для карты шальной магии
     public abstract IEnumerator ChooseOrder();
 
+    public abstract IEnumerator ChooseTreasure(bool hasChoiceNotToDrop);
+    
+    public abstract IEnumerator ChooseTreasureFromMage(MageController mage);
+
+    public abstract IEnumerator ChooseEnemy();
+
     // реакция на наведение на карту
     public abstract void OnSpellCardSelected(CardController cardController, bool isSelected);
 

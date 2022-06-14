@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] DeckController _deadsDeck;      // колода недобитых магов
 
     [Header("Расположения")]
+    [SerializeField] Transform _outOfField;
     [SerializeField] Transform _fieldCenter;         // центр поля
     [SerializeField] Transform _spellLocation;       // место расположения карт заклинаний
     [SerializeField] Transform _sourceLocation;      // место расположения заводилы
@@ -107,6 +108,7 @@ public class GameManager : MonoBehaviour
     public GameState             gameState => _gameState;
     public GameState         prevGameState => _prevGameState;
     public GameObject           cardPrefab => _cardPrefab;
+    public Transform            outOfField => _outOfField;
     public Transform           fieldCenter => _fieldCenter;
     public Transform         spellLocation => _spellLocation;
     public Transform        sourceLocation => _sourceLocation;

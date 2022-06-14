@@ -85,6 +85,13 @@ public class MageController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+    public CardController chosenTreasure = null;
+    public MageController chosenEnemy    = null;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
     public List<CardController> nonNullSpell => _spell.Where(card => card != null).ToList(); // карты заклинаний в спеле не равные null
     
     public bool isDead          => _health <= 0;  // мертв ли маг
@@ -203,10 +210,9 @@ public class MageController : MonoBehaviour
         yield return owner.ShowSpellToAll();
     }
 
-    public IEnumerator PassSpellOfOrderTo(MageController mage, Order order)
+    public IEnumerator PassSpellToSpellOfOrderTo(MageController mage, Order order)
     {
         List<CardController> cards = nonNullSpell.FindAll(card => card.GetSpellCard().order == order || card.spellOrder == order);
-        print(cards.Count);
         foreach (CardController card in cards)
         {
             RemoveCard(card);
@@ -217,6 +223,16 @@ public class MageController : MonoBehaviour
         }
         yield break;
     }
+
+    public IEnumerator PassTreasureTo(MageController mage, CardController treasure)
+    {
+        RemoveCard(treasure);
+        treasure.SetOwner(mage);
+        treasure.SetVisible(true);
+        yield return mage.AddCard(treasure);
+        yield return treasure.PositionFrontUp();
+    }
+
 
     // выполнить заклинание
     public IEnumerator ExecuteSpells()
@@ -274,9 +290,35 @@ public class MageController : MonoBehaviour
         }
     }
 
+    public IEnumerator ChooseAndDropTreasure(bool hasChoiceNotToDrop = false)
+    {
+        if (treasures.Count > 0)
+        {
+            chosenTreasure = null;
+            yield return _owner.ChooseTreasure(hasChoiceNotToDrop);
+            if (chosenTreasure != null)
+                DropCard(chosenTreasure);
+        }
+        yield break;
+    }
+
+    public IEnumerator ChooseTreasureFromMage(MageController mage)
+    {
+        if (mage.treasures.Count > 0)
+        {
+            chosenTreasure = null;
+            yield return _owner.ChooseTreasureFromMage(mage);
+        }
+        yield break;
+    }
+
+    public IEnumerator ChooseEnemy()
+    {
+        chosenEnemy = null;
+        yield return _owner.ChooseEnemy();
+    }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
     // сбросить подготовленное заклинание (отправить в сброс)
     public void DropSpell()
@@ -391,6 +433,25 @@ public class MageController : MonoBehaviour
         return bonusInfo;
     }
 
+    public List<CardController> GetBonusInfoFromList(List<CardController> cards, int indexOffset = 0)
+    {
+        List<CardController> bonusInfo = new List<CardController>(3) {null, null, null};
+        for (int i = 0; i < 3; i++)
+        {
+            if (i < cards.Count)
+            {
+                int cardsIndex = i - indexOffset;
+                cardsIndex = (-indexOffset < 0) ? cards.Count -  cardsIndex : cardsIndex;
+
+                int infoIndex = i - indexOffset;
+                infoIndex = (-indexOffset < 0) ? bonusInfo.Count - infoIndex : infoIndex;
+
+                bonusInfo[infoIndex % bonusInfo.Count] = cards[cardsIndex % cards.Count];
+            }
+        }
+        return bonusInfo;
+    }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -433,6 +494,12 @@ public class MageController : MonoBehaviour
             else
                 _spell.RemoveAt(index);
         }
+    }
+
+    public void DropCard(CardController card)
+    {
+        RemoveCard(card);
+        card.ToFold();
     }
 
 

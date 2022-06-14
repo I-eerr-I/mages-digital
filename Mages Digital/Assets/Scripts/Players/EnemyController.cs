@@ -143,6 +143,47 @@ public class EnemyController : AbstractPlayerController
         yield break;
     }
 
+    public override IEnumerator ChooseTreasure(bool hasChoiceNotToDrop)
+    {
+        bool drop = (hasChoiceNotToDrop) ? Convert.ToBoolean(random.Next(2)) : true;
+        int treasuresAmount = mage.treasures.Count;
+        if (drop && treasuresAmount > 0)
+        {
+            int index = random.Next(treasuresAmount);
+            CardController treasure = mage.treasures[index];
+            treasure.SetVisible(true);
+            mage.chosenTreasure = treasure;
+        }
+        yield break;
+    }
+
+    public override IEnumerator ChooseTreasureFromMage(MageController mage)
+    {
+        List<CardController> treasures = mage.treasures;
+        int treasuresAmount = treasures.Count;
+        if (treasuresAmount > 0)
+        {
+            int index = random.Next(treasuresAmount);
+            CardController treasure = treasures[index];
+            _mage.chosenTreasure = treasure;
+        }
+        yield break;
+    }
+
+    public override IEnumerator ChooseEnemy()
+    {
+        List<MageController> enemies = GameManager.instance.aliveMages.FindAll(mage => mage != _mage);
+        
+        yield return CardEffectsManager.instance.HighlightEnemiesOfMage(_mage, 5);
+
+        int index = random.Next(enemies.Count);
+        MageController enemy = enemies[index];
+        yield return enemy.mageIcon.HighlightForSomeTime(1.0f);
+
+        _mage.chosenEnemy = enemy;
+    }
+
+
     public override void OnSpellCardSelected(CardController cardController, bool isSelected)
     {
 
@@ -155,7 +196,7 @@ public class EnemyController : AbstractPlayerController
 
 
     
-    IEnumerator OnSpellCreationState()
+    public IEnumerator OnSpellCreationState()
     {
         _state = EnemyState.CREATING_SPELL;
 

@@ -59,6 +59,7 @@ public class PlayerController : AbstractPlayerController
 
     // БОНУСНЫЕ КАРТЫ
     float _bonusesStartX  = 4.5f; // локальная координата X в руке по-умолчанию для бонусных карт
+    int   _bonusInfoIndexOffset = 0;
     
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +79,16 @@ public class PlayerController : AbstractPlayerController
         if (Input.GetButton("Execute"))
         {
             StartCoroutine(OnExecute());
+        }
+
+        if (GameManager.instance.isChoosingState)
+        {
+            float mouseScroll = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(mouseScroll) > 0.0f)
+            {
+                int addToOffset = (mouseScroll > 0.0f) ? 1 : -1;
+                _bonusInfoIndexOffset += addToOffset;
+            }
         }
     }
 
@@ -193,6 +204,85 @@ public class PlayerController : AbstractPlayerController
             _chosenOrder = controllers.FindAll(x => x.isOrderChosen)[0].chosenOrder;
     }
 
+    public override IEnumerator ChooseTreasure(bool hasChoiceNotToDrop)
+    {
+        GameManager.instance.SetChoosingState();
+
+        yield return new WaitWhile(() => {
+            UIManager.instance.ShowBonusInfo(
+                _mage.GetBonusInfo(_bonusInfoIndexOffset), 
+                withDropButton: true, 
+                withCancleButton: hasChoiceNotToDrop, 
+                choosingMage: _mage
+            );
+            return _mage.chosenTreasure == null && GameManager.instance.isChoosingState;
+        });
+
+        UIManager.instance.ShowBonusInfo(null, show: false);
+    }
+
+    public override IEnumerator ChooseTreasureFromMage(MageController mage)
+    {
+        GameManager.instance.SetChoosingState();
+
+        List<CardController> treasures = mage.treasures;
+
+        yield return new WaitWhile(() => {
+            UIManager.instance.ShowBonusInfo(
+                _mage.GetBonusInfoFromList(treasures, _bonusInfoIndexOffset), 
+                withDropButton: true, 
+                choosingMage: _mage,
+                dropButtonText: "Забрать"
+            );
+            return _mage.chosenTreasure == null && GameManager.instance.isChoosingState;
+        });
+
+        UIManager.instance.ShowBonusInfo(null, show: false);
+    }
+
+    public override IEnumerator ChooseEnemy()
+    {
+        GameManager.instance.SetChoosingState();
+
+        Transform fieldCenter = GameManager.instance.fieldCenter;
+        Vector3 oldFieldPosition = fieldCenter.position;
+        
+        Vector3 newFieldPosition = oldFieldPosition;
+        newFieldPosition.y += 20.0f;
+
+        Transform outOfField  = GameManager.instance.outOfField;
+        Transform myParent = transform.parent;
+
+        List<MageController> enemies = GameManager.instance.aliveMages.FindAll(mage => mage != _mage);
+        
+        List<Transform> enemyParents = new List<Transform>();
+        foreach (MageController enemy in enemies)
+        {
+            enemyParents.Add(enemy.transform.parent);
+            enemy.transform.SetParent(outOfField);
+        }
+        transform.SetParent(fieldCenter);
+        
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", newFieldPosition, "time", 1.0f));
+        yield return new WaitForSeconds(1.0f);
+
+        
+        enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyState());
+        yield return new WaitWhile(() => _mage.chosenEnemy == null);
+        enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyStateEnd());
+
+
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", 1.0f));
+        yield return new WaitForSeconds(1.0f);
+
+        for (int i = 0; i < enemies.Count; i++)
+            enemies[i].transform.SetParent(enemyParents[i]);
+
+        transform.SetParent(myParent);
+
+        GameManager.instance.StopChoosing();
+    }
+
     
     public override void OnSpellCardSelected(CardController cardController, bool isSelected)
     {
@@ -264,8 +354,11 @@ public class PlayerController : AbstractPlayerController
     // анимация готовности карт заклинания
     IEnumerator LockSpell()
     {
+        _mage.SetAllDiscoverable(false);
+
         foreach (CardController spellCard in _mage.nonNullSpell)
         {
+            spellCard.SetUndiscoverable();
             Hashtable hashtable = new Hashtable();
             hashtable.Add("time", _spellUpTime);
             hashtable.Add("y", _spellUpY);
@@ -301,6 +394,8 @@ public class PlayerController : AbstractPlayerController
         yield return HideHand(true);
 
         yield return MoveSpellGroup(true);
+
+        _mage.SetAllDiscoverable(true);
 
         _mage.ReadyToExecute();
     }

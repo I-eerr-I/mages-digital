@@ -159,7 +159,6 @@ public class CardController : MonoBehaviour
                 int addToOffset = (mouseScroll > 0.0f) ? 1 : -1;
                 _bonusInfoIndexOffset += addToOffset;
             }
-            
         }
     }
 
@@ -510,27 +509,9 @@ public class CardController : MonoBehaviour
 
     public IEnumerator OnRandomEnemy(MageController enemy)
     {
-        yield return HighlightEnemies(5);
+        yield return effects.HighlightEnemiesOfMage(owner, 5);
 
-        enemy.mageIcon.Highlight(true);
-        yield return new WaitForSeconds(0.5f);
-        enemy.mageIcon.Highlight(false);
-    }
-
-    public IEnumerator HighlightEnemies(int nTimes)
-    {
-        for (int i = 0; i < nTimes; i++)
-        {
-            List<MageController> mages = gm.aliveMages.OrderBy(mage => random.Next()).ToList();
-            foreach (MageController mage in mages)
-            {
-                if (mage == owner)
-                    continue;
-                mage.mageIcon.Highlight(true);
-                yield return new WaitForSeconds(0.1f);
-                mage.mageIcon.Highlight(false);
-            }   
-        }
+        yield return enemy.mageIcon.HighlightForSomeTime(0.5f);
     }
 
     public List<int> RollDice(int numberDice)
@@ -681,7 +662,7 @@ public class CardController : MonoBehaviour
     {
         List<MageController> targets = listTargets.FindAll(mage => mage.HasCardOfOrderInSpell(order));
         foreach (MageController target in targets)
-            yield return target.PassSpellOfOrderTo(owner, order);
+            yield return target.PassSpellToSpellOfOrderTo(owner, order);
     }
 
     #endregion
@@ -896,7 +877,36 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Раздвоитель личности
+    // Недописанная карта
+    // Нет сброса выбранного жертвой сокровища
+    public IEnumerator RazdvoitelLichnosti()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        MageController target = IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT);
+        // TEST
+        resultDice = 10;
+        // TEST
 
+        int damage = 0;
+        if      (resultDice <= 4){damage = 2;}
+        else if (resultDice <= 9){damage = 3;}
+        else                  
+        {
+            yield return target.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
+            if (target.chosenTreasure != null || target.treasures.Count == 0)
+                damage = 3;
+            else
+                damage = 6;
+        }
+
+        yield return DamageToTarget(damage, target); //Левый маг
+
+        yield break;
+    }
 
     // Кулак природы
     public IEnumerator KylakPrirodi()
@@ -974,6 +984,32 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Отсос Мозга
+    public IEnumerator  OtsosMozga()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenEnemy; // Враг по выбору
+
+        int damage = 0;
+        if      (resultDice <= 4){damage = 1;}
+        else if (resultDice <= 9){damage = 3;}
+        else                     
+        {
+            damage = 4;
+            yield return owner.ChooseTreasureFromMage(target);
+            if (owner.chosenTreasure != null)
+                yield return target.PassTreasureTo(owner, owner.chosenTreasure); // Отжать сокровище у врага по своему выбору
+        }
+
+        yield return DamageToTarget(damage, target);
+
+        yield break;
+    }
+
     // Нетерпеливый
     // Начинать ход первым
     // Проверка во время определения очередности хода игроков
@@ -984,9 +1020,36 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Ритуальный
+    public IEnumerator  Rityalnui()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
 
+        int damage = 0;
+        if(resultDice <= 4)
+        {
+            damage = 3;
+            yield return DamageToTarget(damage, owner);
+        }
+        else
+        {
+            yield return owner.ChooseEnemy();
+            MageController target = owner.chosenEnemy; // Враг по выбору
+            if (resultDice <= 9)
+            {
+                damage = 3;
+            }
+            else                     
+            {
+                damage = 5;
+            }
+            yield return DamageToTarget(damage, target);
+        }
 
-
+        yield break;
+    }
 
 
 

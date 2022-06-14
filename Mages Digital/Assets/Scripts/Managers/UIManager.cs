@@ -32,6 +32,8 @@ public class UIManager : MonoBehaviour
     public Image showingBonusLeftImage;
     public Image showingBonusCenterImage;
     public Image showingBonusRightImage;
+    public Button showingBonusDropButton;
+    public Button showingBonusCancleButton;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +71,12 @@ public class UIManager : MonoBehaviour
     }
 
 
-    public void ShowBonusInfo(List<CardController> threeBonusCards, bool show = true)
+    public void ShowBonusInfo(List<CardController> threeBonusCards, 
+        bool show = true, 
+        bool withDropButton = false,
+        string dropButtonText = "Сбросить",
+        bool withCancleButton = false, 
+        MageController choosingMage = null)
     {
         showingBonusPanel.SetActive(show);
         if (show)
@@ -77,6 +84,33 @@ public class UIManager : MonoBehaviour
             SetupShowingBonusImage(threeBonusCards, showingBonusLeftImage,   2);
             SetupShowingBonusImage(threeBonusCards, showingBonusCenterImage, 0);
             SetupShowingBonusImage(threeBonusCards, showingBonusRightImage,  1);
+
+            if (withDropButton)
+            {
+                showingBonusDropButton.gameObject.SetActive(true);
+                showingBonusDropButton.gameObject.GetComponentInChildren<TMP_Text>().text = dropButtonText;
+                showingBonusDropButton.onClick.AddListener(() => 
+                {
+                    if (threeBonusCards[0] != null)
+                    {
+                        choosingMage.chosenTreasure = threeBonusCards[0];
+                        GameManager.instance.StopChoosing();
+                    }
+                });
+            }
+            if (withCancleButton)
+            {
+                showingBonusCancleButton.gameObject.SetActive(true);
+                showingBonusCancleButton.onClick.AddListener(() => 
+                {
+                    GameManager.instance.StopChoosing();
+                });
+            }
+        }
+        else
+        {
+            showingBonusCancleButton.gameObject.SetActive(false);
+            showingBonusDropButton.gameObject.SetActive(false);
         }
     }
 

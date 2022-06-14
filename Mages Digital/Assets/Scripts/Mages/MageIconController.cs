@@ -43,6 +43,8 @@ public class MageIconController : MonoBehaviour
     int   _damageHitClicks  = 25;
     int   _deathClicks      = 50;
 
+    bool _choosingEnemyState = false;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -218,9 +220,14 @@ public class MageIconController : MonoBehaviour
             }
         }
 
+        if (_choosingEnemyState)
+        {
+            GameManager.instance.player.chosenEnemy = _mage;
+        }
+
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (_mage.owner is EnemyController)
-            _mage.TakeDamage(5);
+        // if (_mage.owner is EnemyController)
+        //     _mage.TakeDamage(5);
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 
@@ -356,6 +363,12 @@ public class MageIconController : MonoBehaviour
         }
     }
 
+    public IEnumerator HighlightForSomeTime(float time)
+    {
+        Highlight(true);
+        yield return new WaitForSeconds(time);
+        Highlight(false);
+    }
 
     public IEnumerator OnTakeDamage(CardController damageSource = null)
     {
@@ -381,6 +394,16 @@ public class MageIconController : MonoBehaviour
         _runicReaction.Stop();
         _runicReaction.Play();
         yield break;
+    }
+
+    public void OnChoosingEnemyState()
+    {
+        _choosingEnemyState = true;
+    }
+
+    public void OnChoosingEnemyStateEnd()
+    {
+        _choosingEnemyState = false;
     }
 
     public void OnDeath()
