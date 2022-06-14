@@ -222,7 +222,7 @@ public class MageIconController : MonoBehaviour
 
         if (_choosingEnemyState)
         {
-            GameManager.instance.player.chosenEnemy = _mage;
+            GameManager.instance.player.chosenMage = _mage;
         }
 
         // TEST !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

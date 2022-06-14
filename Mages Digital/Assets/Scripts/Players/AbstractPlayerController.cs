@@ -62,7 +62,9 @@ public abstract class AbstractPlayerController : MonoBehaviour
 
     public abstract IEnumerator ChooseTreasure(bool hasChoiceNotToDrop);
     
-    public abstract IEnumerator ChooseTreasureFromMage(MageController mage);
+    public abstract IEnumerator ChooseTreasureFromMage(MageController mage, string actionText);
+
+    public abstract IEnumerator ChooseCardFromSpell(List<CardController> spellCards);
 
     public abstract IEnumerator ChooseEnemy();
 

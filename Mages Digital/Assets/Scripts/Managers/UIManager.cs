@@ -93,7 +93,7 @@ public class UIManager : MonoBehaviour
                 {
                     if (threeBonusCards[0] != null)
                     {
-                        choosingMage.chosenTreasure = threeBonusCards[0];
+                        choosingMage.chosenCard = threeBonusCards[0];
                         GameManager.instance.StopChoosing();
                     }
                 });

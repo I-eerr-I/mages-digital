@@ -72,6 +72,7 @@ public class CardController : MonoBehaviour
     int _bonusInfoIndexOffset = 0;                  // нужна для перебора карт сокровищ при наведении на них
     Order _spellOrder         = Order.WILDMAGIC;    // порядок в заклинании (нужен для шальной магии)
     CardState cardState       = CardState.NO_OWNER; // состояние карты
+    bool _choosingCardState   = false;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,6 +357,21 @@ public class CardController : MonoBehaviour
                 gm.StopChoosing();
             }
         }
+
+        if (_choosingCardState)
+        {
+            GameManager.instance.player.chosenCard = this;
+        }
+    }
+
+    public void OnChoosingCardState()
+    {
+        _choosingCardState = true;
+    }
+
+    public void OnChoosingCardStateEnd()
+    {
+        _choosingCardState = false;
     }
 
 
@@ -897,7 +913,7 @@ public class CardController : MonoBehaviour
         else                  
         {
             yield return target.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
-            if (target.chosenTreasure != null || target.treasures.Count == 0)
+            if (target.chosenCard != null || target.treasures.Count == 0)
                 damage = 3;
             else
                 damage = 6;
@@ -992,7 +1008,7 @@ public class CardController : MonoBehaviour
         int resultDice = rolls.Sum();
 
         yield return owner.ChooseEnemy();
-        MageController target = owner.chosenEnemy; // Враг по выбору
+        MageController target = owner.chosenMage; // Враг по выбору
 
         int damage = 0;
         if      (resultDice <= 4){damage = 1;}
@@ -1000,9 +1016,9 @@ public class CardController : MonoBehaviour
         else                     
         {
             damage = 4;
-            yield return owner.ChooseTreasureFromMage(target);
-            if (owner.chosenTreasure != null)
-                yield return target.PassTreasureTo(owner, owner.chosenTreasure); // Отжать сокровище у врага по своему выбору
+            yield return owner.ChooseTreasureFromMage(target, "Забрать");
+            if (owner.chosenCard != null)
+                yield return target.PassTreasureTo(owner, owner.chosenCard); // Отжать сокровище у врага по своему выбору
         }
 
         yield return DamageToTarget(damage, target);
@@ -1036,7 +1052,7 @@ public class CardController : MonoBehaviour
         else
         {
             yield return owner.ChooseEnemy();
-            MageController target = owner.chosenEnemy; // Враг по выбору
+            MageController target = owner.chosenMage; // Враг по выбору
             if (resultDice <= 9)
             {
                 damage = 3;
@@ -1051,15 +1067,65 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Дьявольский
+    public IEnumerator  Dyavolskiu()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
 
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage; // Враг по выбору
 
+        int selfDamage = 0;
+        int damage = 0;
+        if(resultDice <= 4)
+        {
+            damage = 2;
+            yield return DamageToTarget(damage, target);
+        }
+        else if (resultDice <= 9)
+        {
+            damage = 4;
+            selfDamage = 1;
+            yield return DamageToTarget(damage, target);
+            yield return DamageToTarget(selfDamage, owner);
+        }
+        else                     
+        {
+            damage = 5;
+            selfDamage = 2;
+            yield return DamageToTarget(damage, target);
+            yield return DamageToTarget(selfDamage, owner);
+        }
 
+        yield break;
+    }
 
+    // Дискотечный
+    // Недописанная карта
+    // Нужен метод выбора заводилы или прихода
+    public IEnumerator  Diskotechnui()
+    {
+        yield return owner.ChooseCardFromSpellOfOrders(new List<Order>() {Order.SOURCE, Order.DELIVERY});
+        yield return owner.OneSpellCardExecution(owner.chosenCard);
+        yield break;
+    }
 
+    //Двуличный
+    public IEnumerator  Dvylichniu()
+    {
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage; // Враг по выбору
 
+        yield return gm.treasuresDeck.PassCardsTo(target, 1); 
 
+        int damage = target.treasures.Count * 2; // Урон = Кол-во сокровищ * 2
+        
+        yield return DamageToTarget(damage, target);
 
-
+        yield break;
+    }
 
 
 
@@ -1141,7 +1207,45 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Разрывной
+    // Недописанная карта
+    // Нет выбора врага
+    // Нет выбора сокровища для сброса
+    public IEnumerator  Razrivnoi()
+    {
+        List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
+        yield return OnDiceRoll(rolls);
+        int resultDice = rolls.Sum();
+        
+        int selfDamage = 0;
+        yield return owner.ChooseEnemy();
+        MageController target = owner.chosenMage; // Враг по выбору
+        
+        resultDice = 10;
+        int damage = 0;
+        if(resultDice <= 4)
+        {
+            damage = 1;
+            yield return DamageToTarget(damage, target);
+        }
+        else if (resultDice <= 9)
+        {
+            damage = 3;
+            selfDamage = 1;
+            yield return DamageToTarget(damage, target);
+            yield return DamageToTarget(selfDamage, owner);
+        }
+        else                     
+        {
+            damage = 4;
+            yield return DamageToTarget(damage, target);
+            yield return owner.ChooseTreasureFromMage(target, "Выбрать сокровище врага");
+            if (owner.chosenCard != null)
+                target.DropCard(owner.chosenCard);
+        }
 
+        yield break;
+    }
 
 
 

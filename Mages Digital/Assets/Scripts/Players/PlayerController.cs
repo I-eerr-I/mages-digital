@@ -63,6 +63,13 @@ public class PlayerController : AbstractPlayerController
     
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // ВЫБОР
+    float _choosingFieldYDelta = 20.0f;
+    float _choosingFieldMovingTime = 1.0f;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -215,13 +222,13 @@ public class PlayerController : AbstractPlayerController
                 withCancleButton: hasChoiceNotToDrop, 
                 choosingMage: _mage
             );
-            return _mage.chosenTreasure == null && GameManager.instance.isChoosingState;
+            return _mage.chosenCard == null && GameManager.instance.isChoosingState;
         });
 
         UIManager.instance.ShowBonusInfo(null, show: false);
     }
 
-    public override IEnumerator ChooseTreasureFromMage(MageController mage)
+    public override IEnumerator ChooseTreasureFromMage(MageController mage, string actionText)
     {
         GameManager.instance.SetChoosingState();
 
@@ -232,12 +239,52 @@ public class PlayerController : AbstractPlayerController
                 _mage.GetBonusInfoFromList(treasures, _bonusInfoIndexOffset), 
                 withDropButton: true, 
                 choosingMage: _mage,
-                dropButtonText: "Забрать"
+                dropButtonText: actionText
             );
-            return _mage.chosenTreasure == null && GameManager.instance.isChoosingState;
+            return _mage.chosenCard == null && GameManager.instance.isChoosingState;
         });
 
         UIManager.instance.ShowBonusInfo(null, show: false);
+    }
+
+    public override IEnumerator ChooseCardFromSpell(List<CardController> spellCards)
+    {
+        GameManager.instance.SetChoosingState();
+
+        Transform fieldCenter = GameManager.instance.fieldCenter;
+        Vector3 oldFieldPosition = fieldCenter.position;
+        
+        Vector3 newFieldPosition = oldFieldPosition;
+        newFieldPosition.y += _choosingFieldYDelta;
+
+        Transform outOfField  = GameManager.instance.outOfField;
+        Transform myParent = transform.parent;
+
+        List<Transform> cardParents = new List<Transform>();
+        foreach (CardController card in spellCards)
+        {
+            cardParents.Add(card.transform.parent);
+            card.transform.SetParent(outOfField);
+        }
+        transform.SetParent(fieldCenter);
+
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", newFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime);
+
+        spellCards.ForEach(card => card.OnChoosingCardState());
+        yield return new WaitWhile(() => _mage.chosenCard == null);
+        spellCards.ForEach(card => card.OnChoosingCardStateEnd());
+
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime);
+
+        for (int i = 0; i < spellCards.Count; i++)
+            spellCards[i].transform.SetParent(cardParents[i]);
+
+        transform.SetParent(myParent);
+
+        GameManager.instance.StopChoosing();
+
     }
 
     public override IEnumerator ChooseEnemy()
@@ -248,7 +295,7 @@ public class PlayerController : AbstractPlayerController
         Vector3 oldFieldPosition = fieldCenter.position;
         
         Vector3 newFieldPosition = oldFieldPosition;
-        newFieldPosition.y += 20.0f;
+        newFieldPosition.y += _choosingFieldYDelta;
 
         Transform outOfField  = GameManager.instance.outOfField;
         Transform myParent = transform.parent;
@@ -263,17 +310,17 @@ public class PlayerController : AbstractPlayerController
         }
         transform.SetParent(fieldCenter);
         
-        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", newFieldPosition, "time", 1.0f));
-        yield return new WaitForSeconds(1.0f);
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", newFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime);
 
         
         enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyState());
-        yield return new WaitWhile(() => _mage.chosenEnemy == null);
+        yield return new WaitWhile(() => _mage.chosenMage == null);
         enemies.ForEach(enemy => enemy.mageIcon.OnChoosingEnemyStateEnd());
 
 
-        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", 1.0f));
-        yield return new WaitForSeconds(1.0f);
+        iTween.MoveTo(fieldCenter.gameObject, iTween.Hash("position", oldFieldPosition, "time", _choosingFieldMovingTime));
+        yield return new WaitForSeconds(_choosingFieldMovingTime);
 
         for (int i = 0; i < enemies.Count; i++)
             enemies[i].transform.SetParent(enemyParents[i]);

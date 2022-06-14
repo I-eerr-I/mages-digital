@@ -152,12 +152,12 @@ public class EnemyController : AbstractPlayerController
             int index = random.Next(treasuresAmount);
             CardController treasure = mage.treasures[index];
             treasure.SetVisible(true);
-            mage.chosenTreasure = treasure;
+            mage.chosenCard = treasure;
         }
         yield break;
     }
 
-    public override IEnumerator ChooseTreasureFromMage(MageController mage)
+    public override IEnumerator ChooseTreasureFromMage(MageController mage, string actionText)
     {
         List<CardController> treasures = mage.treasures;
         int treasuresAmount = treasures.Count;
@@ -165,8 +165,15 @@ public class EnemyController : AbstractPlayerController
         {
             int index = random.Next(treasuresAmount);
             CardController treasure = treasures[index];
-            _mage.chosenTreasure = treasure;
+            _mage.chosenCard = treasure;
         }
+        yield break;
+    }
+
+    public override IEnumerator ChooseCardFromSpell(List<CardController> spellCards)
+    {
+        int index = random.Next(spellCards.Count);
+        _mage.chosenCard = spellCards[index];
         yield break;
     }
 
@@ -180,7 +187,7 @@ public class EnemyController : AbstractPlayerController
         MageController enemy = enemies[index];
         yield return enemy.mageIcon.HighlightForSomeTime(1.0f);
 
-        _mage.chosenEnemy = enemy;
+        _mage.chosenMage = enemy;
     }
 
 

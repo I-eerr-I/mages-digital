@@ -85,8 +85,8 @@ public class MageController : MonoBehaviour
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public CardController chosenTreasure = null;
-    public MageController chosenEnemy    = null;
+    public CardController chosenCard = null;
+    public MageController chosenMage = null;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -294,27 +294,37 @@ public class MageController : MonoBehaviour
     {
         if (treasures.Count > 0)
         {
-            chosenTreasure = null;
+            chosenCard = null;
             yield return _owner.ChooseTreasure(hasChoiceNotToDrop);
-            if (chosenTreasure != null)
-                DropCard(chosenTreasure);
+            if (chosenCard != null)
+                DropCard(chosenCard);
         }
         yield break;
     }
 
-    public IEnumerator ChooseTreasureFromMage(MageController mage)
+    public IEnumerator ChooseTreasureFromMage(MageController mage, string actionText)
     {
         if (mage.treasures.Count > 0)
         {
-            chosenTreasure = null;
-            yield return _owner.ChooseTreasureFromMage(mage);
+            chosenCard = null;
+            yield return _owner.ChooseTreasureFromMage(mage, actionText);
         }
         yield break;
+    }
+
+    public IEnumerator ChooseCardFromSpellOfOrders(List<Order> orders)
+    {
+        chosenCard = null;
+        List<CardController> cards = new List<CardController>();
+        foreach (Order order in orders)
+            cards.AddRange(GetCardsOfOrderInSpell(order));
+        if (cards.Count > 0)
+            yield return _owner.ChooseCardFromSpell(cards);
     }
 
     public IEnumerator ChooseEnemy()
     {
-        chosenEnemy = null;
+        chosenMage = null;
         yield return _owner.ChooseEnemy();
     }
 
@@ -499,6 +509,7 @@ public class MageController : MonoBehaviour
     public void DropCard(CardController card)
     {
         RemoveCard(card);
+        card.SetVisible(true);
         card.ToFold();
     }
 
