@@ -1489,11 +1489,11 @@ PrefabInstance:
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: 59bc58b2ede4ca14e9d00238839a8a50, type: 2}
+      objectReference: {fileID: 11400000, guid: 2ef4a0746453bed4b87502dd85e01204, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[1]
       value: 
-      objectReference: {fileID: 11400000, guid: 02478ce22b015194e9b0ae4c4609596d, type: 2}
+      objectReference: {fileID: 11400000, guid: 73b8f437757e6d14e88d8329580ce1aa, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[2]
       value: 

@@ -564,6 +564,14 @@ public class CardController : MonoBehaviour
         return allSigns.Distinct().Count();
     }
 
+    public int GetNSigns(Sign sign)
+    {
+        List<Sign> allSigns = owner.nonNullSpell.Select(spellCard => spellCard.GetSpellCard().sign).ToList();
+        allSigns.AddRange(owner.additionalSigns);
+    
+        return allSigns.FindAll(cardSign => cardSign == sign).Count();
+    }
+
     // Урон магу (Урон, Цель)
     public IEnumerator DamageToTarget(int damage, MageController target)
     {
@@ -675,11 +683,7 @@ public class CardController : MonoBehaviour
     {
         int buffDamage = 0; // Стартовое увеличение урона
         // Цикл нахождения кол-ва одинаковых знаков карты заклинания => Увеличение урона
-        foreach (CardController spellCard in owner.nonNullSpell)
-        {
-            if(spellCard.GetSpellCard().sign == sign)
-                buffDamage+= 1;
-        }
+        buffDamage = GetNSigns(sign);
         return buffDamage;
     }
 
@@ -1664,7 +1668,28 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Опарышный
+    public IEnumerator  Oparishniu()
+    {
+        int damage = 2 * BuffDamageSign(GetSpellCard().sign);// Увеличение урона на кол-во знаков мрака(для этой карты)
+        
+        yield return DamageToTargets(damage, FindTargets(TargetType.HIGH_HP));
 
+        yield break;
+    }
+
+    // От Драконьера
+    public IEnumerator  OtDrakonera()
+    {
+        // Подсчет уникальных знаков в заклинании
+        int uniqueSigns = GetNUniqueSigns();
+
+        int damage = uniqueSigns;
+
+        yield return DamageToTargets(damage, AllEnemies());
+
+        yield break;
+    }
 
     // От Тай Тьфуна
     // Поменять список целей на список уже сходивших
@@ -1677,8 +1702,16 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Непонятный
+    public IEnumerator  Neponuatnui()
+    {
+        int squares = GetNUniqueSigns();
+        int damage = squares + owner.treasures.Count;
+        
+        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
 
-
+        yield break;
+    }
 
     // От Поганого Мерлина
     public IEnumerator  OtPoganogoMerlina()
@@ -1704,7 +1737,15 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Адовый
+    public IEnumerator  Adovui()
+    {
+        int damage = BuffDamageSign(GetSpellCard().sign);   // Увеличение урона на кол-во знаков мрака(для этой карты)
+        
+        yield return DamageToTargets(damage, AllEnemies());
 
+        yield break;
+    }
 
     // От Феечки смерти
     // Недописанная карта
@@ -1845,6 +1886,26 @@ public class CardController : MonoBehaviour
 
         yield return DamageToTargets(damage, listTargets);
         
+        yield break;
+    }
+
+    // Громобойный
+    public IEnumerator  Gromoboinui()
+    {
+        // Урон
+        int damage = 2;
+
+        // Подсчет уникальных знаков в заклинании
+        int uniqueSigns = GetNUniqueSigns();
+
+        for(int i = 0; i < uniqueSigns; i++ )
+        {
+            // Выбираем случайного врага
+            List<MageController> randomEnemy = FindTargets(TargetType.RANDOM);
+            // Наносим урон
+            yield return DamageToTargets(damage, randomEnemy);
+        }
+
         yield break;
     }
 
