@@ -549,6 +549,7 @@ public class CardController : MonoBehaviour
         // Цикл нахождения кол-во одинаковых знаков карты заклинания => кол-во кубиков 
         List<CardController> currentSpell = owner.nonNullSpell.ToList();
         numberDice = currentSpell.Count(spellCard => spellCard.GetSpellCard().sign == sign);
+        numberDice += owner.additionalSigns.Count(addSign => addSign == sign);
 
         numberDice += owner.bonusDice;
         
@@ -694,11 +695,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-        int resultDice  = rolls.Sum();
+        owner.resultDice  = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 2;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 2;}
         else
         {
             damage = 3;
@@ -718,16 +719,16 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
                 
         int damage = 0;
-        if   (resultDice <= 4){damage = 1;}
+        if   (owner.resultDice <= 4){damage = 1;}
         else                  {damage = 2;}
 
         List<MageController> listTargets = FindTargets(TargetType.HIGH_HP);
         yield return DamageToTargets(damage, listTargets);
 
-        if (resultDice > 9)
+        if (owner.resultDice > 9)
         {
             yield return Highlight(false);
             yield return StealCardFromSpell(Order.DELIVERY, listTargets);
@@ -741,13 +742,13 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         List<MageController> listTargets = new List<MageController>(); // Лист целей
         
         int damage;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 2;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 2;}
         else
         {
             damage = 4;
@@ -767,7 +768,7 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         List<MageController> listTargets      = new List<MageController>(); // Лист целей
         List<MageController> listTargetsDeads = new List<MageController>(); // Лист целей с жетоном недобитого колдуна
@@ -783,12 +784,12 @@ public class CardController : MonoBehaviour
         }
 
         int damage = 0;
-        if      (resultDice <= 4)
+        if      (owner.resultDice <= 4)
         {
             damage = 1;
             yield return DamageToTarget(damage, owner);
         }
-        else if (resultDice <= 9)
+        else if (owner.resultDice <= 9)
         {
             damage = 2;
             damageDeads = 4;
@@ -811,11 +812,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 1;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 1;}
         else                     {damage = 7;}
 
         yield return DamageToTargets(damage, FindTargets(TargetType.HIGH_HP));
@@ -827,13 +828,13 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         List<MageController> listTargets = new List<MageController>(); // Лист целей
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 2;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 4;}
 
         listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
@@ -850,11 +851,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 4;}
         
         yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT)); //Правый маг
@@ -866,19 +867,19 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         List<MageController> targets = FindTargets(TargetType.HIGH_HP);
 
         int damageNeighbors = 0; // Урон соседям
         
         int damage = 0;
-        if      (resultDice <= 4)
+        if      (owner.resultDice <= 4)
         {
             damage = 1;
             yield return DamageToTargets(damage, targets);
         }
-        else if (resultDice <= 9)
+        else if (owner.resultDice <= 9)
         {
             damage = 3;
             damageNeighbors = 1;
@@ -901,16 +902,13 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         MageController target = IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT);
-        // TEST
-        resultDice = 10;
-        // TEST
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 2;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 2;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                  
         {
             yield return target.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
@@ -931,11 +929,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 2;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 4;}
 
         yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT)); //Левый маг
@@ -947,11 +945,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else
         {
             damage = 5;
@@ -968,11 +966,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 2;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 2;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 3;}
 
         yield return DamageToTargets(damage, FindTargets(TargetType.LOW_HP));
@@ -985,13 +983,13 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         List<MageController> listTargets = new List<MageController>(); // Лист целей
         
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 2;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 2 * BuffDamageSign(GetSpellCard().sign);}// Увеличение урона на кол-во знаков травы(для этой карты)
 
         listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage,  POSITION_LEFT));
@@ -1007,15 +1005,15 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
-        
+
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     
         {
             damage = 4;
@@ -1045,10 +1043,10 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         int damage = 0;
-        if(resultDice <= 4)
+        if(owner.resultDice <= 4)
         {
             damage = 3;
             yield return DamageToTarget(damage, owner);
@@ -1058,7 +1056,7 @@ public class CardController : MonoBehaviour
             yield return owner.ChooseEnemy();
             MageController target = owner.chosenMage; // Враг по выбору
             
-            if (resultDice <= 9)
+            if (owner.resultDice <= 9)
             {
                 damage = 3;
             }
@@ -1077,7 +1075,7 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
@@ -1085,12 +1083,12 @@ public class CardController : MonoBehaviour
 
         int selfDamage = 0;
         int damage = 0;
-        if(resultDice <= 4)
+        if(owner.resultDice <= 4)
         {
             damage = 2;
             yield return DamageToTarget(damage, target);
         }
-        else if (resultDice <= 9)
+        else if (owner.resultDice <= 9)
         {
             damage = 4;
             selfDamage = 1;
@@ -1223,21 +1221,20 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         int selfDamage = 0;
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
         
         
-        resultDice = 10;
         int damage = 0;
-        if(resultDice <= 4)
+        if(owner.resultDice <= 4)
         {
             damage = 1;
             yield return DamageToTarget(damage, target);
         }
-        else if (resultDice <= 9)
+        else if (owner.resultDice <= 9)
         {
             damage = 3;
             selfDamage = 1;
@@ -1264,12 +1261,12 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         int damage = 0;
         int healHp = 0;
-        if      (resultDice <= 4){damage = 1; healHp = 0;}
-        else if (resultDice <= 9){damage = 1; healHp = 1;}
+        if      (owner.resultDice <= 4){damage = 1; healHp = 0;}
+        else if (owner.resultDice <= 9){damage = 1; healHp = 1;}
         else                     {damage = 3; healHp = 3;}
 
         yield return HealToTarget(healHp, owner);
@@ -1315,15 +1312,15 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(1); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
-        if(resultDice <= 3)
+        if(owner.resultDice <= 3)
         {
-            yield return DamageToTarget(resultDice, owner); // Урон владельцу сколько выпало
+            yield return DamageToTarget(owner.resultDice, owner); // Урон владельцу сколько выпало
         }
         else
         {
-            yield return HealToTarget(resultDice, owner); // Лечение владельцу, сколько выпало
+            yield return HealToTarget(owner.resultDice, owner); // Лечение владельцу, сколько выпало
         }
 
         yield break;
@@ -1403,7 +1400,7 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
         
         yield return owner.ChooseEnemy();
         MageController target = owner.chosenMage; // Враг по выбору
@@ -1412,8 +1409,7 @@ public class CardController : MonoBehaviour
         int damage = 1;
         
         yield return DamageToTarget(damage, target);
-        resultDice = 10;
-        if (resultDice <= 9)
+        if (owner.resultDice <= 9)
         {
             // Случайная карта с руки к заклинанию   
             List<CardController> hand = owner.GetSpellsInHand();
@@ -1438,11 +1434,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum();
+        owner.resultDice = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9)
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9)
         {
             damage = 2;
             yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
@@ -1621,11 +1617,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-        int resultDice  = rolls.Sum();
+        owner.resultDice  = rolls.Sum();
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 2;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 2;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 6;}
         
 
@@ -1677,7 +1673,6 @@ public class CardController : MonoBehaviour
     // От Брадострела
     public IEnumerator  OtBradostrela()
     {
-        print($"OWNER: {owner}");
         List<CardController> deliveries = owner.GetCardsOfOrderInSpell(Order.DELIVERY);
         
         foreach (CardController card in deliveries)
@@ -1751,11 +1746,11 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-        int resultDice  = rolls.Sum();
+        owner.resultDice  = rolls.Sum();
         
         int healHp = 0;
-        if      (resultDice <= 4){healHp = 0;}
-        else if (resultDice <= 9){healHp = 2;}
+        if      (owner.resultDice <= 4){healHp = 0;}
+        else if (owner.resultDice <= 9){healHp = 2;}
         else                     {healHp = 4;}
 
         yield return HealToTarget(healHp, owner); // Лечение владельца
@@ -1767,14 +1762,14 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign));
         yield return OnDiceRoll(rolls);
-        int resultDice = rolls.Sum(); // Бросок кубика
+        owner.resultDice = rolls.Sum(); // Бросок кубика
         
         yield return owner.ChooseCardFromHand();
         if (owner.chosenCard != null)
             owner.DropCard(owner.chosenCard);
 
         int damage = 0; 
-        if (resultDice > 4)
+        if (owner.resultDice > 4)
         {
             yield return owner.ChooseCardFromHand();
             if (owner.chosenCard != null)
@@ -1782,7 +1777,7 @@ public class CardController : MonoBehaviour
 
             damage = 2;
             yield return DamageToTargets(damage, AllEnemies());
-            if (resultDice > 9)
+            if (owner.resultDice > 9)
             {
                 yield return gm.treasuresDeck.PassCardsTo(owner, 1);
             }
@@ -1796,13 +1791,13 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-        int resultDice  = rolls.Sum();
+        owner.resultDice  = rolls.Sum();
 
         int damageSelf = 1;
 
         int damage = 0;
-        if      (resultDice <= 4){damage = 2;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 2;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 5;}
 
         yield return DamageToTarget(damageSelf, owner);
@@ -1816,15 +1811,15 @@ public class CardController : MonoBehaviour
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика
         yield return OnDiceRoll(rolls);
-        int resultDice  = rolls.Sum();
+        owner.resultDice  = rolls.Sum();
 
         int damage = 0;
 
         // Поиск врагов с большим здоровьем чем у владельца
         List<MageController> listTargets = gm.aliveMages.FindAll(mage => mage.health > owner.health);
 
-        if      (resultDice <= 4){damage = 1;}
-        else if (resultDice <= 9){damage = 3;}
+        if      (owner.resultDice <= 4){damage = 1;}
+        else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 4;}
 
         yield return DamageToTargets(damage, listTargets);
@@ -1839,4 +1834,22 @@ public class CardController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public IEnumerator PodvyazkiGospozhiUdachi()
+    {
+        if (owner.nCardsInSpell <= 2)
+        {
+            int index = random.Next(owner.nSpellsInHand);
+            CardController card = owner.GetSpellsInHand()[index];
+            yield return owner.AppendToSpell(card);
+        }
+    }
+
+    public IEnumerator NekrasnieMakasini()
+    {
+        if (owner.isExecuting)
+            owner.additionalSigns.Add(Sign.ARCANE);
+        yield break;
+    }
 }

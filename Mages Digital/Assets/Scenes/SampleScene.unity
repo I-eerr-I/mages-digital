@@ -1489,15 +1489,15 @@ PrefabInstance:
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[0]
       value: 
-      objectReference: {fileID: 11400000, guid: 248fd268e65a1dd4f92ea2e446c55f88, type: 2}
+      objectReference: {fileID: 11400000, guid: 59bc58b2ede4ca14e9d00238839a8a50, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[1]
       value: 
-      objectReference: {fileID: 11400000, guid: baf9ef7308581d94fb459d9500f4eb40, type: 2}
+      objectReference: {fileID: 11400000, guid: edafd85209d36ac49bc0e38e862c9fa9, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[2]
       value: 
-      objectReference: {fileID: 11400000, guid: 3a186b9628c334548b95b3cc1949c343, type: 2}
+      objectReference: {fileID: 11400000, guid: de2f6b1170ffe2e4f86a10c99c6904b1, type: 2}
     - target: {fileID: 7905741834696834161, guid: 332f63aa85a1db54b942a74418d4c14b, type: 3}
       propertyPath: _deck.Array.data[3]
       value: 
@@ -1955,7 +1955,7 @@ PrefabInstance:
     - target: {fileID: 4261573169941840527, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
       propertyPath: _deck.Array.data[3]
       value: 
-      objectReference: {fileID: 11400000, guid: 72ab609ab061a2a44b390f94a89c063b, type: 2}
+      objectReference: {fileID: 11400000, guid: 3c4dab214fc0c0b4aa7af4b35d63ef0b, type: 2}
     - target: {fileID: 4261573169941840527, guid: 4b71173d79005b44ab500d23258fe976, type: 3}
       propertyPath: _deck.Array.data[4]
       value: 
@@ -3641,6 +3641,7 @@ MonoBehaviour:
   _player: {fileID: 0}
   _mages: []
   _magesOrder: []
+  bonusCards: []
 --- !u!4 &710255898
 Transform:
   m_ObjectHideFlags: 0

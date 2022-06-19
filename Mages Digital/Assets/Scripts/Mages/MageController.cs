@@ -81,6 +81,13 @@ public class MageController : MonoBehaviour
         set => _bonusDice = value;
     }
     public bool isWildMagicInSpell => _isWildMagicInSpell;
+    
+    
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public List<Sign> additionalSigns = new List<Sign>();
+    public int  resultDice = 0;
+    public bool isExecuting = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -238,7 +245,11 @@ public class MageController : MonoBehaviour
     // выполнить заклинание
     public IEnumerator ExecuteSpells()
     {
+        isExecuting = true;
+
         yield return owner.ShowSpellToAll();
+
+        yield return GameManager.instance.ExecuteBonusCards();
 
         // замена шальной магии
         List<CardController> spellWildMagics = nonNullSpell.Where(card => card.GetSpellCard().order == Order.WILDMAGIC).ToList();
@@ -269,6 +280,8 @@ public class MageController : MonoBehaviour
         if (!isDead)
             yield return owner.HideSpellFromAll();
         
+        isExecuting = false;
+
         _isWildMagicInSpell = false;
     }
 
@@ -277,6 +290,9 @@ public class MageController : MonoBehaviour
         yield return card.Highlight(true);
         yield return card.ExecuteSpell();
         yield return card.Highlight(false);
+
+        resultDice = 0;
+        additionalSigns.Clear();
     }
 
 
@@ -433,7 +449,7 @@ public class MageController : MonoBehaviour
         List<CardController> cards = new List<CardController>();
         foreach (CardController card in nonNullSpell)
         {
-            if (card.GetSpellCard()?.order == order || card.spellOrder == order)
+            if (card.GetSpellCard()?.order == order)
                 cards.Add(card);
         }
         return cards;

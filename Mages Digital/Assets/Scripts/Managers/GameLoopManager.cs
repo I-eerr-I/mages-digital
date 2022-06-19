@@ -26,7 +26,7 @@ public class GameLoopManager : MonoBehaviour
         // TEST
         yield return new WaitForSeconds(2.0f);
 
-        yield return gm.treasuresDeck.PassCardsTo(gm.mages[1], 4);
+        yield return gm.treasuresDeck.PassCardsTo(gm.player, 4);
         // yield return gm.spellsDeck.PassCardsTo(gm.player, 4);
 
         // yield return gm.SpellCreation();

@@ -95,6 +95,16 @@ public class GameManager : MonoBehaviour
         GAME_END,
     }
 
+    public List<CardController> bonusCards = new List<CardController>();
+
+    public IEnumerator ExecuteBonusCards()
+    {
+        foreach (CardController bonusCard in bonusCards)
+        {
+            yield return bonusCard.ExecuteSpell();
+        }
+    }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

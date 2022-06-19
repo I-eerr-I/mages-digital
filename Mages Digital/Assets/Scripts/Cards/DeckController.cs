@@ -232,6 +232,11 @@ public class DeckController : MonoBehaviour
         // настройка контроллера карты
         CardController cardController = cardObject.GetComponent<CardController>();
         cardController.SetupCard(card, deck: this, back: _back);
+
+        if (!cardController.isSpell)
+        {
+            GameManager.instance.bonusCards.Add(cardController);
+        }
         
         return cardController;
     }
