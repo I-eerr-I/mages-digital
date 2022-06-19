@@ -573,6 +573,14 @@ public class MageController : MonoBehaviour
         StartCoroutine(_mageIcon.OnHeal());
     }
 
+    public IEnumerator OnBonusSpellExecution(CardController bonusCard, bool start = true)
+    {
+        if (start)
+            yield return owner.ShowCardToAll(bonusCard, highlight: true);
+        else
+            yield return owner.HideCardFromAll(bonusCard);
+    }
+
     // реакция на победу в турнире
     public void OnTournamentWon()
     {

@@ -556,6 +556,14 @@ public class CardController : MonoBehaviour
         return numberDice;
     }
 
+    public int GetNUniqueSigns()
+    {
+        List<Sign> allSigns = owner.nonNullSpell.Select(spellCard => spellCard.GetSpellCard().sign).ToList();
+        allSigns.AddRange(owner.additionalSigns);
+    
+        return allSigns.Distinct().Count();
+    }
+
     // Урон магу (Урон, Цель)
     public IEnumerator DamageToTarget(int damage, MageController target)
     {
@@ -1427,6 +1435,19 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // Аппетитный
+    public IEnumerator  Appetitnui()
+    {
+        // Подсчет уникальных знаков в заклинании
+        int damage = GetNUniqueSigns();
+
+        List<MageController> magesWithOutOwner = AllEnemies();// Все живые враги
+        List<MageController> listTargets = magesWithOutOwner.FindAll(mage => mage.health % 2 != 0); // Поиск магов с нечетным здоровьем
+        
+        yield return DamageToTargets(damage, listTargets);
+        
+        yield break;
+    }
 
 
     // Отборный
@@ -1840,9 +1861,13 @@ public class CardController : MonoBehaviour
     {
         if (owner.nCardsInSpell <= 2)
         {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
             int index = random.Next(owner.nSpellsInHand);
             CardController card = owner.GetSpellsInHand()[index];
             yield return owner.AppendToSpell(card);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
         }
     }
 
@@ -1850,7 +1875,13 @@ public class CardController : MonoBehaviour
     public IEnumerator NekrasnieMokasini()
     {
         if (owner.isExecuting)
+        {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
             owner.additionalSigns.Add(Sign.ARCANE);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
+        }
         yield break;
     }
 
