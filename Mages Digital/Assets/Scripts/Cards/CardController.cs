@@ -1887,12 +1887,60 @@ public class CardController : MonoBehaviour
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     // Башмаки Скомороха
     public IEnumerator BashmakiSkomoroha()
     {
         if (owner.isExecuting)
+        {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
             owner.additionalSigns.Add(Sign.ILLUSION);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
+        }
         yield break;
     }
-// 
+
+    // Сабо Лесного Властелина 
+    public IEnumerator SaboLesnogoVlastelina()
+    {
+        if (owner.isExecuting)
+        {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
+            owner.additionalSigns.Add(Sign.PRIMAL);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
+        }
+        yield break;
+    }
+
+    // Жгуфли
+    public IEnumerator Jgyfli()
+    {
+        if (owner.isExecuting)
+        {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
+            owner.additionalSigns.Add(Sign.ELEMENTAL);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
+        }
+        yield break;
+    }
+
+    // Зловещие шлепанцы
+    public IEnumerator ZloveshieShlepanci()
+    {
+        if (owner.isExecuting)
+        {
+            yield return owner.OnBonusSpellExecution(this, start: true);
+
+            owner.additionalSigns.Add(Sign.DARK);
+
+            yield return owner.OnBonusSpellExecution(this, start: false);
+        }
+        yield break;
+    }
 }
