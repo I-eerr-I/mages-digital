@@ -159,8 +159,10 @@ public class PlayerController : AbstractPlayerController
         }
         else
         {
-            SetCardHandParent(card);            
-            iTween.MoveTo(card.gameObject, iTween.Hash("position", GameManager.instance.spellGroupLocation.position, "time", _spellGroupMovingTime));
+            SetCardHandParent(card);  
+            Vector3 position = GameManager.instance.spellGroupLocation.position;
+            position.y += 1.0f;
+            iTween.MoveTo(card.gameObject, iTween.Hash("position", position, "time", _spellGroupMovingTime));
             yield return new WaitForSeconds(_spellGroupMovingTime);
         }
     }
