@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4017a11d678e46845a6608411aefd061, type: 3}
+  m_Name: LutonarkKrovomant
+  m_EditorClassIdentifier: 
+  _magename: "\u041B\u044E\u0442\u043E\u043D\u0430\u0440\u043A \u041A\u0440\u043E\u0432\u043E\u043C\u0430\u043D\u0442"
+  _icon: {fileID: 21300000, guid: c1eafab3790d6b14896d4a4625e8ddab, type: 3}
+  _front: {fileID: 21300000, guid: 9e8b78804e7ff0040b632103bdf4dfb7, type: 3}
