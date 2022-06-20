@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83844cebbb69dc342ac55cc8ed115fa5, type: 3}
   m_Name: Kachkovui
   m_EditorClassIdentifier: 
-  _front: {fileID: -5229922940850303493, guid: 2a8d9305a6d606b45a9257813089a8db, type: 3}
+  _front: {fileID: 21300000, guid: 94961d6917c1dc8488811eaed7f4229a, type: 3}
   _cardName: "\u041A\u0430\u0447\u043A\u043E\u0432\u044B\u0439"
   _description: "\u041D\u0430\u043A\u0440\u0443\u0442\u0438 2 \u0436\u0438\u0437\u043D\u0438.
     \u0417\u0430\u0442\u0435\u043C, \u0435\u0441\u043B\u0438 \u0442\u044B \u0441\u0430\u043C\u044B\u0439
