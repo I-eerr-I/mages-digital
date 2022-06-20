@@ -52,7 +52,7 @@ public class CardController : MonoBehaviour
 
 
     float _cardFlippingTime          = 0.15f; // время переворота карты
-    float _cardShowInfoWaitTime      = 1.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
+    float _cardShowInfoWaitTime      = 0.5f;  // сколько держать курсор на карте, чтобы показать ее информацию
     float _cardHighlightDeltaY       = 1.0f;  // насколько поднять карту вверх для выделения
     float _cardHighlightTime         = 1.0f;  // время поднятия карты для выделения
     float _cardHighlightLightDelta   = 2.0f;  // увеличение дальности света (яркости) при выделении
