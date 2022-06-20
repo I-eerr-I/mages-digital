@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5bc87fac7ae94544ea6b64fd795bdbfb, type: 3}
   m_Name: OtSfinksenona
   m_EditorClassIdentifier: 
-  _front: {fileID: -7136840529013852981, guid: bda59c4c6c0ac4b4b938aebf236c85ee, type: 3}
+  _front: {fileID: 21300000, guid: 28318dda90e44cb4c96e80fda5c87173, type: 3}
   _cardName: "\u041E\u0442 \u0421\u0444\u0438\u043D\u043A\u0441\u0435\u043D\u043E\u043D\u0430"
   _description: "\u041E\u0442\u043E\u0436\u043C\u0438 1 \u0441\u043E\u043A\u0440\u043E\u0432\u0438\u0449\u0435
     \u043F\u043E \u0441\u0432\u043E\u0435\u043C\u0443 \u0432\u044B\u0431\u043E\u0440\u0443

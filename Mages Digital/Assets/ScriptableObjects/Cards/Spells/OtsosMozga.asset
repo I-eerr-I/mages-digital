@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe8297cd915f6f449ffcb64e0e0e24f, type: 3}
   m_Name: OtsosMozga
   m_EditorClassIdentifier: 
-  _front: {fileID: 9008660230051194950, guid: 5858bf4c0ef293949928c355c870d3d1, type: 3}
+  _front: {fileID: 21300000, guid: 1a9fb27d293d7c149994e5a705f9462f, type: 3}
   _cardName: "\u041E\u0442\u0441\u043E\u0441 \u041C\u043E\u0437\u0433\u0430"
   _description: "\u0416\u0435\u0440\u0442\u0432\u0430: \u0432\u0440\u0430\u0433 \u043F\u043E
     \u0442\u0432\u043E\u0435\u043C\u0443 \u0432\u044B\u0431\u043E\u0440\u0443. \u041C\u043E\u0433\u0443\u0447\u0438\u0439
