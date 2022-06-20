@@ -1227,8 +1227,6 @@ public class CardController : MonoBehaviour
 
     // Разрывной
     // Недописанная карта
-    // Нет выбора врага
-    // Нет выбора сокровища для сброса
     public IEnumerator  Razrivnoi()
     {
         List<int> rolls = RollDice(NumberDice(GetSpellCard().sign)); // Бросок кубика 
@@ -1266,7 +1264,51 @@ public class CardController : MonoBehaviour
         yield break;
     }
 
+    // От бухого Уокера
+    // Не учитывает знаки от сокровищ
+    public IEnumerator  OtByhogoYokera()
+    {
+        int damage = 3;
+        // Словарь маг key бросок value
+        Dictionary<MageController, int> magesAndRolls = new Dictionary<MageController, int>();
 
+        int numberDice = 1;// кол-во кубиков
+        
+        foreach(MageController mage in gm.aliveMages)
+        {
+            mage.mageIcon.Highlight(true);
+            
+            List<int> rolls = RollDice(numberDice);
+            yield return OnDiceRoll(rolls, showBonus: false);
+            int resultDice = rolls.Sum();
+
+            if (mage == owner)
+            {
+                int bonus = BuffDamageSign(GetSpellCard().sign);
+                mage.mageIcon.ShowInfoText($"{resultDice} + {bonus}");
+                resultDice += bonus;
+            }
+            else
+            {
+                mage.mageIcon.ShowInfoText(resultDice.ToString());  
+            }
+            
+            magesAndRolls.Add(mage, resultDice); // Каждый маг кидает кубик
+
+            mage.mageIcon.Highlight(false);
+        }
+
+        int minValue = magesAndRolls.Values.Min();// Нахождение минимального броска
+
+        foreach (var mageRoll in magesAndRolls)
+        {
+            if( mageRoll.Value == minValue )
+            {
+                yield return DamageToTarget(damage, mageRoll.Key);
+            }
+        }
+        yield break;
+    }
 
     //Шипастый
     public IEnumerator Shipastui()
