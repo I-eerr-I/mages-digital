@@ -105,6 +105,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public MageController executingSpellMage;
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -237,6 +239,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < _magesOrder.Count; i++)
         {
             MageController mage = _magesOrder[i];
+            executingSpellMage  = mage;
             if (!mage.isDead && mage.nCardsInSpell > 0)
             {
                 _magesOrderIcons.ForEach(icon => icon.Highlight(false));

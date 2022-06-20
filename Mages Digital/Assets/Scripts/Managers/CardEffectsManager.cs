@@ -1,3 +1,5 @@
+using Enum = System.Enum;
+using Array = System.Array;
 using Random = System.Random;
 using System.Linq;
 using System.Collections;
@@ -57,7 +59,10 @@ public class CardEffectsManager : MonoBehaviour
 
     public IEnumerator Attack(Vector3 from, Vector3 to, CardController attackSource, float duration = 1.0f)
     {
-        Sign sign = Sign.ARCANE;
+        Array values = Enum.GetValues(typeof(Sign));
+        
+        Sign sign = (Sign) values.GetValue(random.Next(values.Length));
+
         if (attackSource.card.cardType == CardType.SPELL)
         {
             sign = attackSource.GetSpellCard().sign;

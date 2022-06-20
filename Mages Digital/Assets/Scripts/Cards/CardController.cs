@@ -588,6 +588,14 @@ public class CardController : MonoBehaviour
         return allSigns.FindAll(cardSign => cardSign == sign).Count();
     }
 
+    public int GetNSignsFromMage(Sign sign, MageController mage)
+    {
+        List<Sign> allSigns = mage.nonNullSpell.Select(spellCard => spellCard.GetSpellCard().sign).ToList();
+        allSigns.AddRange(mage.additionalSigns);
+    
+        return allSigns.FindAll(cardSign => cardSign == sign).Count();
+    }
+
     // Урон магу (Урон, Цель)
     public IEnumerator DamageToTarget(int damage, MageController target)
     {
@@ -2177,5 +2185,23 @@ public class CardController : MonoBehaviour
             yield return owner.OnBonusSpellExecution(this, start: false);
         }
         yield break;
+    }
+
+    // Корона Пай-Мальчика
+    public IEnumerator KoronaPauiMalchika()
+    {
+        if (gm.executingSpellMage != null && gm.executingSpellMage != owner)
+        {
+            MageController target = gm.executingSpellMage;
+            int damage = GetNSignsFromMage(Sign.DARK, target);
+            if (damage > 0)
+            {
+                yield return owner.OnBonusSpellExecution(this, start: true);
+
+                yield return DamageToTarget(damage, target);
+
+                yield return owner.OnBonusSpellExecution(this, start: false);
+            }
+        }
     }
 }

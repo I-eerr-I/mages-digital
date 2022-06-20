@@ -1,4 +1,6 @@
 using System;
+using Enum = System.Enum;
+using Array = System.Array;
 using Random = System.Random;
 using UnityRandom = UnityEngine.Random;
 using System.Collections;
@@ -436,7 +438,9 @@ public class MageIconController : MonoBehaviour
     {
         Card card = damageSource.card;
 
-        Sign sign = Sign.ARCANE;
+        Array values = Enum.GetValues(typeof(Sign));
+        
+        Sign sign = (Sign) values.GetValue(random.Next(values.Length));
 
         if (card.cardType == CardType.SPELL)
             sign = damageSource.GetSpellCard().sign;
