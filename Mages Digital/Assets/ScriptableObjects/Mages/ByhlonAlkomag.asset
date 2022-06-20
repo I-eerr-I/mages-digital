@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4017a11d678e46845a6608411aefd061, type: 3}
+  m_Name: ByhlonAlkomag
+  m_EditorClassIdentifier: 
+  _magename: "\u0411\u0443\u0445\u043B\u043E\u043D \u0410\u043B\u043A\u043E\u043C\u0430\u0433"
+  _icon: {fileID: 21300000, guid: 295aebbabdde9224cac3fe7666822e08, type: 3}
+  _front: {fileID: 21300000, guid: 17eb427b57cf79c489347479f8eef573, type: 3}
