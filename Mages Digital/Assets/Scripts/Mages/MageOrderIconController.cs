@@ -1,24 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+// using UnityEditor;
+
 
 public class MageOrderIconController : MonoBehaviour
 {
-    
 
     [SerializeField] Color _idleIconColor;
     [SerializeField] Color _highlightedIconColor;
 
     SpriteRenderer   _icon;
-    SerializedObject _halo;
-
+    Component _halo;
 
     void Awake()
     {
         GameObject iconObject = transform.GetChild(0).gameObject;
         _icon = iconObject.GetComponent<SpriteRenderer>();
-        _halo = new SerializedObject(iconObject.GetComponent("Halo"));
+        // _halo = new SerializedObject(iconObject.GetComponent("Halo"));
+        _halo = iconObject.GetComponent("Halo");
 
         Highlight(false);
     }
@@ -48,8 +48,9 @@ public class MageOrderIconController : MonoBehaviour
 
     void EnableHalo(bool enable)
     {
-        _halo.FindProperty("m_Enabled").boolValue = enable;
-        _halo.ApplyModifiedProperties();
+        // _halo.FindProperty("m_Enabled").boolValue = enable;
+        // _halo.ApplyModifiedProperties();
+        _halo.GetType().GetProperty("enabled").SetValue(_halo, enable, null);
     }
 
 }

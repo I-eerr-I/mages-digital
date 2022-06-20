@@ -2122,7 +2122,7 @@ PrefabInstance:
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _mage
       value: 
-      objectReference: {fileID: 11400000, guid: d782b722ab8814f438a1a69afc6194a1, type: 2}
+      objectReference: {fileID: 11400000, guid: 231463ddbe597e84eb02ed2b0eafb9ec, type: 2}
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _leftMage
       value: 
@@ -3877,7 +3877,7 @@ MonoBehaviour:
   _magesOrderLocation: {fileID: 438332033}
   _prevGameState: 0
   _gameState: 0
-  _playerMage: {fileID: 11400000, guid: c6b71333772089a44a2272f7aff0c304, type: 2}
+  _playerMage: {fileID: 11400000, guid: ef927e8d45cfe2f499a82af31828b31d, type: 2}
   _player: {fileID: 0}
   _mages: []
   _magesOrder: []
@@ -4392,6 +4392,14 @@ PrefabInstance:
       propertyPath: _spell.Array.data[2]
       value: 
       objectReference: {fileID: 225443698}
+    - target: {fileID: 8264760736171111290, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.87537104
+      objectReference: {fileID: 0}
+    - target: {fileID: 8264760736171111290, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.87537104
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
 --- !u!114 &1044499059 stripped
@@ -4847,7 +4855,7 @@ PrefabInstance:
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _mage
       value: 
-      objectReference: {fileID: 11400000, guid: 1e7ed355483ea3e43a49ad2606480f93, type: 2}
+      objectReference: {fileID: 11400000, guid: ba5f0f22f9f6e8548a80a59aaf153d03, type: 2}
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _health
       value: 2
@@ -5364,7 +5372,7 @@ PrefabInstance:
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _mage
       value: 
-      objectReference: {fileID: 11400000, guid: ffc00c1fa10d4034f9fa56548c92fef2, type: 2}
+      objectReference: {fileID: 11400000, guid: ae130695578740b4ab506bbfd0920b71, type: 2}
     - target: {fileID: 7317039755468638985, guid: a906e1d5daefa2e46b60023460efefdf, type: 3}
       propertyPath: _leftMage
       value: 
@@ -6707,7 +6715,7 @@ PrefabInstance:
     - target: {fileID: 5662860762395734718, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
       propertyPath: _mage
       value: 
-      objectReference: {fileID: 11400000, guid: c6b71333772089a44a2272f7aff0c304, type: 2}
+      objectReference: {fileID: 11400000, guid: ef927e8d45cfe2f499a82af31828b31d, type: 2}
     - target: {fileID: 5662860762395734718, guid: 4e8fc3aae7beb0b43afb6e4da14fb7ce, type: 3}
       propertyPath: _health
       value: 20

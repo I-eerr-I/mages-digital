@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using CardsToolKit;
 using TMPro;
 using UnityEngine;
-using UnityEditor;
+
+using System.Reflection;
+
+// using UnityEditor;
 
 public class MageIconController : MonoBehaviour
 {
@@ -56,8 +59,8 @@ public class MageIconController : MonoBehaviour
 
 
     MageController   _mage;
-    SerializedObject _halo;
-
+    
+    // Component _halo;
 
     ParticleSystem _arcaneReaction;
     ParticleSystem _darkReaction;
@@ -93,10 +96,10 @@ public class MageIconController : MonoBehaviour
     public Color iconColor;
     public Color iconHoverColor;
     
-    [Header("Настройки Halo")]
-    public Color haloColor;    
-    public float haloRange;
-    public float haloHoverRange;
+    // [Header("Настройки Halo")]
+    // public Color haloColor;    
+    // public float haloRange;
+    // public float haloHoverRange;
 
     [Header("Внешний вид после смерти")]
     public Color haloDeathColor;
@@ -114,8 +117,7 @@ public class MageIconController : MonoBehaviour
     void Awake()
     {
         _mage       = gameObject.GetComponentInParent<MageController>();
-        _halo       = new SerializedObject(gameObject.GetComponent("Halo"));
-
+        // _halo       = gameObject.GetComponent("Halo");
 
         _healthOutline = _healthObject.GetComponentInChildren<SpriteRenderer>();
         _healthText    = _healthObject.GetComponentInChildren<TextMeshPro>();
@@ -190,7 +192,7 @@ public class MageIconController : MonoBehaviour
         });
         _mouseDownActions.Add(() => 
         {
-            haloColor = new Color((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble());
+            // haloColor = new Color((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble());
             mainColor = new Color((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble());
             mainHoverColor = new Color((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble());
             _discoverable = true;
@@ -272,7 +274,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(iconHoverColor);
         SetOutlineSettings(mainHoverColor);
-        SetHaloSettings(haloColor, haloHoverRange);
+        // SetHaloSettings(haloColor, haloHoverRange);
     }
 
 
@@ -280,7 +282,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(iconColor);
         SetOutlineSettings(mainColor);
-        SetHaloSettings(haloColor, haloRange);
+        // SetHaloSettings(haloColor, haloRange);
     }
 
 
@@ -288,7 +290,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(iconDeathHoverColor);
         SetOutlineSettings(mainDeathHoverColor);
-        SetHaloSettings(haloDeathColor, haloHoverRange);
+        // SetHaloSettings(haloDeathColor, haloHoverRange);
     }
 
 
@@ -296,7 +298,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(iconDeathColor);
         SetOutlineSettings(mainDeathColor);
-        SetHaloSettings(haloDeathColor, haloRange);
+        // SetHaloSettings(haloDeathColor, haloRange);
     }
 
 
@@ -355,14 +357,14 @@ public class MageIconController : MonoBehaviour
             SetUndiscoverable();
             SetIconSettings(iconHoverColor);
             SetOutlineSettings(Color.white);
-            SetHaloSettings(Color.white, haloHoverRange);
+            // SetHaloSettings(Color.white, haloHoverRange);
         }
         else
         {
             SetDiscoverable();
             SetIconSettings(iconColor);
             SetOutlineSettings(mainColor);
-            SetHaloSettings(haloColor, haloRange);
+            // SetHaloSettings(haloColor, haloRange);
         }
     }
 
@@ -412,7 +414,7 @@ public class MageIconController : MonoBehaviour
     public void OnDeath()
     {
         SetOutlineSettings(mainDeathColor);
-        SetHaloSettings(haloDeathColor, haloRange);
+        // SetHaloSettings(haloDeathColor, haloRange);
         SetIconSettings(iconDeathColor);
         CracksOn();
     }
@@ -422,7 +424,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(Color.white);
         SetOutlineSettings(mainColor);
-        SetHaloSettings(haloColor, haloRange);
+        // SetHaloSettings(haloColor, haloRange);
         CracksOff();
     }
 
@@ -563,19 +565,28 @@ public class MageIconController : MonoBehaviour
     }
 
 
-    void SetHaloSettings(Color color, float range)
-    {
-        _halo.FindProperty("m_Color").colorValue = color;
-        _halo.FindProperty("m_Size").floatValue  = range;
-        _halo.ApplyModifiedProperties();
-    }
+    // void SetHaloSettings(Color color, float range)
+    // {
+        // _halo.FindProperty("m_Color").colorValue = color;
+        // _halo.FindProperty("m_Size").floatValue  = range;
+        // _halo.ApplyModifiedProperties();
+
+    //     Light light = (Light) _halo.GetType().GetProperty("light").GetValue(_halo);
+    //     light.GetType().GetProperty("color").SetValue(light, color, null);
+    //     light.GetType().GetProperty("range").SetValue(light, range, null);
+    //     // _halo.GetType().GetProperty("light").GetProperty("color").SetValue(light, color, null);
+    //     // _halo.GetType().GetProperty("light").GetProperty("range").SetValue(light, range, null);
+    //     // _halo.GetType().GetProperty("Color").SetValue(_halo, color, null);
+    //     // _halo.GetType().GetProperty("Size").SetValue(_halo, range, null);
+    // }
 
 
-    void SetHaloRange(float range)
-    {
-        _halo.FindProperty("m_Size").floatValue  = range;
-        _halo.ApplyModifiedProperties();
-    }
+    // void SetHaloRange(float range)
+    // {
+    //     // _halo.FindProperty("m_Size").floatValue  = range;
+    //     // _halo.ApplyModifiedProperties();
+    //     _halo.GetType().GetProperty("Size").SetValue(_halo, range, null);
+    // }
 
 
     void SetOutlineSettings(Color color)
@@ -596,7 +607,7 @@ public class MageIconController : MonoBehaviour
     {
         SetIconSettings(iconColor);
         SetOutlineSettings(mainColor);
-        SetHaloSettings(haloColor, haloRange);
+        // SetHaloSettings(haloColor, haloRange);
     }
 
 

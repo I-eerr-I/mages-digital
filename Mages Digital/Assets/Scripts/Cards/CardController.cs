@@ -483,7 +483,7 @@ public class CardController : MonoBehaviour
     {
         cardState = CardState.IN_HAND;
         if (_owner is PlayerController)
-            _outlineController.SetProperties(false, true);
+            _outlineController.SetProperties(true, true);
     }
 
 
@@ -1103,6 +1103,7 @@ public class CardController : MonoBehaviour
         targets = FindTargets(TargetType.CHOSEN);
         if (targets == null)
         {
+            targets = new List<MageController>();
             yield return owner.ChooseEnemy();
             targets.Add(owner.chosenMage); // Враг по выбору
         }
@@ -1515,7 +1516,7 @@ public class CardController : MonoBehaviour
         yield return OnDiceRoll(rolls, showBonus: false);
         int secondResultOwner = rolls.Sum(); // Результат второго кубика владельца
 
-        owner.mageIcon.ShowInfoText($"{firstResultOwner} + {secondResultOwner}");
+        owner.mageIcon.ShowInfoText($"{firstResultOwner}, {secondResultOwner}");
 
         owner.mageIcon.Highlight(false);
 
@@ -1564,6 +1565,7 @@ public class CardController : MonoBehaviour
         targets = FindTargets(TargetType.CHOSEN);
         if (targets == null)
         {
+            targets = new List<MageController>();
             yield return owner.ChooseEnemy();
             targets.Add(owner.chosenMage); // Враг по выбору
         }

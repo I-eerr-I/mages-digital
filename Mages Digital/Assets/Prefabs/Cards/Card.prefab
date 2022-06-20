@@ -205,8 +205,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _color: {r: 1, g: 0.89550054, b: 0, a: 1}
+  _superlightRange: 7
   withLight: 1
-  withHalo: 1
+  withSuperlight: 1
   state: 0
 --- !u!114 &2092122955165500933
 MonoBehaviour:

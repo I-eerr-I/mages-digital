@@ -5,6 +5,7 @@ using UnityEditor;
 
 namespace DigitalRuby.LightningBolt
 {
+    #if UNITY_EDITOR
     [CustomEditor(typeof(LightningBoltScript))]
     public class LightningBoltEditor : Editor
     {
@@ -47,4 +48,5 @@ namespace DigitalRuby.LightningBolt
             DrawDefaultInspector();
         }
     }
+    #endif
 }

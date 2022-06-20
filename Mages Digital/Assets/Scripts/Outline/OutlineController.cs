@@ -1,19 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
+// using UnityEditor;
 
 public class OutlineController : MonoBehaviour
 {
 
     [SerializeField] private Color _color;
+    [SerializeField] private float _superlightRange;
 
     private Outline          _outline;
     private Light            _light;
-    private SerializedObject _halo;
+    
+    private float _standardRange;
 
-    public bool withLight = true;
-    public bool withHalo  = true;
+    // #if UNITY_EDITOR
+    // private SerializedObject _halo;
+    // #endif
+
+    public bool withLight       = true;
+    public bool withSuperlight  = true;
 
     public bool state     = false;
 
@@ -21,7 +27,8 @@ public class OutlineController : MonoBehaviour
     {
         _outline = gameObject.GetComponent<Outline>();
         _light   = gameObject.GetComponent<Light>();
-        _halo    = new SerializedObject(gameObject.GetComponent("Halo"));
+        _standardRange = _light.range;
+        // _halo    = new SerializedObject(gameObject.GetComponent("Halo"));
     }
 
     void Start()
@@ -30,13 +37,13 @@ public class OutlineController : MonoBehaviour
         SetColor(_color);
     }
 
-    public void SetProperties(bool light, bool halo)
+    public void SetProperties(bool light, bool superlight)
     {
-        withLight = true;
-        withHalo  = true;
+        withLight        = true;
+        withSuperlight  = true;
         SetState(false);
-        withLight = light;
-        withHalo  = halo;
+        withLight       = light;
+        withSuperlight  = superlight;
     }
 
     public void SetColor(Color color)
@@ -44,22 +51,33 @@ public class OutlineController : MonoBehaviour
         _color = color;
         if (_outline != null) _outline.OutlineColor = _color;
         if (_light != null)   _light.color = _color;
-        if (_halo != null)    
-        {
-            _halo.FindProperty("m_Color").colorValue = _color;
-            _halo.ApplyModifiedProperties();
-        }
+        // if (_halo != null)    
+        // {
+        //     _halo.FindProperty("m_Color").colorValue = _color;
+        //     _halo.ApplyModifiedProperties();
+        // }
     }
 
     void SetState(bool state)
     {
         if (_outline != null) _outline.enabled = state;
-        if (_light != null && withLight) _light.enabled = state;
-        if (_halo != null && withHalo)    
+        if (_light != null && withLight) 
         {
-            _halo.FindProperty("m_Enabled").boolValue = state;
-            _halo.ApplyModifiedProperties();
+            _light.enabled = state;
+            if (withSuperlight)
+            {
+                _light.range = _superlightRange;
+            }
+            else
+            {
+                _light.range = _standardRange;
+            }
         }
+        // if (_halo != null && withHalo)    
+        // {
+        //     _halo.FindProperty("m_Enabled").boolValue = state;
+        //     _halo.ApplyModifiedProperties();
+        // }
     }
 
     void OnMouseOver()

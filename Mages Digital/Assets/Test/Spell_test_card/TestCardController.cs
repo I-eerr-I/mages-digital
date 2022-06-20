@@ -197,19 +197,19 @@ public class TestCardController : MonoBehaviour
     public void StateToNoOwner()
     {
         cardState = CardState.NO_OWNER;
-        _outlineController.SetProperties(true, false);
+        // _outlineController.SetProperties(true, false);
     }
 
     public void StateToInSpell()
     {
         cardState = CardState.IN_SPELL;
-        _outlineController.SetProperties(true, false);
+        // _outlineController.SetProperties(true, false);
     }
 
     public void StateToInHand()
     {
         cardState = CardState.IN_HAND;
-        _outlineController.SetProperties(false, true);
+        // _outlineController.SetProperties(false, true);
     }
 
     // CHANGE
