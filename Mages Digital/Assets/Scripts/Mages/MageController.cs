@@ -88,6 +88,7 @@ public class MageController : MonoBehaviour
     public List<Sign> additionalSigns = new List<Sign>();
     public int  resultDice = 0;
     public bool isExecuting = false;
+    public bool deliveryAttacksAllTargets = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -214,7 +215,9 @@ public class MageController : MonoBehaviour
     {
         card.SetStateToInSpell();
         RemoveCard(card, removeOwner: false);
+        card.SetOwner(this);
         _spell.Add(card);
+        print($"APPENDING CARD TO SPELL {gameObject.name}");
         yield return owner.ShowSpellToAll();
     }
 
@@ -247,6 +250,7 @@ public class MageController : MonoBehaviour
     {
         isExecuting = true;
 
+        print($"EXECUTION SPELLS {gameObject.name}");
         yield return owner.ShowSpellToAll();
 
         yield return GameManager.instance.ExecuteBonusCards();
@@ -278,7 +282,10 @@ public class MageController : MonoBehaviour
         UnreadyToExecute();
         
         if (!isDead)
+        {
+            print($"ENDING SPELL EXECUTION {gameObject.name}");
             yield return owner.HideSpellFromAll();
+        }
         
         isExecuting = false;
 
@@ -293,6 +300,7 @@ public class MageController : MonoBehaviour
 
         resultDice = 0;
         additionalSigns.Clear();
+        deliveryAttacksAllTargets = false;
     }
 
 
@@ -388,6 +396,7 @@ public class MageController : MonoBehaviour
                     spellCopy[i] = null;
                     card.SetVisible(true);
                     card.ToFold();
+                    print($"DROPING SPELL OF ORDER {order} {gameObject.name}");
                     StartCoroutine(owner.HideSpellFromAll());
                 }
             }

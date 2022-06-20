@@ -39,4 +39,10 @@ namespace CardsToolKit
         NO_OWNER    // без владельца
     }  
 
+    public enum SpellsToAdd
+    {
+        SOURCES,
+        WITH_SAME_SIGNS_IN_SPELL
+    }
+
 }

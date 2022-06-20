@@ -509,7 +509,15 @@ public class CardController : MonoBehaviour
     {
         RANDOM,
         LOW_HP,
-        HIGH_HP
+        HIGH_HP,
+        WITHOUT_TREASURES,
+        LEFT_AND_RIGHT,
+        TWO_LEFT,
+        RIGHT,
+        LEFT,
+        CHOSEN,
+        OWNER,
+        EVERY_HEALTHIER_OWNER
     }
 
 
@@ -564,6 +572,14 @@ public class CardController : MonoBehaviour
         return allSigns.Distinct().Count();
     }
 
+    public List<Sign> GetUniqueSigns()
+    {
+        List<Sign> allSigns = owner.nonNullSpell.Select(spellCard => spellCard.GetSpellCard().sign).ToList();
+        allSigns.AddRange(owner.additionalSigns);
+
+        return allSigns.Distinct().ToList();
+    }
+
     public int GetNSigns(Sign sign)
     {
         List<Sign> allSigns = owner.nonNullSpell.Select(spellCard => spellCard.GetSpellCard().sign).ToList();
@@ -584,6 +600,15 @@ public class CardController : MonoBehaviour
     public IEnumerator HealToTarget(int healHp, MageController target)
     {
         target.Heal(healHp);
+
+        yield break;
+    }
+
+    public IEnumerator HealToTargets(int healHp, List<MageController> targets)
+    {
+        foreach (MageController target in targets)
+            yield return HealToTarget(healHp, target);
+        
         yield break;
     }
 
@@ -623,6 +648,10 @@ public class CardController : MonoBehaviour
 
     public List<MageController> FindTargets(TargetType targetType)
     {
+        if (GetSpellCard().order == Order.DELIVERY && owner.deliveryAttacksAllTargets)
+        {
+            return AllEnemies();
+        }
         switch (targetType)
         {
             case TargetType.HIGH_HP:
@@ -631,8 +660,50 @@ public class CardController : MonoBehaviour
                 return LowHpTargets();
             case TargetType.RANDOM:
                 return RandomEnemy();
+            case TargetType.WITHOUT_TREASURES:
+                return gm.aliveMages.FindAll(mage => mage != owner && mage.treasures.Count == 0);
+            case TargetType.LEFT_AND_RIGHT:
+                return LeftAndRightEnemies();
+            case TargetType.TWO_LEFT:
+                return TwoLeftEnemies();
+            case TargetType.RIGHT:
+                return RightEnemy();
+            case TargetType.LEFT:
+                return LeftEnemy();
+            case TargetType.CHOSEN:
+                return null;
+            case TargetType.OWNER:
+                return new List<MageController>() { owner };
+            case TargetType.EVERY_HEALTHIER_OWNER:
+                return gm.aliveMages.FindAll(mage => mage.health > owner.health);
         }
         return null;
+    }
+
+    public List<MageController> TwoLeftEnemies()
+    {
+        List<MageController> listTargets = new List<MageController>();
+        
+        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
+
+        if (IsDeadTargetLeftOrRight(listTargets[0].leftMage, POSITION_LEFT).leftMage != owner)
+            listTargets.Add(owner.leftMage.leftMage);
+        
+        return listTargets;
+    }
+
+    public List<MageController> RightEnemy()
+    {
+        List<MageController> targets = new List<MageController>();
+        targets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+        return targets;
+    }
+
+    public List<MageController> LeftEnemy()
+    {
+        List<MageController> targets = new List<MageController>();
+        targets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_LEFT));
+        return targets;
     }
 
     // Метод возвращающий случайного врага(принимает владельца)
@@ -670,6 +741,14 @@ public class CardController : MonoBehaviour
         return listTargets;
     }
 
+    public List<MageController> LeftAndRightEnemies()
+    {
+        List<MageController> targets = new List<MageController>();
+        targets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
+        targets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+        return targets;
+    }
+
     //Метод возвращает лист целей, нахождение каждого врага
     public List<MageController> AllEnemies()
     {
@@ -677,6 +756,7 @@ public class CardController : MonoBehaviour
 
         return magesWithOutOwner;
     }
+
 
     // Увеличение урона от кол-ва одинаковых знаков (некоторые карты)
     public int BuffDamageSign(Sign sign)
@@ -719,7 +799,7 @@ public class CardController : MonoBehaviour
         }
 
         // Нахождение магов без сокровища
-        List<MageController> listTargets = gm.aliveMages.FindAll(mage => mage != owner && mage.treasures.Count == 0);
+        List<MageController> listTargets = FindTargets(TargetType.WITHOUT_TREASURES);
 
         yield return DamageToTargets(damage, listTargets);
 
@@ -767,8 +847,7 @@ public class CardController : MonoBehaviour
             yield return gm.treasuresDeck.PassCardsTo(owner, 1); // Карта сокровища владельцу 
         }
 
-        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
-        listTargets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+        listTargets = FindTargets(TargetType.LEFT_AND_RIGHT);
 
         yield return DamageToTargets(damage, listTargets);
         
@@ -849,10 +928,7 @@ public class CardController : MonoBehaviour
         else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 4;}
 
-        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT));
-
-        if (IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT).leftMage != owner)
-            listTargets.Add(owner.leftMage.leftMage);
+        listTargets = FindTargets(TargetType.TWO_LEFT);
 
         yield return DamageToTargets(damage, listTargets);
         yield break;
@@ -870,7 +946,8 @@ public class CardController : MonoBehaviour
         else if (owner.resultDice <= 9){damage = 3;}
         else                     {damage = 4;}
         
-        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT)); //Правый маг
+        List<MageController> targets = FindTargets(TargetType.RIGHT);
+        yield return DamageToTargets(damage, targets); //Правый маг
         yield break;
     }
 
@@ -916,22 +993,25 @@ public class CardController : MonoBehaviour
         yield return OnDiceRoll(rolls);
         owner.resultDice = rolls.Sum();
         
-        MageController target = IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT);
+        List<MageController> targets = FindTargets(TargetType.LEFT);
 
         int damage = 0;
         if      (owner.resultDice <= 4){damage = 2;}
         else if (owner.resultDice <= 9){damage = 3;}
         else                  
         {
-            yield return target.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
-            if (target.chosenCard != null || target.treasures.Count == 0)
-                damage = 3;
-            else
-                damage = 6;
+            foreach (MageController target in targets)
+            {
+                yield return target.ChooseAndDropTreasure(hasChoiceNotToDrop: true);
+                if (target.chosenCard != null || target.treasures.Count == 0)
+                    damage = 3;
+                else
+                    damage = 6;
+            }
             
         }
 
-        yield return DamageToTarget(damage, target); //Левый маг
+        yield return DamageToTargets(damage, targets); //Левый маг
 
         yield break;
     }
@@ -948,7 +1028,8 @@ public class CardController : MonoBehaviour
         else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 4;}
 
-        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.leftMage, POSITION_LEFT)); //Левый маг
+        List<MageController> targets = FindTargets(TargetType.LEFT);
+        yield return DamageToTargets(damage, targets); //Левый маг
         yield break;
     }
 
@@ -1004,8 +1085,7 @@ public class CardController : MonoBehaviour
         else if (owner.resultDice <= 9){damage = 2;}
         else                     {damage = 2 * BuffDamageSign(GetSpellCard().sign);}// Увеличение урона на кол-во знаков травы(для этой карты)
 
-        listTargets.Add(IsDeadTargetLeftOrRight(owner.leftMage,  POSITION_LEFT));
-        listTargets.Add(IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT));
+        listTargets = FindTargets(TargetType.LEFT_AND_RIGHT);
 
         yield return DamageToTargets(damage, listTargets);
 
@@ -1019,9 +1099,13 @@ public class CardController : MonoBehaviour
         yield return OnDiceRoll(rolls);
         owner.resultDice = rolls.Sum();
 
-        yield return owner.ChooseEnemy();
-        MageController target = owner.chosenMage; // Враг по выбору
-
+        List<MageController> targets = new List<MageController>();
+        targets = FindTargets(TargetType.CHOSEN);
+        if (targets == null)
+        {
+            yield return owner.ChooseEnemy();
+            targets.Add(owner.chosenMage); // Враг по выбору
+        }
 
         int damage = 0;
         if      (owner.resultDice <= 4){damage = 1;}
@@ -1029,14 +1113,29 @@ public class CardController : MonoBehaviour
         else                     
         {
             damage = 4;
-            yield return owner.ChooseTreasureFromMage(target, "Забрать");
-            if (owner.chosenCard != null)
-                yield return target.PassTreasureTo(owner, owner.chosenCard); // Отжать сокровище у врага по своему выбору
+            foreach (MageController target in targets)
+            {
+                yield return owner.ChooseTreasureFromMage(target, "Отжать");
+                if (owner.chosenCard != null)
+                    yield return target.PassTreasureTo(owner, owner.chosenCard); // Отжать сокровище у врага по своему выбору
+            }
             
         }
 
-        yield return DamageToTarget(damage, target);
+        yield return DamageToTargets(damage, targets);
 
+        yield break;
+    }
+
+    // От Розового Бутончика
+    // Не учитывает знаки от сокровищ
+    public IEnumerator  OtRozovogoBytonchika()
+    {
+        // Уникальные знаки
+        int squares = GetNUniqueSigns();
+        int healHp = squares;
+        yield return HealToTarget(healHp, owner);
+        
         yield break;
     }
 
@@ -1389,7 +1488,12 @@ public class CardController : MonoBehaviour
     }
 
 
-
+    //От Шерочки с Машерочкой
+    public IEnumerator OtSherochkiSMasherochkoi()
+    {
+        owner.deliveryAttacksAllTargets = true;
+        yield break;
+    }
 
     // Кубический
     public IEnumerator  Kybicheskui()
@@ -1456,13 +1560,17 @@ public class CardController : MonoBehaviour
         yield return OnDiceRoll(rolls);
         owner.resultDice = rolls.Sum();
         
-        yield return owner.ChooseEnemy();
-        MageController target = owner.chosenMage; // Враг по выбору
-        
+        List<MageController> targets = new List<MageController>();
+        targets = FindTargets(TargetType.CHOSEN);
+        if (targets == null)
+        {
+            yield return owner.ChooseEnemy();
+            targets.Add(owner.chosenMage); // Враг по выбору
+        }
 
         int damage = 1;
         
-        yield return DamageToTarget(damage, target);
+        yield return DamageToTargets(damage, targets);
         if (owner.resultDice <= 9)
         {
             // Случайная карта с руки к заклинанию   
@@ -1857,7 +1965,9 @@ public class CardController : MonoBehaviour
         else if (owner.resultDice <= 9){healHp = 2;}
         else                     {healHp = 4;}
 
-        yield return HealToTarget(healHp, owner); // Лечение владельца
+        List<MageController> targets = FindTargets(TargetType.OWNER);
+
+        yield return HealToTargets(healHp, targets); // Лечение владельца
         yield break;
     }
 
@@ -1905,7 +2015,9 @@ public class CardController : MonoBehaviour
         else                     {damage = 5;}
 
         yield return DamageToTarget(damageSelf, owner);
-        yield return DamageToTarget(damage, IsDeadTargetLeftOrRight(owner.rightMage, POSITION_RIGHT)); //Правый маг
+        
+        List<MageController> targets = FindTargets(TargetType.RIGHT);
+        yield return DamageToTargets(damage, targets); //Правый маг
         
         yield break;
     }
@@ -1920,7 +2032,7 @@ public class CardController : MonoBehaviour
         int damage = 0;
 
         // Поиск врагов с большим здоровьем чем у владельца
-        List<MageController> listTargets = gm.aliveMages.FindAll(mage => mage.health > owner.health);
+        List<MageController> listTargets = FindTargets(TargetType.EVERY_HEALTHIER_OWNER);
 
         if      (owner.resultDice <= 4){damage = 1;}
         else if (owner.resultDice <= 9){damage = 3;}
@@ -1948,6 +2060,24 @@ public class CardController : MonoBehaviour
             yield return DamageToTargets(damage, randomEnemy);
         }
 
+        yield break;
+    }
+
+    // От Пыща с Тыдыщем
+    public IEnumerator  OtPushaSTudushem()
+    {
+        // Игрок берет карту, если она заводила, добавляет к заклинанию, иначе сброс ( так 4 раза )
+        yield return gm.spellsDeck.OpenAndAddSpells(4, this, SpellsToAdd.SOURCES);
+        yield break;
+    }
+
+    // От Зачуханного Комбайна
+    public IEnumerator  OtZachyhannogoKombauna()
+    {
+        // Игрок берет карту, если ее знак есть в заклинании,
+        // добавляет к заклинанию,
+        // иначе сброс ( так 2 раза )
+        yield return gm.spellsDeck.OpenAndAddSpells(2, this, SpellsToAdd.WITH_SAME_SIGNS_IN_SPELL);
         yield break;
     }
 

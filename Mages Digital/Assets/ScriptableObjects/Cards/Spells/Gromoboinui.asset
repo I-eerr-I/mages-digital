@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83844cebbb69dc342ac55cc8ed115fa5, type: 3}
   m_Name: Gromoboinui
   m_EditorClassIdentifier: 
-  _front: {fileID: -5229922940850303493, guid: 2a8d9305a6d606b45a9257813089a8db, type: 3}
+  _front: {fileID: 21300000, guid: 94e987d8a9e21ec4dab76b953ab8f19e, type: 3}
   _cardName: "\u0413\u0440\u043E\u043C\u043E\u0431\u043E\u0439\u043D\u044B\u0439"
   _description: "\u041D\u0430\u043D\u0435\u0441\u0438 2 \u0443\u0440\u043E\u043D\u0430
     \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u043C\u0443 \u0432\u0440\u0430\u0433\u0443.

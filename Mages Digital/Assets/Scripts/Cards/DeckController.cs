@@ -13,6 +13,8 @@ public class DeckController : MonoBehaviour
     public Random random = new Random();
 
 
+    
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,6 +191,7 @@ public class DeckController : MonoBehaviour
             wildMagic.ToFold(destroy: false);  // отправить предыдущую карту в сброс
 
             yield return owner.AddToSpell(replaceCard, order, backToHand: false, ownerReaction: false); // добавить новую карту в заклинание
+            print("REPLACING WILD MAGIC AND SHOWING SPELL");
             yield return owner.owner.ShowSpellToAll();  // выровнять карты заклинаний
         }
         else 
@@ -197,6 +200,74 @@ public class DeckController : MonoBehaviour
         }
         yield break;
     }
+
+    public IEnumerator OpenAndAddSpells(int nCardsToOpen, CardController openningCard, SpellsToAdd spellsToAdd)
+    {
+        // показать колоду со свдигом вверх
+        yield return Hide(false, GameManager.instance.spellGroupLocation.position.y);
+
+        // Order order                = wildMagic.spellOrder;
+        // MageController owner       = wildMagic.owner;
+        // CardController replaceCard = null;
+
+        List<CardController> cardsToFold = new List<CardController>();
+        List<CardController> cardsToAdd  = new List<CardController>();
+        
+        float addY = 0.25f;
+        for (int i = 0; i < Mathf.Min(nCardsToOpen, allCardsAmount); i++)
+        {
+            // спаун карты
+            Card card = TakeLastCard();
+            CardController cardController = SpawnCard(card);
+            StartCoroutine(cardController.PositionFrontUp());
+            StartCoroutine(cardController.Highlight(true));
+
+            // сдвиг карты в сторону
+            Vector3 position = cardController.transform.position;
+            iTween.MoveTo(cardController.gameObject, iTween.Hash("x", position.x + cardController.cardSizeX, "y", position.y + addY, "time", 0.05f));
+            addY += 0.2f;
+            yield return new WaitForSeconds(0.15f);
+            
+            
+            SpellCard spellCard = (SpellCard) card;
+            switch (spellsToAdd)
+            {
+                case SpellsToAdd.SOURCES:
+                    if (spellCard.order == Order.SOURCE)
+                        cardsToAdd.Add(cardController);
+                    else
+                        cardsToFold.Add(cardController);
+                    break;
+                
+                case SpellsToAdd.WITH_SAME_SIGNS_IN_SPELL:
+                    if (openningCard.GetUniqueSigns().Contains(spellCard.sign))
+                        cardsToAdd.Add(cardController);
+                    else
+                        cardsToFold.Add(cardController);
+                    break;
+            }
+        }
+
+        yield return Hide(true);    // спрятать колоду
+        
+        // отправить ненужные карты в сброс
+        foreach (CardController cardToFold in cardsToFold)
+        {
+            if (!cardToFold.withSourceDeck)
+                AddCardToFold(cardToFold);
+            cardToFold.ToFold(destroy: true);
+            yield return new WaitForSeconds(0.15f);
+        }
+
+        foreach (CardController cardToAdd in cardsToAdd)
+        {
+            yield return openningCard.owner.AppendToSpell(cardToAdd);
+        }
+            
+        yield break;
+    }
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

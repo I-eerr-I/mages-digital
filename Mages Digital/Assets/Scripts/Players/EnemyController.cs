@@ -75,7 +75,6 @@ public class EnemyController : AbstractPlayerController
 
     protected override IEnumerator MoveSpellGroup(bool toHand)
     {
-
         if (gm.isSpellExecutionState)
         {
             if (toHand)

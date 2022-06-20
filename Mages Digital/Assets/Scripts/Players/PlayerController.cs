@@ -88,8 +88,9 @@ public class PlayerController : AbstractPlayerController
 
     void Update()
     {
-        if (Input.GetButton("Execute"))
+        if (Input.GetButtonDown("Execute"))
         {
+            print("PRESSED EXECUTE BUTTON");
             StartCoroutine(OnExecute());
         }
 
@@ -480,7 +481,8 @@ public class PlayerController : AbstractPlayerController
 
         yield return HideHand(true);
 
-        yield return MoveSpellGroup(true);
+        print($"LOCKING SPELL {gameObject.name}");
+        yield return HideSpellFromAll();
 
         _mage.SetAllDiscoverable(true);
 
