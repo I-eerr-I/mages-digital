@@ -4,5 +4,23 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/NewGame2.unity
+    guid: 6b301da4ddd8d184489b8edb2978b60b
+  - enabled: 1
+    path: Assets/Scenes/NewGame3.unity
+    guid: 540e9dd9ad41fc942bb823f29d65aa7c
+  - enabled: 1
+    path: Assets/Scenes/NewGame4.unity
+    guid: ba216fa475a42054b8be4317fe5c3a23
+  - enabled: 1
+    path: Assets/Scenes/NewGame5.unity
+    guid: d241ef05129ca204e968d54ed91a0ab6
+  - enabled: 1
+    path: Assets/Scenes/NewGame6.unity
+    guid: ef494837dd475864aa894d2bb45d0fd5
   m_configObjects: {}
