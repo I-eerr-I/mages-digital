@@ -1,0 +1,163 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7675047449153447912
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: hoverRange
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainColor.g
+      value: 0.6792453
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainColor.r
+      value: 0.67125416
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: hoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: hoverColor.b
+      value: 0.003921569
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: hoverColor.g
+      value: 0.21176471
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: hoverColor.r
+      value: 0.25490198
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainHoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainHoverColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainHoverColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mainHoverColor.r
+      value: 0.89986145
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: mageShowInfoWaitTime
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.b
+      value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.g
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 262967204902470141, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: haloDeathHoverColor.r
+      value: 0.011764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 1626066299031920813, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1626066299031920813, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1626066299031920813, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_fontSize
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 3806878359731477279, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5840773144631532022, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054059122653, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600688, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Name
+      value: Player Mage
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600694, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Size
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600694, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Color.rgba
+      value: 4278202426
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -5.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6739406054229600695, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8559047812500148078, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}
+      propertyPath: m_Name
+      value: Arcane Smoke Reaction
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a8041747a8569e84b8a7c88e4fece066, type: 3}

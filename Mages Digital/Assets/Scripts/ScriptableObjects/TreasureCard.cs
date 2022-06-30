@@ -5,9 +5,11 @@ using UnityEngine;
 public class TreasureCard : Card
 {
 
+
     void Reset()
     {
         _cardType = CardType.TREASURE;
     }
+
 
 }

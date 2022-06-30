@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83844cebbb69dc342ac55cc8ed115fa5, type: 3}
+  m_Name: Mozgolomniu
+  m_EditorClassIdentifier: 
+  _front: {fileID: 21300000, guid: 145331f00cb99054ca4e502db1b6db46, type: 3}
+  _cardName: "\u041C\u043E\u0437\u0433\u043E\u043B\u043E\u043C\u043D\u044B\u0439"
+  _description: "\u041D\u0430\u043D\u0435\u0441\u0438 3 \u0443\u0440\u043E\u043D\u0430
+    \u0441\u043B\u0443\u0447\u0430\u0439\u043D\u043E\u043C\u0443 \u0432\u0440\u0430\u0433\u0443.
+    \u0412\u043C\u0435\u0441\u0442\u0435 \u0441 \u044D\u0442\u0438\u043C \u0432\u0440\u0430\u0433\u043E\u043C
+    \u0432\u043E\u0437\u044C\u043C\u0438\u0442\u0435 \u043F\u043E 1 \u0441\u043E\u043A\u0440\u043E\u0432\u0438\u0449\u0443."
+  _cardType: 0
+  _spell: Mozgolomniu
+  _initiative: 0
+  _order: 1
+  _sign: 4
