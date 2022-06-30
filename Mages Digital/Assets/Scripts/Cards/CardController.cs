@@ -1823,7 +1823,8 @@ public class CardController : MonoBehaviour
  
         yield return owner.ChooseTreasureFromMage(target, "Отжать");
         CardController treasure = owner.chosenCard;
-        yield return target.PassTreasureTo(owner, treasure);
+        if (treasure != null)
+            yield return target.PassTreasureTo(owner, treasure);
      
         yield break;
     }
